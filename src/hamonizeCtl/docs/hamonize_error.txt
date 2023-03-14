@@ -1,0 +1,7 @@
+
+  <title>Hamonize Error#############</title> - v{{version}}
+
+  <h1>하모나이즈 설치 오류..</h1>
+   <code>프로그램 설치 오류.</code>:
+
+    <code> 백업 오류 </code>

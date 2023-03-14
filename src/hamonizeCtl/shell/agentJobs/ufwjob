@@ -1,0 +1,100 @@
+#!/bin/bash
+
+. /etc/hamonize/propertiesJob/propertiesInfo.hm
+IVSC="http://${CENTERURL}/act/firewallAct"
+
+UUID=$(cat /etc/hamonize/uuid)
+DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
+HOSTNAME=$(hostname)
+TENANT=$(cat /etc/hamonize/hamonize_tanent)
+
+if ! command -v ufw &>/dev/null; then
+        echo "ufw가 설치되어 있지 않습니다. 먼저 ufw를 설치하십시오."
+        sudo apt install ufw -y >/dev/null 2>&1
+fi
+
+# ufw 포트 허용
+UFW_ADD=$(cat /etc/hamonize/firewall/firewallInfo.hm | jq '.INS' | sed -e "s/\"//g")
+echo "ufw add data is ===>$UFW_ADD" #>>$LOGFILE
+if [ "$UFW_ADD" != null ]; then
+
+        IFS=',' read -ra str_array <<<"$UFW_ADD"
+
+        for port in "${str_array[@]}"; do
+
+                sudo ufw allow $port
+                # echo "포트 $port이(가) ufw 방화벽에 허용되었습니다."
+
+                # ufw 상태 확인
+                STATUS=$(sudo ufw status)
+                # ufw 상태에서 포트 정보 추출
+                PORT_STATUS=$(echo "$(sudo ufw status)" | grep -E "^$port\s+ALLOW\s+.*$")
+
+                # 포트가 허용된 상태인지 확인
+                if [ -n "$PORT_STATUS" ]; then
+                        RETPORT="Y"
+                else
+                        RETPORT="N"
+                fi
+
+                ALLOW_JSON="{\
+                	\"events\" : [ {\
+                	\"datetime\":\"$DATETIME\",\
+                	\"uuid\":\"$UUID\",\
+                	\"hostname\": \"$HOSTNAME\",\
+                	\"status\": \"allow\",\
+                	\"status_yn\": \"$RETPORT\",\
+                	\"domain\": \"$TENANT\",\
+                        \"retport\": \"$port\"\
+
+                	} ]\
+                }"
+                echo $ALLOW_JSON
+
+                curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$ALLOW_JSON" $IVSC
+
+        done
+
+fi
+
+# ufw 포트 삭제
+UFW_DEL=$(cat /etc/hamonize/firewall/firewallInfo.hm | jq '.DEL' | sed -e "s/\"//g")
+if [ "$UFW_DEL" != null ]; then
+
+        IFS=',' read -ra str_array <<<"$UFW_DEL"
+
+        for port in "${str_array[@]}"; do
+
+                sudo ufw delete allow $port
+                echo "포트 $port이(가) ufw 방화벽에서 삭제되었습니다."
+
+                # ufw 상태 확인
+                STATUS=$(sudo ufw status)
+                # ufw 상태에서 포트 정보 추출
+                PORT_STATUS=$(echo "$(sudo ufw status)" | grep -E "^$port\s+ALLOW\s+.*$")
+
+                # 포트가 허용된 상태인지 확인
+                if [ -n "$PORT_STATUS" ]; then
+                        RETPORT="N"
+                else
+                        RETPORT="Y"
+                fi
+
+                ALLOW_JSON="{\
+                	\"events\" : [ {\
+                	\"datetime\":\"$DATETIME\",\
+                	\"uuid\":\"$UUID\",\
+                	\"hostname\": \"$HOSTNAME\",\
+                	\"status\": \"deny\",\
+                	\"status_yn\": \"$RETPORT\",\
+                	\"domain\": \"$TENANT\",\
+                        \"retport\": \"$port\"\
+
+                	} ]\
+                }"
+
+                echo $ALLOW_JSON
+                curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$ALLOW_JSON" $IVSC
+        done
+
+fi

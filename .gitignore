@@ -1,0 +1,13 @@
+.vagrant/*
+.DS_Store
+*.qm
+*.swp
+hamonize-admin/plugins/extra
+package-lock.json
+**/package-lock.json
+node_modules
+**/node_modules/*
+dist*
+gitAutoPush.sh
+.history
+

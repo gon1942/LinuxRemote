@@ -1,0 +1,51 @@
+#!/bin/bash
+
+. /etc/hamonize/propertiesJob/propertiesInfo.hm
+
+CENTERURL="http://${CENTERURL}/act/progrmAct"
+PCUUID=$(cat /etc/hamonize/uuid)
+LOGFILE="/var/log/hamonize/agentjob/progrmjobPolicyAct.log"
+touch $LOGFILE
+
+UUID=$(cat /etc/hamonize/uuid | head -1)
+DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
+HOSTNAME=$(hostname)
+TENANT=$(cat /etc/hamonize/hamonize_tanent)
+
+# auditd 규칙 파일 경로
+RULE_FILE="/etc/audit/rules.d/hamonizeBlock.rules"
+
+# 파일이 존재하지 않으면 파일 생성
+if [ ! -f $RULE_FILE ]; then
+  touch $RULE_FILE
+fi
+
+
+
+
+RULES_ADD=$(cat /etc/hamonize/progrm/progrm.hm | jq '.INS' | sed -e "s/\"//g")
+if [ "$RULES_ADD" != null ]; then
+
+        IFS=',' read -ra str_array <<<"$RULES_ADD"
+
+        for str in "${str_array[@]}"; do
+                
+                # 차단 프로그램 실행 경로
+                APP_PATH=$(which $str)
+                echo "차단 프로그램 경로====================>$APP_PATH"
+
+                # 규칙 파일에 htop 실행 로그 추가
+                echo "-a exit,always -F path=$APP_PATH -F perm=x  -k hamonizeBlock" >>$RULE_FILE
+                # echo "-a exit,always -F path=$APP_PATH -F perm=x -F auid>=1000 -F auid!=unset -k hamonizeBlock" >>$RULE_FILE
+                
+
+                # auditd 규칙 파일 로드
+                /sbin/auditctl -R $RULE_FILE
+
+                # auditd 서비스 재시작
+                systemctl restart auditd
+
+        done
+fi
+
+sudo rm -fr  /etc/hamonize/runprogrmblock > /dev/null 2>&1
