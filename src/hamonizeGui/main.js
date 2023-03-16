@@ -29,7 +29,8 @@ const options = {
 // require('events').EventEmitter.prototype._maxListeners = 100;
 const electronLocalshortcut = require('electron-localshortcut');
 
-const baseurl = "https://console.hamonize.com";
+const packageJson = require('./package.json');
+const baseurl = packageJson.url;
 const osType = require('os');
 
 let mainWindow, settingWindow;

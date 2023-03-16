@@ -32,7 +32,7 @@ ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 		$modal.hide();
 		$("#loadingInfoText").text("");
 
-	} 
+	}
 	// else if (isChkVal == 'N001') {
 	// 	//fail make folder 
 	// 	fn_alert("프로그램 버전 확인중 오류가 발견되었습니다. 관리자에게 문의 바랍니다. \n Error Code :: [N001]");
@@ -124,11 +124,16 @@ ipcRenderer.on('getAuthResult', (event, authResult) => {
 // 사용 갯수 
 ipcRenderer.on('chkHamonizeAppUsesResult', (event, ret) => {
 	// 사용갯수에 이상이 없다면..
-	if (ret == 'Y') {
+	console.log(" 사용갯수에 이상이 없다면..-------" + ret)
+	if (ret != 'Y') {
 		$(".layerpop__container").text("인증이 완료되었습니다. 조직정보를 불러오는 중입니다.  잠시만 기다려주세요.!!");
 		ipcRenderer.send('getOrgData', $("#domain").val());
 	} else {
-		$(".layerpop__container").text("Hamonize 라이센스에서 허용하는 최대 수량에 도달하여 프로그램 설치가 불가능합니다.");
+		$("#initLayerBody").hide();
+		$("#procLayerBody").hide();
+		$("#hmFreeDoneBody").show();
+		$("#hmFreeDoneBodyText").text("Hamonize 라이센스에서 허용하는 최대 수량에 도달하여 프로그램 설치가 불가능합니다.");
+
 		return false;
 	}
 
@@ -188,7 +193,7 @@ function nextStap() {
 
 	initLayer
 
-	
+
 	hamonizeVpnInstall();
 };
 
@@ -201,7 +206,7 @@ function hamonizeVpnInstall() {
 ipcRenderer.on('hamonizeVpnInstall_Result', (event, result) => {
 	console.log("hamonizeVpnInstall_Result===" + result);
 	if (result == 'Y') {
-		
+
 		setPcinfo();	// pc 정보 등록
 	} else if (result == 'N002') {
 		fn_alert("하모나이즈 환경 셋팅 중 오류가 발견되었습니다. 관리자에게 문의 바랍니다. Error Code :: [N002]");
@@ -261,7 +266,7 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 	} else {
 		console.log("false");
 		// fn_alert("프로그램 설치 중 오류가 발생했습니다. \n  관리자에게 문의바랍니다. Error Code :: [N005-" + programResult + "]");
-		
+
 		$("#initLayerBody").hide();
 		$("#procLayerBody").hide();
 		$("#errorText").html("<p>프로그램 설치 중 오류가 발생했습니다.</p> <br>  관리자에게 문의바랍니다. Error Code :: [N005-" + programResult + "]")
@@ -290,9 +295,9 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 ipcRenderer.on('files-tail-val', (event, ret) => {
 	var retViewDataSplit = '';
 	var chkFirstChar = ret.charAt(0);
-	if( chkFirstChar == ')' ){
+	if (chkFirstChar == ')') {
 		retViewDataSplit = ret.slice(1);
-	}else{
+	} else {
 		retViewDataSplit = ret;
 	}
 	$("#infoStepC").text(retViewDataSplit);
@@ -304,8 +309,8 @@ ipcRenderer.on('files-tail-val', (event, ret) => {
 function hamonizeSystemBackup() {
 	$("#infoStepC").text("디스크 용량 확인중");
 	ipcRenderer.send('hamonizeSystemBackup');
-	setTimeout(() => {  ipcRenderer.send('files-tail'); }, 2000);
-	
+	setTimeout(() => { ipcRenderer.send('files-tail'); }, 2000);
+
 }
 
 ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
@@ -319,10 +324,10 @@ ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
 		$("#procLayerBody").hide();
 		$("#infoStepC").text("완료");
 		$("#EndBody").show();
-		
+
 		setTimeout(() => {
 			ipcRenderer.send('rebootProc');
-		}, 5 * 1000); 
+		}, 5 * 1000);
 
 	} else {
 		console.log("false");

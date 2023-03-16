@@ -3,7 +3,9 @@
 // #----------------------------------------------------------------------------##----------------------------------------------------------------------------#
 const hamonizeFuns = require('./hamonize_functions');
 const hamonizeCli = require('./hamonizeCli');
-const baseurl = "http://192.168.0.240:8083";
+
+const packageJson = require('./package.json');
+const baseurl = packageJson.url;
 const { Command } = require('commander');
 const program = new Command();
 // #----------------------------------------------------------------------------##----------------------------------------------------------------------------#
@@ -44,8 +46,9 @@ program
 
 //	Hamonize Connect Commnad ===========================
 if (program.opts().help) {
-	hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
-	hamonizeFuns.printHelp('hamonize', '1.0')
+	log("process.env.======="+baseurl);
+	// hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
+	// hamonizeFuns.printHelp('hamonize', '1.0')
 	process.exit(1)
 }
 
