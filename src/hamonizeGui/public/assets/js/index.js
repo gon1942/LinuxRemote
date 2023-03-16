@@ -20,7 +20,9 @@ function install_program_version_chkeck() {
 	popupOpen();
 	$(".layerpop__container").text("프로그램 설치를 위한 버전 확인 중 입니다. 잠시만 기다려주세요.!!");
 
-	ipcRenderer.send('install_program_version_chkeck');
+	// ipcRenderer.send('install_program_version_chkeck');
+	nextStap();
+	
 }
 
 
@@ -87,6 +89,8 @@ ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 var doubleSubmitFlag = false;
 const pcChkAuthBtn = document.getElementById('pcChkAuthBtn');
 pcChkAuthBtn.addEventListener('click', function (event) {
+	nextStap();
+	return;
 	if (!doubleSubmitFlag) {
 
 		let authkey_val = $("#authkey").val();
@@ -193,14 +197,14 @@ function nextStap() {
 
 	initLayer
 
-
-	hamonizeVpnInstall();
+	// TO-DO function name change
+	// hamonizeVpnInstall();// hamonizePorgram INSTALL 
+	hamonizeSystemBackup();	// backup
 };
 
 
 // # vpn install  ====================================/
 function hamonizeVpnInstall() {
-	// $("#stepA").addClass("br animate");
 	ipcRenderer.send('hamonizeVpnInstall', $("#domain").val());
 }
 ipcRenderer.on('hamonizeVpnInstall_Result', (event, result) => {

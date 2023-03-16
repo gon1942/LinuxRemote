@@ -14,7 +14,7 @@ const hamonizeFuns = require('./hamonize_functions');
 let depSpin;  // Spinner
 const log = console.log;
 
-// Start !!!
+// Gui -> Config Settings !!
 // ##============================================================##// ##============================================================##// ##============================================================##
 exports.settings = async function (_var) {
   //  #4. Hamonize Connector Shell FIle Copy -> /tmp/hamonize Folder 
@@ -27,18 +27,31 @@ exports.settings = async function (_var) {
 
 }
 
-// Gui -> programInstall
+// Gui -> programInstall !!
 // ##============================================================##// ##============================================================##// ##============================================================##
-exports.settings = async function () {
+exports.programInstall = async function () {
   var retTanentNm = fs.readFileSync('/etc/hamonize/hamonize_tanent', 'utf8');
+  log("retTanentNm============" + retTanentNm)
+  // #. 하모나이즈 vpn Install
+  let isVpnUsed = await getVpnUsed(retTanentNm);
+
+  // #. Hamonize Program Install
   await installHamonizeProgram(retTanentNm);
+
+  await sleep(5000)
+
+  // #. pc info update
+  await pcInfoUpdate(retTanentNm)
 }
 
 
+exports.back = async function () {
+  let osBackupProcResult = await hamonizeSystemBackup();
 
-
-
-
+  // Hamonize Install End
+  log(chalk.green('Hamonize 설치가 완료되었습니다. '));
+  process.exit(1)
+}
 
 
 
@@ -92,11 +105,12 @@ exports.hamonize_init = async function (_var) {
   //  #4. Hamonize Agent Shell FIle Copy -> /etc/hamonize/agentJobs/ Folder 
   await copyHamonizeAgentFile();
 
-  //  #5. Hamonize Program Install
-  await installHamonizeProgram(retTanentNm);
 
-  // #6. 하모나이즈 vpn Install
+  // #5. 하모나이즈 vpn Install
   let isVpnUsed = await getVpnUsed(retTanentNm);
+
+  // #6. Hamonize Program Install
+  await installHamonizeProgram(retTanentNm);
 
 
 
@@ -228,6 +242,7 @@ async function hamonizeSystemBackup() {
   depSpin.start();
 
   let accountId = await hamonizeFuns.getOsAccountId();
+  log("Hamonize 프로그램 실치 완료 후 백업 준비중....");
   let osBackupProcResult = await hamonizeFuns.osBackupProc(accountId);
 
   // 백업 실패인 경우 .

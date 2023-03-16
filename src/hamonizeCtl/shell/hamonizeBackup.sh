@@ -12,7 +12,7 @@ HOSTNAME=$(hostname)
 TENANT=$(cat /etc/hamonize/hamonize_tanent)
 
 cat /dev/null >$Log_backup
-
+touch /tmp/backup.log
 
 
 
@@ -118,7 +118,7 @@ echo $(cat $FILEPATH) >>$Log_backup
         sleep 2
         #echo "backup count :: $i"
 
-        touch /tmp/backup.log
+        # touch /tmp/backup.log
         cat /dev/null > /tmp/backup.log
         # echo `cat -v  $Log_backup |tr '^M' '@@'  | grep -w 'complete'`
         backupProcessVal=$(cat -v /var/log/hamonize/adcon/backuplog.log | tr '^M' '@@' | grep -w 'complete' | awk -F '@@' '{c+=NF-1}END{print $c}')

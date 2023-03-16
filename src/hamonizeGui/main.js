@@ -150,30 +150,30 @@ ipcMain.on('install_program_version_chkeck', (event) => {
 
 			if (initJobResult == 'Y') {
 
-			// 	let setServerInfoResult = await setServerInfo();
-			// 	console.log("setServerInfoResult============" + setServerInfoResult);
+				// 	let setServerInfoResult = await setServerInfo();
+				// 	console.log("setServerInfoResult============" + setServerInfoResult);
 
-			// 	if (setServerInfoResult == 'Y') {
-			// 		// apt repository chk & add ....
-			// 		let aptRepositoryChkResult = await aptRepositoryChkProc();
-			// 		console.log("aptRepositoryChkResult=============================>" + aptRepositoryChkResult);
+				// 	if (setServerInfoResult == 'Y') {
+				// 		// apt repository chk & add ....
+				// 		let aptRepositoryChkResult = await aptRepositoryChkProc();
+				// 		console.log("aptRepositoryChkResult=============================>" + aptRepositoryChkResult);
 
-			// 		// #step 2. 설치 프로그램 버전 체크
-			// 		let installProgramVersionResult = await install_program_version_chkeckProc();
-			// 		console.log("설치 프로그램 버전 체크 Result===============>>>>>>>>>>>>>>>>>" + installProgramVersionResult);
+				// 		// #step 2. 설치 프로그램 버전 체크
+				// 		let installProgramVersionResult = await install_program_version_chkeckProc();
+				// 		console.log("설치 프로그램 버전 체크 Result===============>>>>>>>>>>>>>>>>>" + installProgramVersionResult);
 
-			// 		if (installProgramVersionResult > 0) { // 설치 프로그램 업데이트 필요..
-			// 			event.sender.send('install_program_version_chkeckResult', 'U999');
+				// 		if (installProgramVersionResult > 0) { // 설치 프로그램 업데이트 필요..
+				// 			event.sender.send('install_program_version_chkeckResult', 'U999');
 
-			// 		} else { // 설치 프로그램 최신버전
-						event.sender.send('install_program_version_chkeckResult', 'Y');
-			// 		}
-			// 	} else {
-			// 		// fail get Agent Server Info 
-					// event.sender.send('install_program_ReadyProcResult', 'N004');
-			// 	}
+				// 		} else { // 설치 프로그램 최신버전
+				event.sender.send('install_program_version_chkeckResult', 'Y');
+				// 		}
+				// 	} else {
+				// 		// fail get Agent Server Info 
+				// event.sender.send('install_program_ReadyProcResult', 'N004');
+				// 	}
 			} else {
-			// 	// fail create folder 
+				// 	// fail create folder 
 				event.sender.send('install_program_version_chkeckResult', 'N001');
 			}
 
@@ -192,26 +192,50 @@ ipcMain.on('install_program_version_chkeck', (event) => {
 //========================================================================
 ipcMain.on('hamonizeVpnInstall', (event, domain) => {
 	mainWindow.setSize(620, 447);
-	var vpn_used;
+	// var vpn_used;
 
 
-	unirest.get(baseurl + '/hmsvc/isVpnUsed')
-		.header('content-type', 'application/json')
-		.send({
-			events: [{
-				domain: domain.trim()
-			}]
-		})
-		.end(function (response) {
-			var json = response.body;
-			vpn_used = response.body[0]["vpn_used"];
-			if (vpn_used == 'Y') {
-				hamonizeVpnInstall_Action(event, domain);
-			} else if (vpn_used == 0) {
-				event.sender.send('hamonizeVpnInstall_Result', 'Y');
-			}
-		});
+	// unirest.get(baseurl + '/hmsvc/isVpnUsed')
+	// 	.header('content-type', 'application/json')
+	// 	.send({
+	// 		events: [{
+	// 			domain: domain.trim()
+	// 		}]
+	// 	})
+	// 	.end(function (response) {
+	// 		var json = response.body;
+	// 		vpn_used = response.body[0]["vpn_used"];
+	// 		if (vpn_used == 'Y') {
+	// 			hamonizeVpnInstall_Action(event, domain);
+	// 		} else if (vpn_used == 0) {
+	// 			event.sender.send('hamonizeVpnInstall_Result', 'Y');
+	// 		}
+	// 	});
+
+	(async () => {
+		var abc = await installProgramHamonize();
+		console.log("a===============" + abc)
+	})();
 });
+
+
+function installProgramHamonize() {
+	return new Promise(function (resolve, reject) {
+		var initJobShell = "node /home/gon/LinuxRemote/src/hamonizeCtl/main.js  --programInstall"
+		console.log("initJobShell==========================================================")
+		sudo.exec(initJobShell, options,
+			function (error, stdout, stderr) {
+				if (error) {
+					return resolve("N");
+				} else {
+					return resolve('Y');
+				}
+			}
+		);
+	});
+}
+
+
 const hamonizeVpnInstall_Action = async (event, domain) => {
 	try {
 		// vpn install 

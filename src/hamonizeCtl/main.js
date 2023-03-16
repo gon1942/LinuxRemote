@@ -29,9 +29,10 @@ program
 
 	.option('--help')
 
- 	// Hamonize Connector	----------------
+	// Hamonize Connector	----------------
 	.option('--settings')	//	 init file create 
 	.option('--start') //	 cmd start 
+	.option('--programInstall') // 프로그램 설치 
 
 	//	Hamonize Agent ---------------
 	.option('--eqchk')	//	장비 체크
@@ -44,14 +45,20 @@ program
 
 	.parse();
 
+
+if (program.opts().test3) {
+	hamonizeCli.back()
+}
+
+
 //	Hamonize Connect Commnad ===========================
 if (program.opts().help) {
-	log("process.env.======="+baseurl);
-	// hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
-	// hamonizeFuns.printHelp('hamonize', '1.0')
+	hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
+	hamonizeFuns.printHelp('hamonize', '1.0')
 	process.exit(1)
 }
 
+// Gui Run ----
 if (program.opts().settings) {
 	(async () => {
 		console.clear();
@@ -61,6 +68,16 @@ if (program.opts().settings) {
 	})();
 }
 
+if (program.opts().programInstall) {
+	(async () => {
+		console.clear();
+		hamonizeFuns.setbaseurl(baseurl);
+		hamonizeCli.programInstall();
+	})();
+}
+
+
+// Cmd Run ------------
 if (program.opts().start) {
 	(async () => {
 		console.clear();

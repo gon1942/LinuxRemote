@@ -465,12 +465,12 @@ exports.hamonizeProgramUninstallProc = async function (domain, userId) {
 exports.osBackupProc = async function (domain, userId) {
     return new Promise(function (resolve, reject) {
 
-        return resolve("Y");
+        // return resolve("Y");
 
 
-        // var aptRepositoryChkJobShell = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
+        var backupCmd = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
 
-        // sudo.exec(aptRepositoryChkJobShell, options,
+        // sudo.exec(backupCmd, options,
         //     function (error, stdout, stderr) {
         //         if (error) {
         //             console.log("hamonizeSystemBackupProc error is " + error);
@@ -482,7 +482,17 @@ exports.osBackupProc = async function (domain, userId) {
         //         }
         //     }
         // );
-        tailLogFIle("/var/log/hamonize/adcon/backuplog.log");
+
+        const { exec } = require('child_process')
+        exec(backupCmd, (err, output) => {
+            if (err) {
+                return resolve("N");
+            } else {
+                return resolve("Y");
+            }
+        })
+
+        // tailLogFIle("/var/log/hamonize/adcon/backuplog.log");
         tailLogFIle("/tmp/backup.log");
     })
 }
@@ -506,7 +516,7 @@ exports.setServerInfoConfigProc = async function () {
 
 
 
- 
+
 //   | Hamonize Agent |  -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------
 
 
