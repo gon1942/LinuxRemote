@@ -52,7 +52,9 @@ if (program.opts().help) {
 if (program.opts().settings) {
 	(async () => {
 		console.clear();
-		hamonizeCli.settings();
+		hamonizeFuns.setbaseurl(baseurl);
+		hamonizeCli.settings();		//	 shell job &  init file create
+		// hamonizeCli.hamonizeNeedsDir();
 	})();
 }
 
@@ -60,7 +62,7 @@ if (program.opts().start) {
 	(async () => {
 		console.clear();
 		hamonizeFuns.setbaseurl(baseurl);
-		hamonizeCli.hamonizeNeedsDir();
+		hamonizeCli.settings();		//	 shell job &  init file create
 		hamonizeCli.hamonize_init()
 	})();
 }
@@ -101,7 +103,7 @@ if (program.opts().devicepolicySend) {	//	비인가 디바이스 정책
 }
 if (program.opts().eqchk) {	//	장비 체크
 	hamonizeFuns.setbaseurl(baseurl);
-	hamonizeCli.hamonizeNeedsDir();
+	// hamonizeCli.hamonizeNeedsDir();
 	hamonizeCli.sysinfoEqchk();
 }
 

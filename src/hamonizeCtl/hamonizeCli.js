@@ -21,11 +21,10 @@ exports.settings = async function (_var) {
   await copyHamonizeShellFile();
   //  #4. Hamonize Agent Shell FIle Copy -> /etc/hamonize/agentJobs/ Folder 
   await copyHamonizeAgentFile();
-  
-  
+
+  // Hamonize Server Info Config
   await hamonizeFuns.setServerInfoConfigProc();
 
-  
 }
 
 
@@ -464,163 +463,73 @@ async function setPcInfo(orginfo, sabun, usernm, domain) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 exports.hamonizeNeedsDir = async function () {
-  try {
-    fs.lstatSync("/etc/hamonize/hwinfo").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-      var exec = require('child_process').exec;
-      exec(" sudo mkdir /etc/hamonize/hwinfo/ && sudo touch /etc/hamonize/hwinfo/hwinfo.hm ",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
+  var exec = require('child_process').exec;
+  const paths = [
+    "/etc/hamonize/hwinfo",
+    "/etc/hamonize/progrm",
+    "/etc/hamonize/siteblock",
+    "/etc/hamonize/backup",
+    "/etc/hamonize/updt",
+    "/etc/hamonize/security",
+    "/etc/hamonize/firewall",
+    "/etc/hamonize/recovery"
+  ];
+
+  for (let path of paths) {
+    try {
+      // 주어진 경로가 파일인지 디렉토리인지 확인
+      const stats = fs.lstatSync(path);
+      if (stats.isDirectory()) {
+        console.log(`Directory already exists: ${path}`);
+      } else if (stats.isFile()) {
+        console.log(`File already exists: ${path}`);
+      }
+    } catch (e) {
+      // 파일 또는 디렉토리가 없으면 생성
+      if (e.code == 'ENOENT') {
+        console.log(`Creating directory: ${path}`);
+        exec(`sudo mkdir ${path} && sudo touch ${path}/${path.split('/').pop()}.hm`,
+          function (err, stdout, stderr) {
+            console.log(`stdout: ${stdout}`);
+            console.log(`stderr: ${stderr}`);
+            if (err !== null) {
+              console.log(`mkdir error: ${err}`);
+            }
+          });
+      } else {
+        console.log(`Error checking path: ${path}`);
+      }
     }
   }
 
-  try {
-    fs.lstatSync("/etc/hamonize/progrm").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
+  // const paths = [
+  //   "/etc/hamonize/hwinfo",
+  //   "/etc/hamonize/progrm",
+  //   "/etc/hamonize/siteblock",
+  //   "/etc/hamonize/backup",
+  //   "/etc/hamonize/updt",
+  //   "/etc/hamonize/security",
+  //   "/etc/hamonize/firewall",
+  //   "/etc/hamonize/recovery"
+  // ];
 
-      var exec = require('child_process').exec;
-      exec(" sudo mkdir /etc/hamonize/progrm/ && sudo touch /etc/hamonize/progrm/progrm.hm ",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-
-  try {
-    fs.lstatSync("/etc/hamonize/siteblock").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-
-      var exec = require('child_process').exec;
-      exec(" " +
-        " sudo mkdir /etc/hamonize/siteblock/ && sudo touch /etc/hamonize/siteblock/siteblock.ini && sudo touch /etc/hamonize/siteblock/illegalUrls.ini ",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-
-  try {
-    fs.lstatSync("/etc/hamonize/backup").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-
-      var exec = require('child_process').exec;
-      exec(" " +
-        " sudo mkdir /etc/hamonize/backup/ && sudo touch /etc/hamonize/backup/backupInfo.hm ",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-
-  try {
-    fs.lstatSync("/etc/hamonize/updt").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-
-      var exec = require('child_process').exec;
-      exec(" " +
-        " sudo mkdir /etc/hamonize/updt/ && sudo  touch /etc/hamonize/updt/updtInfo.hm ",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-
-  try {
-    fs.lstatSync("/etc/hamonize/security").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-
-      var exec = require('child_process').exec;
-      exec(" " +
-        " sudo mkdir /etc/hamonize/security/ && sudo  touch /etc/hamonize/security/device.hm ",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-  try {
-    fs.lstatSync("/etc/hamonize/firewall").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-
-      var exec = require('child_process').exec;
-      exec(" " +
-        " sudo mkdir /etc/hamonize/firewall/ && sudo  touch /etc/hamonize/firewall/firewallInfo.hm",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-
-
-  try {
-    fs.lstatSync("/etc/hamonize/recovery").isDirectory();
-  } catch (e) {
-    // Handle error
-    if (e.code == 'ENOENT') {
-      log("//==mkdir directory");
-
-      var exec = require('child_process').exec;
-      exec(" " +
-        " sudo mkdir /etc/hamonize/recovery/ && sudo  touch /etc/hamonize/recovery/recoveryInfo.hm  && touch /var/log/hamonize/agentjob/agentjob_backup_recovery.log",
-        function (err, stdout, stderr) {
-          log('//==stdout: ' + stdout);
-          log('//==stderr: ' + stderr);
-          if (err !== null) {
-            log('//== mkdir error: ' + err);
-          }
-        });
-    }
-  }
-
+  // for (let path of paths) {
+  //   try {
+  //     fs.lstatSync(path).isDirectory();
+  //   } catch (e) {
+  //     if (e.code == 'ENOENT') {
+  //       console.log(`Creating directory: ${path}`);
+  //       exec(`sudo mkdir ${path} && sudo touch ${path}/${path.split('/').pop()}.hm`,
+  //         function (err, stdout, stderr) {
+  //           console.log(`stdout: ${stdout}`);
+  //           console.log(`stderr: ${stderr}`);
+  //           if (err !== null) {
+  //             console.log(`mkdir error: ${err}`);
+  //           }
+  //         });
+  //     }
+  //   }
+  // }
 }
 
 
@@ -834,14 +743,13 @@ exports.hamonizeAgentFileChk = async function () {
     fs.mkdirSync('/etc/hamonize/agentJobs/');
   }
   const { exec } = require('child_process');
-  
   // 파일이 존재하는지 확인하고, 없으면 생성합니다.
   for (const jobFile of jobFiles) {
     const filePath = path.resolve(__dirname, jobFile.path);
     const targetPath = path.join('/etc/hamonize/agentJobs/', jobFile.name);
     if (!fs.existsSync(targetPath)) {
       fs.writeFileSync(targetPath, fs.readFileSync(filePath));
-      log("targetPath=======+"+ targetPath)
+      log("targetPath=======+" + targetPath)
       exec(`sudo chmod +x ${targetPath}`, (error, stdout, stderr) => {
         if (error) {
           console.error(`command Run Error :: ${error.message}`);
@@ -849,7 +757,6 @@ exports.hamonizeAgentFileChk = async function () {
       });
     }
   }
-
 }
 
 async function copyHamonizeAgentFile() {
