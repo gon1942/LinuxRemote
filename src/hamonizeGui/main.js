@@ -422,7 +422,7 @@ function setServerInfo() {
 function initHamonizeJob() {
 	return new Promise(function (resolve, reject) {
 		// var initJobShell = "/bin/bash " + __dirname + "/shell/initHamonizeInstall.sh";
-		var initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --settings"
+		var initJobShell = "node /home/gon/LinuxRemote/src/hamonizeCtl/main.js  --settings"
 		console.log("initJobShell==========================================================")
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {

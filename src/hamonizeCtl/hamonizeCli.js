@@ -27,6 +27,13 @@ exports.settings = async function (_var) {
 
 }
 
+// Gui -> programInstall
+// ##============================================================##// ##============================================================##// ##============================================================##
+exports.settings = async function () {
+  var retTanentNm = fs.readFileSync('/etc/hamonize/hamonize_tanent', 'utf8');
+  await installHamonizeProgram(retTanentNm);
+}
+
 
 
 
