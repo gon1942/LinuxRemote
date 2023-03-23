@@ -8,7 +8,10 @@ Log_output="/var/log/hamonize/propertiesJob/propertiesJob.log"
 vpnwork() {
 
 	DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
-	MACHIDTMP=$(cat /etc/hamonize/uuid | head -1)
+	# MACHIDTMP=$(cat /etc/hamonize/uuid )
+	MACHIDTMP=$(cat /etc/machine-id)
+	# MACHIDTMP=$(cat /etc/hamonize/uuid | head -1)
+	echo $MACHIDTMP  >> $Log_output
 	CLIENT="hm-$MACHIDTMP"
 	
 	INFOHM="/etc/hamonize/propertiesJob/propertiesInfo.hm"
@@ -18,7 +21,7 @@ vpnwork() {
 	VPNSCRIPT=$VPNSCRIPTPATH"/vpn-auto-connection.sh"
 
 	DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
-	UUID=$(cat /etc/hamonize/uuid | head -1)
+	UUID=$(cat /etc/machine-id)
 	CPUID=$(dmidecode -t 4 | grep ID)
 	CPUINFO=$(cat /proc/cpuinfo | grep "model name" | head -1 | cut -d" " -f3- | sed "s/^ *//g")
 	IPADDR=$(ifconfig | awk '/inet .*broadcast/' | awk '{print $2}')
@@ -29,11 +32,16 @@ vpnwork() {
 	HDDID=$(hdparm -I $HDDTMP | grep 'Serial\ Number' | awk -F ':' '{print $2}')
 	HDDINFO=$(hdparm -I $HDDTMP | grep 'Model\ Number' | awk -F ':' '{print $2}')
 
+	echo "$CLIENT========" >> $Log_output
+	echo "$VPNIP========" >> $Log_output
+
 	# vpn key 생성
 	VPN_KEY_CREATE=$(curl http://$VPNIP/getClients/hmon_vpn_vpn/$CLIENT)
 	RET_VPNKEY=$VPN_KEY_CREATE | grep -o "SUCCESS" | wc -l
+	echo "RET_VPNKEY======$RET_VPNKEY" >> $Log_output
 
 	wget_key=$(wget -O "/etc/hamonize/ovpnclient/$CLIENT.ovpn" --server-response -c "http://$VPNIP/getClientsDownload/$CLIENT" 2>&1)
+	echo "wget_key======$wget_key" >> $Log_output
 	exit_status=$?
 	sleep 10
 	wget_status=$(awk '/HTTP\//{ print $2 }' <<<$wget_key | tail -n 1)

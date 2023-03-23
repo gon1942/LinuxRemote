@@ -24,12 +24,14 @@ directories=(
         "/etc/hamonize/security"
         "/etc/hamonize/firewall"
         "/etc/hamonize/recovery"
+        "/etc/hamonize/ovpnclient"
         # Log
         "/var/log/hamonize"     
         "/var/log/hamonize/pc_hw_chk"
         "/var/log/hamonize/propertiesJob"
         "/var/log/hamonize/agentjob"
         "/var/log/hamonize/adcon"
+        "/var/log/hamonize/vpnlog"
 )
 
 files=(
@@ -45,6 +47,7 @@ files=(
         "/var/log/hamonize/adcon/output.log"
         "/var/log/hamonize/adcon/curlinstall.log"
         "/var/log/hamonize/adcon/backuplog.log"
+        "/var/log/hamonize/vpnlog/vpnlog.hm"
 )
 
 # Create directories

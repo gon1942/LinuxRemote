@@ -22,6 +22,7 @@ const unirest = require('unirest');
 const si = require('systeminformation');
 const osModule = require("os");
 const sudo = require('sudo-prompt');
+const exec = require('child_process').exec;
 const options = {
 	name: 'Hamonikr'
 };
@@ -96,16 +97,19 @@ function createWindow() {
 
 app.on('ready', () => {
 	// if (process.env.USER !== 'root') {
-	// 	console.log("root 권한이 필요합니다.");
+	// 	console.log("root 권한이 필요합니다." + process.argv[0] + "===" + process.argv[1]);
 	// 	const { exec } = require('child_process')
-	// 	exec('pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY ' + process.argv[0] + ' ' + process.argv[1] +" --no-sandbox", (err, stdout, stderr) => {
-	// 		if (err) {
-	// 			console.error(err)
-	// 			return
+	// 	// const filename = "/home/gonpc/jobs/2023/newHamonize/src/hamonizeGui/dist/hamonize-connect-1.0.0.AppImage";//path.join(__dirname, './main.js');
+	// 	const filename = path.join(__dirname, './main.js');
+	// 	// sudo 명령어 실행 예시
+	// 	sudo.exec(`electron ${filename}`, { name: 'MyApp' }, (error, stdout, stderr) => {
+	// 		if (error) {
+	// 			console.error(`exec error: ${error}`);
+	// 			return;
 	// 		}
-	// 		console.log(stdout)
-	// 	})
-
+	// 		console.log(`stdout: ${stdout}`);
+	// 		console.error(`stderr: ${stderr}`);
+	// 	});
 	// 	return;
 	// }
 	setTimeout(createWindow, 500);
@@ -192,25 +196,6 @@ ipcMain.on('install_program_version_chkeck', (event) => {
 //========================================================================
 ipcMain.on('hamonizeVpnInstall', (event, domain) => {
 	mainWindow.setSize(620, 447);
-	// var vpn_used;
-
-
-	// unirest.get(baseurl + '/hmsvc/isVpnUsed')
-	// 	.header('content-type', 'application/json')
-	// 	.send({
-	// 		events: [{
-	// 			domain: domain.trim()
-	// 		}]
-	// 	})
-	// 	.end(function (response) {
-	// 		var json = response.body;
-	// 		vpn_used = response.body[0]["vpn_used"];
-	// 		if (vpn_used == 'Y') {
-	// 			hamonizeVpnInstall_Action(event, domain);
-	// 		} else if (vpn_used == 0) {
-	// 			event.sender.send('hamonizeVpnInstall_Result', 'Y');
-	// 		}
-	// 	});
 
 	(async () => {
 		var abc = await installProgramHamonize();
@@ -221,17 +206,32 @@ ipcMain.on('hamonizeVpnInstall', (event, domain) => {
 
 function installProgramHamonize() {
 	return new Promise(function (resolve, reject) {
-		var initJobShell = "node /home/gon/LinuxRemote/src/hamonizeCtl/main.js  --programInstall"
-		console.log("initJobShell==========================================================")
-		sudo.exec(initJobShell, options,
-			function (error, stdout, stderr) {
-				if (error) {
-					return resolve("N");
-				} else {
-					return resolve('Y');
-				}
+		var initJobShell = "sudo node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --programInstall"
+		// var initJobShell = "sudo /bin/bash /tmp/hamonize/hamonizeProgramInstall.sh ";
+		console.log("installProgramHamonizeinstallProgramHamonizeinstallProgramHamonizeinstallProgramHamonizeinstallProgramHamonize===")
+		// const exec = require('child_process').exec;111111111111
+		exec(initJobShell, function (err, stdout, stderr) {
+			console.log('initJobShell 정책 ::  stdout: ' + stdout);
+			console.log('initJobShell 정책 :: stderr: ' + stderr);
+
+			if (err !== null) {
+				console.log(' initJobShell 정책 ::  error: ' + err);
+				return resolve("Y");
+			} else {
+				return resolve("N");
 			}
-		);
+		});
+
+		// sudo.exec(initJobShell, options,
+		// 	function (error, stdout, stderr) {
+		// 		if (error) {
+		// 			console.log(error);
+		// 			return resolve("N");
+		// 		} else {
+		// 			return resolve('Y');
+		// 		}
+		// 	}
+		// );
 	});
 }
 
@@ -270,6 +270,13 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 		let userId = await execShellCommand("cat /etc/passwd | grep 1000 | awk -F':' '{print $1}' ");
 		console.log("####################userId#########333" + userId);
 
+
+		// vnp install 
+
+		// vpn install 
+		let vpnCreateResult = await vpnCreate();
+		console.log("vpnCreateResult=============================>" + vpnCreateResult);
+
 		let hamonizeProgramInstallProcResult = await hamonizeProgramInstallProc(domain, userId);
 		console.log("hamonizeProgramInstall_Result:::::::::::::::::::::::::::::" + hamonizeProgramInstallProcResult);
 
@@ -299,6 +306,9 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 				});
 
 		}
+		
+		console.log("program install end -> pcinfo update ")
+		pcInfoUpdate(domain);
 
 	} catch (err) {
 		console.log("hamonizeProgramInstall_Action Error---" + err);
@@ -308,46 +318,44 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 
 function hamonizeProgramInstallProc(domain, userId) {
 	return new Promise(function (resolve, reject) {
-		console.log("#############33 program proc action###################")
-		var aptRepositoryChkJobShell = "/bin/bash " + __dirname + "/shell/hamonizeProgramInstall.sh " + baseurl + " " + domain + " " + userId;
-		sudo.exec(aptRepositoryChkJobShell, options,
-			function (error, stdout, stderr) {
-				if (error) {
-					console.log("hamonizeProgramInstallProc Error is " + error);
-					return resolve("N");
+		console.log("#############33 program proc action###################--" + domain + "--" + userId)
+		var aptRepositoryChkJobShell = "sudo /tmp/hamonize/hamonizeProgramInstall.sh " + " " + domain + " " + userId;
+		// var aptRepositoryChkJobShell = "sudo node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --programInstall"
+
+		exec(aptRepositoryChkJobShell, (error, stdout, stderr) => {
+			if (error) {
+				console.log("hamonizeProgramInstallProc Error is " + error);
+				return resolve("N");
+			} else {
+				let tmpReturn = stderr.replace(/(\s*)/g, "");
+				// console.log('stderr---->: ' + tmpReturn + "==================");
+
+				if (tmpReturn.search('1942-LDAP') > -1) {
+					return resolve('LDAP');
+				} else if (tmpReturn.search('1942USB') > -1) {
+					return resolve('USB');
+				} else if (tmpReturn.search('1942-AGENT') > -1) {
+					return resolve('AGENT');
+				} else if (tmpReturn.search('1942-OSLOGINOUT') > -1) {
+					return resolve('OS-LOGINOUT');
+				} else if (tmpReturn.search('1942-TIMESHIFT') > -1) {
+					return resolve('OS-TIMESHIFT');
+				} else if (tmpReturn.search('1942-HAMONIZE_ADMIN-TOOL') > -1) {
+					return resolve('HAMONIZE_ADMIN');
+				} else if (tmpReturn.search('1942-HAMONIZE_ADMIN-KEYS') > -1) {
+					return resolve('HAMONIZE_ADMIN');
+				} else if (tmpReturn.search('1942-HAMONIZE_ADMIN-ETC') > -1) {
+					return resolve('HAMONIZE_ADMIN');
+				} else if (tmpReturn.search('1942-HAMONIZE_HELP') > -1) {
+					return resolve('HAMONIZE_HELP');
+				} else if (tmpReturn.search('1942-TELEGRAF') > -1) {
+					return resolve('TELEGRAF');
 				} else {
-					let tmpReturn = stderr.replace(/(\s*)/g, "");
-					console.log('stderr---->: ' + tmpReturn + "==================");
-
-					if (tmpReturn.search('1942-LDAP') > -1) {
-						return resolve('LDAP');
-					} else if (tmpReturn.search('1942USB') > -1) {
-						return resolve('USB');
-					} else if (tmpReturn.search('1942-AGENT') > -1) {
-						return resolve('AGENT');
-					} else if (tmpReturn.search('1942-OSLOGINOUT') > -1) {
-						return resolve('OS-LOGINOUT');
-					} else if (tmpReturn.search('1942-TIMESHIFT') > -1) {
-						return resolve('OS-TIMESHIFT');
-					} else if (tmpReturn.search('1942-HAMONIZE_ADMIN-TOOL') > -1) {
-						return resolve('HAMONIZE_ADMIN');
-					} else if (tmpReturn.search('1942-HAMONIZE_ADMIN-KEYS') > -1) {
-						return resolve('HAMONIZE_ADMIN');
-					} else if (tmpReturn.search('1942-HAMONIZE_ADMIN-ETC') > -1) {
-						return resolve('HAMONIZE_ADMIN');
-					} else if (tmpReturn.search('1942-HAMONIZE_HELP') > -1) {
-						return resolve('HAMONIZE_HELP');
-					} else if (tmpReturn.search('1942-TELEGRAF') > -1) {
-						return resolve('TELEGRAF');
-					} else {
-						return resolve("Y");
-					}
-
-
-
+					return resolve("Y");
 				}
+
 			}
-		);
+		});
 	});
 } //program install END -----------------------------------------------------#
 
@@ -392,7 +400,8 @@ function hamonizeSystemBackupProc(userId) {
 
 		console.log("====__dirname===" + __dirname);
 		//==========================================================사용자 정보 ==============
-		var aptRepositoryChkJobShell = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
+		// var aptRepositoryChkJobShell = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
+		var aptRepositoryChkJobShell = "/bin/bash /tmp/hamonize/hamonizeBackup.sh " + userId;
 
 		sudo.exec(aptRepositoryChkJobShell, options,
 			function (error, stdout, stderr) {
@@ -446,8 +455,15 @@ function setServerInfo() {
 function initHamonizeJob() {
 	return new Promise(function (resolve, reject) {
 		// var initJobShell = "/bin/bash " + __dirname + "/shell/initHamonizeInstall.sh";
-		var initJobShell = "node /home/gon/LinuxRemote/src/hamonizeCtl/main.js  --settings"
+		var initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --settings"
 		console.log("initJobShell==========================================================")
+		// exec("gnome-session-quit --no-prompt", (error, stdout, stderr) => {
+		// 	if (error) {
+		// 		return;
+		// 	}
+		// });
+
+
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {
 				if (error) {
@@ -486,7 +502,8 @@ function install_program_version_chkeckProc() {
 //== vpn create  Shell Job  ===========================================
 function vpnCreate() {
 	return new Promise(function (resolve, reject) {
-		var initJobShell = "/bin/bash " + __dirname + "/shell/vpnInstall.sh";
+		// var initJobShell = "/bin/bash " + __dirname + "/shell/vpnInstall.sh";
+		var initJobShell = "sudo /tmp/hamonize/vpnInstall.sh";
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {
 				if (error) {
@@ -608,6 +625,7 @@ function install_program_upgradeProc() {
 
 // == pc 정보 체크===
 ipcMain.on('pcInfoChk', (event, groupname, sabun, username, domain) => {
+	console.log("== pc 정보 체크================")
 	sysInfo(event, groupname, sabun, username, domain);
 
 });
@@ -736,6 +754,7 @@ const sysInfo = async (event, groupname, sabun, username, domain) => {
 	});
 
 	console.log("등록 버튼 클릭시 center url >> " + baseurl + '/hmsvc/setPcInfo');
+	console.log("machindid======+"+machindid);
 	unirest.post(baseurl + '/hmsvc/setPcInfo')
 		.header('content-type', 'application/json')
 		.send({

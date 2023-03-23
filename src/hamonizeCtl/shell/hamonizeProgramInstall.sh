@@ -481,51 +481,51 @@ EOF
     return $retval
 }
 
-agentSettings() {
-    retval=-1
-    echo " 1. agent install ================ [start]" >>$LOGFILE
-    sudo apt-get install hamonize-agent -y >/dev/null
+# agentSettings() {
+#     retval=-1
+#     echo " 1. agent install ================ [start]" >>$LOGFILE
+#     sudo apt-get install hamonize-agent -y >/dev/null
 
-    # ===================================================================================
+#     # ===================================================================================
 
-    PKG_OK=$(dpkg-query -W --showformat='${Status}\n' hamonize-agent | grep "install ok installed")
-    if [ "" = "$PKG_OK" ]; then
-        retval=1
-        echo " agent install Fail >  Error Check LogFile Location is /tmp/hm_agent.error " >>$LOGFILE
+#     PKG_OK=$(dpkg-query -W --showformat='${Status}\n' hamonize-agent | grep "install ok installed")
+#     if [ "" = "$PKG_OK" ]; then
+#         retval=1
+#         echo " agent install Fail >  Error Check LogFile Location is /tmp/hm_agent.error " >>$LOGFILE
 
-        echo "##################################################################" >>$LOGFILE
-        echo "####### ERROR] Agent Settings Fail (error-code: 1942-AGENT)  ####### " >>$LOGFILE
-        echo "##################################################################" >>$LOGFILE
-        echo "" >>$LOGFILE
-        echo "#----------------------------------------------------------------#" >>$LOGFILE
-        echo "#- Chechk Point 1. Install Package [Agent] Check   ------------------------#" >>$LOGFILE
-        echo "result -> $(dpkg -l hamonize-agent)" >>$LOGFILE
-        echo "#Command Line]  dpkg-query -W --showformat='${Status}\n' hamonize-agent Result ::  [$(dpkg-query -W --showformat='${Status}\n' hamonize-agent)]" >>$LOGFILE
-        echo "#Command Line]  dpkg-query -W  hamonize-agent Result :: [$(dpkg-query -W hamonize-agent)]" >>$LOGFILE
-        echo "#Command Line]  apt list --installed hamonize-agent Result :: [$(apt list --installed hamonize-agent)]" >>$LOGFILE
-        echo "" >>$LOGFILE
+#         echo "##################################################################" >>$LOGFILE
+#         echo "####### ERROR] Agent Settings Fail (error-code: 1942-AGENT)  ####### " >>$LOGFILE
+#         echo "##################################################################" >>$LOGFILE
+#         echo "" >>$LOGFILE
+#         echo "#----------------------------------------------------------------#" >>$LOGFILE
+#         echo "#- Chechk Point 1. Install Package [Agent] Check   ------------------------#" >>$LOGFILE
+#         echo "result -> $(dpkg -l hamonize-agent)" >>$LOGFILE
+#         echo "#Command Line]  dpkg-query -W --showformat='${Status}\n' hamonize-agent Result ::  [$(dpkg-query -W --showformat='${Status}\n' hamonize-agent)]" >>$LOGFILE
+#         echo "#Command Line]  dpkg-query -W  hamonize-agent Result :: [$(dpkg-query -W hamonize-agent)]" >>$LOGFILE
+#         echo "#Command Line]  apt list --installed hamonize-agent Result :: [$(apt list --installed hamonize-agent)]" >>$LOGFILE
+#         echo "" >>$LOGFILE
 
-        echo "#- Chechk Point 2. hamonize-agent service  ------------------------#" >>$LOGFILE
-        echo "result -> $(service hamonize-agent status)" >>$LOGFILE
-        echo "" >>$LOGFILE
+#         echo "#- Chechk Point 2. hamonize-agent service  ------------------------#" >>$LOGFILE
+#         echo "result -> $(service hamonize-agent status)" >>$LOGFILE
+#         echo "" >>$LOGFILE
 
-        echo "#- Chechk Point 3. hamonize-agentmngr service  ------------------------#" >>$LOGFILE
-        echo "result -> $(service hamonize-agentmngr status)" >>$LOGFILE
-        echo "" >>$LOGFILE
+#         echo "#- Chechk Point 3. hamonize-agentmngr service  ------------------------#" >>$LOGFILE
+#         echo "result -> $(service hamonize-agentmngr status)" >>$LOGFILE
+#         echo "" >>$LOGFILE
 
-        echo "#-Check Point 4. systemctl list-units --------------------------------#" >>$LOGFILE
-        echo "result -> $(systemctl list-units --all --type=service --no-pager | grep -e hamonize-agent)" >>$LOGFILE
+#         echo "#-Check Point 4. systemctl list-units --------------------------------#" >>$LOGFILE
+#         echo "result -> $(systemctl list-units --all --type=service --no-pager | grep -e hamonize-agent)" >>$LOGFILE
 
-    else
+#     else
 
-        sudo systemctl stop hamonize-agent
-        echo " agent install Success" >>$LOGFILE
-        retval=0
-    fi
+#         sudo systemctl stop hamonize-agent
+#         echo " agent install Success" >>$LOGFILE
+#         retval=0
+#     fi
 
-    return $retval
+#     return $retval
 
-}
+# }
 
 #== timeshift =================================================
 timeshiftSettings() {
@@ -580,7 +580,8 @@ telegrafSettings() {
     echo " 6-1.  telegraf Setting  ============== [start]" >>$LOGFILE
     mv /etc/telegraf/telegraf.conf /etc/telegraf/telegraf.conf_bak
 
-    PCUUID=$(cat /etc/hamonize/uuid)
+    # PCUUID=$(cat /etc/hamonize/uuid)
+    PCUUID=$(cat /etc/machine-id)
 
     echo '[agent]
     interval = "10s"
@@ -667,24 +668,24 @@ telegrafSettings() {
 
 }
 
-hamonieTenantAptUrl() {
-    # tenantApt="$APTURL $DOMAININFO main"
-    # echo "Tenant Apt url :: $tenantApt" >>$LOGFILE
+# hamonieTenantAptUrl() {
+#     # tenantApt="$APTURL $DOMAININFO main"
+#     # echo "Tenant Apt url :: $tenantApt" >>$LOGFILE
 
-    chkAptList=$(cat /etc/apt/sources.list.d/hamonize.list | egrep -v '^[[:space:]]*(#.*)?$' | tr -d ' ')
-    if [[ "$chkAptList" != *"$DOMAININFO"* ]]; then
-        echo "deb [arch=amd64] http://$APTURL $DOMAININFO main" | sudo tee -a /etc/apt/sources.list.d/hamonize.list
-        sudo apt-get update -y >>$LOGFILE
-    fi
+#     chkAptList=$(cat /etc/apt/sources.list.d/hamonize.list | egrep -v '^[[:space:]]*(#.*)?$' | tr -d ' ')
+#     if [[ "$chkAptList" != *"$DOMAININFO"* ]]; then
+#         echo "deb [arch=amd64] http://$APTURL $DOMAININFO main" | sudo tee -a /etc/apt/sources.list.d/hamonize.list
+#         sudo apt-get update -y >>$LOGFILE
+#     fi
 
-    # if [ $(grep -rn "$tenantApt" /etc/apt/sources.list.d/hamonize.list | wc -l) == 0 ]; then
-    #     echo "deb [arch=amd64] http://$APTURL $DOMAININFO main" | sudo tee -a /etc/apt/sources.list.d/hamonize.list
-    #     sudo apt-get update -y >>$LOGFILE
-    # fi
+#     # if [ $(grep -rn "$tenantApt" /etc/apt/sources.list.d/hamonize.list | wc -l) == 0 ]; then
+#     #     echo "deb [arch=amd64] http://$APTURL $DOMAININFO main" | sudo tee -a /etc/apt/sources.list.d/hamonize.list
+#     #     sudo apt-get update -y >>$LOGFILE
+#     # fi
 
-    cat /etc/apt/sources.list.d/hamonize.list >>$LOGFILE
+#     cat /etc/apt/sources.list.d/hamonize.list >>$LOGFILE
 
-}
+# }
 
 add_hamonize_repository() {
 
@@ -975,9 +976,9 @@ InstallHamonizeProgram
 # sleep 1
 
 # # 필수 프로그램 스케쥴링 설정
-# if [ "$IS_DISPLAY_YN" == "Y" ]; then
-#     hamonizeServerSettings
-# fi
+if [ "$IS_DISPLAY_YN" == "Y" ]; then
+    hamonizeServerSettings
+fi
 # sleep 1
 
 # #  Add Tenant Apt

@@ -324,7 +324,6 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
     JsonData.hostname = pcHostname.trim();
     JsonData.pcos = osinfo.trim();
     JsonData.memory = raminfo.trim();
-    JsonData.memory = raminfo.trim();
     JsonData.deptname = groupname.trim();
     JsonData.sabun = sabun.trim();
     JsonData.username = username.trim();
@@ -462,14 +461,15 @@ exports.hamonizeProgramUninstallProc = async function (domain, userId) {
 
 
 // Hamonize & OS Backup -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------
-exports.osBackupProc = async function (domain, userId) {
+exports.osBackupProc = async function (userId) {
     return new Promise(function (resolve, reject) {
 
         // return resolve("Y");
+        log("userId=====================> " + userId)
 
-
-        var backupCmd = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
-
+        // var backupCmd = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
+        var backupCmd = "/bin/bash  /tmp/hamonize/hamonizeBackup.sh " + userId;
+        log(backupCmd)
         // sudo.exec(backupCmd, options,
         //     function (error, stdout, stderr) {
         //         if (error) {

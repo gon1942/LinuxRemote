@@ -72,7 +72,9 @@ if (program.opts().programInstall) {
 	(async () => {
 		console.clear();
 		hamonizeFuns.setbaseurl(baseurl);
+		log('baseurl====================', baseurl);
 		hamonizeCli.programInstall();
+		
 	})();
 }
 

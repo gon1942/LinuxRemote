@@ -36,12 +36,10 @@ exports.programInstall = async function () {
   let isVpnUsed = await getVpnUsed(retTanentNm);
 
   // #. Hamonize Program Install
-  await installHamonizeProgram(retTanentNm);
+  let add = await installHamonizeProgram(retTanentNm);
+  log("add------------------" + add)
 
-  await sleep(5000)
-
-  // #. pc info update
-  await pcInfoUpdate(retTanentNm)
+  process.exit(1)
 }
 
 
@@ -73,10 +71,6 @@ exports.hamonize_init = async function (_var) {
     ),
   );
 
-  // #6. 하모나이즈 vpn Install
-  //  await getVpnUsed('ryantest');
-  // return;
-
 
   if (!hamonizeFuns.isCurrentUserRoot()) {
     hamonizeFuns.logErrorMsg('', ' 루트 계정으로 실행해주세요.')
@@ -107,11 +101,12 @@ exports.hamonize_init = async function (_var) {
 
 
   // #5. 하모나이즈 vpn Install
+  log("하모나이즈 vpn Install-----------------");
   let isVpnUsed = await getVpnUsed(retTanentNm);
 
   // #6. Hamonize Program Install
   await installHamonizeProgram(retTanentNm);
-
+  
 
 
   await sleep(5000)
@@ -121,7 +116,7 @@ exports.hamonize_init = async function (_var) {
   // // let hamonizeProgramUninstallProcResult = hamonizeProgramUninstallProc();
 
   // // OS Backup
-  // let osBackupProcResult = await hamonizeSystemBackup();
+  let osBackupProcResult = await hamonizeSystemBackup();
 
   // Hamonize Install End
   log(chalk.green('Hamonize 설치가 완료되었습니다. '));
@@ -138,11 +133,34 @@ function JobsMkdir(dirPath) {
   }
 }
 
+function writeFileSyncWithPermissions(file, fileContents, permissions) {
+  fs.writeFileSync(file, fileContents);
+  exec(`sudo chmod ${permissions} ${file}`, (error, stdout, stderr) => {
+    if (error) {
+      console.log(`Error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`Stderr: ${stderr}`);
+      return;
+    }
+    console.log(`File permissions set for ${file}`);
+  });
+}
+
+const filePermissions = 'u+x';
+
+
 async function copyHamonizeShellFile() {
 
   try {
 
     JobsMkdir('/tmp/hamonize/usb-lockdown/');
+
+
+    // const fileContents = fs.readFileSync(path.resolve(__dirname, './shell/usb-lockdown/30-usb-lockdown.rules'));
+    // writeFileSyncWithPermissions('/tmp/hamonize/usb-lockdown/30-usb-lockdown.rules', fileContents, filePermissions);
+
 
     // Usb Control
     fs.writeFileSync('/tmp/hamonize/usb-lockdown/30-usb-lockdown.rules', fs.readFileSync(path.resolve(__dirname, './shell/usb-lockdown/30-usb-lockdown.rules')));
@@ -242,9 +260,10 @@ async function hamonizeSystemBackup() {
   depSpin.start();
 
   let accountId = await hamonizeFuns.getOsAccountId();
+  log("accountId======>>>>>>>>>>>>>>>>>>>>>>>>>>>------------"+accountId);
   log("Hamonize 프로그램 실치 완료 후 백업 준비중....");
   let osBackupProcResult = await hamonizeFuns.osBackupProc(accountId);
-
+  log("osBackupProcResult======+"+osBackupProcResult);
   // 백업 실패인 경우 .
   if (osBackupProcResult == 'N') {
     hamonizeFuns.logErrorMsg('', 'Hamonize Program & OS Backup Fail')
@@ -290,20 +309,31 @@ async function installHamonizeProgram(retTanentNm) {
   if (retYn == 'Y') {
     let osPlatForm = await hamonizeFuns.getOsPlatform();
     retYn = await hamonizeFuns.hamonizeProgramInstallProc(retTanentNm.trim(), accountId.trim(), osPlatForm.trim());
+    log("retYn================== ", retYn)
   }
-
-  depSpin.stop();
-  depSpin.clearLine();
 
   // 프로그램 실패인 경우 .
   if (retYn != 'Y') {
     hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail -- ' + retYn.trim())
     hamonizeFuns.printHelp('hamonize_error', '1.0')
-    process.exit(1)
+    process.exit(0)
   }
 
-  // depSpin.stop();
-  // depSpin.clearLine();
+
+
+
+  await sleep(5000)
+
+  // #. pc info update
+  await pcInfoUpdate(retTanentNm)
+  
+
+  depSpin.stop();
+  depSpin.clearLine();
+
+  
+  return retYn;
+
 
 }
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -401,12 +431,13 @@ async function getVpnUsed(tanent) {
     depSpin.start();
     // Check Vpn   Used    by tenant 
     let getVpnUsedInfo = await hamonizeFuns.apiRequest(arrJsonData, 'vpnused', 'get');
-
+    log(getVpnUsedInfo[0]["vpn_used"]);
 
     if (getVpnUsedInfo[0]["vpn_used"] == 'Y') {   // vpn 사용인경우
 
       // vpn install 
       let vpnConnecitonYn = await hamonizeFuns.vpnCreate();
+      log("vpnConnecitonYn===", vpnConnecitonYn)
       if (vpnConnecitonYn.trim() != 'Y') {
         const err = new Error("Hamonize Vpn Install Fail ")
         err.statusCode = 'N002'
@@ -422,8 +453,8 @@ async function getVpnUsed(tanent) {
       // }
 
       // pcinfo update
-      await sleep(5000)
-      await pcInfoUpdate(tanent)
+      // await sleep(5000)
+      // await pcInfoUpdate(tanent)
 
     } else {  // vpn 미사용인경우
       log("####Do Not Vpn Used####")

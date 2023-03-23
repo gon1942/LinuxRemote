@@ -14,14 +14,15 @@ $modal = $(".modal");
 // 폴더 생성 및 프로그램 설치 진행에 필요한 jq, curl 등 설치
 install_program_version_chkeck();
 
+// nextStap();
 
 function install_program_version_chkeck() {
 	$modal.show();
 	popupOpen();
 	$(".layerpop__container").text("프로그램 설치를 위한 버전 확인 중 입니다. 잠시만 기다려주세요.!!");
 
-	// ipcRenderer.send('install_program_version_chkeck');
-	nextStap();
+	ipcRenderer.send('install_program_version_chkeck');
+	// nextStap();
 	
 }
 
@@ -89,8 +90,7 @@ ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 var doubleSubmitFlag = false;
 const pcChkAuthBtn = document.getElementById('pcChkAuthBtn');
 pcChkAuthBtn.addEventListener('click', function (event) {
-	nextStap();
-	return;
+	
 	if (!doubleSubmitFlag) {
 
 		let authkey_val = $("#authkey").val();
@@ -128,8 +128,8 @@ ipcRenderer.on('getAuthResult', (event, authResult) => {
 // 사용 갯수 
 ipcRenderer.on('chkHamonizeAppUsesResult', (event, ret) => {
 	// 사용갯수에 이상이 없다면..
-	console.log(" 사용갯수에 이상이 없다면..-------" + ret)
-	if (ret != 'Y') {
+	console.log(" 사용갯수에 이상이 없다면..-------" + ret +"<---")
+	if (ret == 'Y') {
 		$(".layerpop__container").text("인증이 완료되었습니다. 조직정보를 불러오는 중입니다.  잠시만 기다려주세요.!!");
 		ipcRenderer.send('getOrgData', $("#domain").val());
 	} else {
@@ -197,9 +197,8 @@ function nextStap() {
 
 	initLayer
 
-	// TO-DO function name change
-	// hamonizeVpnInstall();// hamonizePorgram INSTALL 
-	hamonizeSystemBackup();	// backup
+	fn_hamonizeProgramInstall();
+	// setPcinfo();
 };
 
 
@@ -240,7 +239,8 @@ ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 		$("#stepB").addClass("br animate");
 		$("#infoStepA").text("완료");
 		console.log("aaaaaaaaaaaaaaa")
-		fn_hamonizeProgramInstall();
+		// fn_hamonizeProgramInstall();
+		hamonizeSystemBackup();
 	} else {
 		doubleSubmitFlag = false;
 		fn_alert("유효하지 않는 정보입니다. 확인 후 등록해 주시기바랍니다.\n 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.");
@@ -264,8 +264,8 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 		$("#stepC").addClass("br animate");
 		$("#infoStepB").text("완료");
 
-		hamonizeSystemBackup();
-
+		// hamonizeSystemBackup();
+		setPcinfo();
 
 	} else {
 		console.log("false");
@@ -294,7 +294,6 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 // $("#procLayerBody").hide();
 // $("#procLayerBody").show();
 // ###################  백업 완료시 재부팅 주석처리함 ################################
-// hamonizeSystemBackup();
 
 ipcRenderer.on('files-tail-val', (event, ret) => {
 	var retViewDataSplit = '';
@@ -329,9 +328,10 @@ ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
 		$("#infoStepC").text("완료");
 		$("#EndBody").show();
 
-		setTimeout(() => {
-			ipcRenderer.send('rebootProc');
-		}, 5 * 1000);
+		//====================================================테스트용 주석
+		// setTimeout(() => {
+		// 	ipcRenderer.send('rebootProc');
+		// }, 5 * 1000);
 
 	} else {
 		console.log("false");
@@ -455,18 +455,18 @@ function hamonizeVpnInstall() {
 }
 
 
-ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
-	if (isChkBool == true) {
-		$("#stepA").removeClass("br animate");
-		$("#stepB").addClass("br animate");
-		$("#infoStepA").text("완료");
-		hamonizeProgramInstall();
-	} else {
-		doubleSubmitFlag = false;
-		fn_alert("유효하지 않는 정보입니다. 확인 후 등록해 주시기바랍니다.\n 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.");
-	}
+// ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
+// 	if (isChkBool == true) {
+// 		$("#stepA").removeClass("br animate");
+// 		$("#stepB").addClass("br animate");
+// 		$("#infoStepA").text("완료");
+// 		hamonizeProgramInstall();
+// 	} else {
+// 		doubleSubmitFlag = false;
+// 		fn_alert("유효하지 않는 정보입니다. 확인 후 등록해 주시기바랍니다.\n 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.");
+// 	}
 
-});
+// });
 
 
 
