@@ -59,10 +59,11 @@ if [ "$RULES_ADD" != null ]; then
                 # EC=$(expr "$EC" + 1)
 
                 INSRET=$INSRET"{\"progrmname\":\"${str}\",\"status\":\"Y\",\"kind\":\"ins\",\"datetime\":\"$DATETIME\",\"hostname\":\"$HOSTNAME\",\"uuid\":\"$UUID\", \"domain\":\"$TENANT\"}"
+                echo "1===$INSRET"
                 if [ "$EC" -eq "$#" ]; then
                         INSRET=$INSRET","
                 fi
-
+echo "2===$INSRET"
                 EC=$(expr "$EC" + 1)
 
 
@@ -97,11 +98,11 @@ if [ "$RULES_DEL" != null ]; then
 
                 # auditd 서비스 재시작
                 systemctl restart auditd
+                INSRET=$INSRET"{\"progrmname\":\"${str}\" , \"status\":\"N\", \"kind\":\"del\", \"datetime\":\"$DATETIME\", \"hostname\":\"$HOSTNAME\" , \"uuid\":\"$UUID\" , \"domain\":\"$TENANT\"}"
 
                 if [ "$EC" -eq "$#" ]; then
                         INSRET=$INSRET","
                 fi
-                INSRET=$INSRET"{\"progrmname\":\"${str}\" , \"status\":\"N\", \"kind\":\"del\", \"datetime\":\"$DATETIME\", \"hostname\":\"$HOSTNAME\" , \"uuid\":\"$UUID\" , \"domain\":\"$TENANT\"}"
 
                 EC=$(expr "$EC" + 1)
 
