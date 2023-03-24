@@ -14,6 +14,53 @@ const hamonizeFuns = require('./hamonize_functions');
 let depSpin;  // Spinner
 const log = console.log;
 
+
+
+
+exports.setPcInfo = async function (_var) {
+  log("############333setpcinfo=================")
+  await hamonizeFuns.updatePcInfo('aaa');
+  // const {
+  //   networkInterfaces
+  // } = require('os');
+
+  // const nets = networkInterfaces();
+  // const results = Object.create(null); // Or just '{}', an empty object
+
+  // for (const name of Object.keys(nets)) {
+  //   for (const net of nets[name]) {
+  //     // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+  //     if (!net.internal) {
+  //       // if (net.family === 'IPv4' && !net.internal) {
+  //       if (!results[name]) {
+  //         results[name] = [];
+  //       }
+  //       results[name].push(net.address);
+  //     }
+
+  //   }
+  // }
+
+  // let vpnipaddr = '';
+  // // if (typeof results['tun0'] != 'undefined') {
+  // //   console.log(results['tun0']); // result ::: [ '10.8.0.2', 'fe80::87f5:686f:a23:1002' ]
+  // //   console.log(results['tun1']);
+  // //   vpnipaddr = results['tun0'][0];
+  // // }
+  // log( JSON.stringify(results))
+
+  // const ip = Object.entries(results).reduce((acc, [key, value]) => {
+  //   if (value[0].startsWith('20.')) {
+  //     return value[0];
+  //   }
+  //   return acc;
+  // }, '');
+  
+  // console.log(ip);
+
+}
+
+
 // Gui -> Config Settings !!
 // ##============================================================##// ##============================================================##// ##============================================================##
 exports.settings = async function (_var) {
@@ -32,7 +79,7 @@ exports.recover = async function () {
   let cmd = '';
   if (process.pkg) {
     cmd = "sudo /bin/bash /etc/hamonize/agentJobs/backupJob_recovery.sh";
-  }else{
+  } else {
     cmd = "sudo /bin/bash ./shell/backupJob_recovery.sh";
   }
   exec(cmd, function (err, stdout, stderr) {
@@ -50,7 +97,7 @@ exports.remove = async function () {
   let cmd = '';
   if (process.pkg) {
     cmd = "sudo /bin/bash /etc/hamonize/agentJobs/remove.sh";
-  }else{
+  } else {
     cmd = "sudo /bin/bash ./shell/remove.sh";
   }
   exec(cmd, function (err, stdout, stderr) {
@@ -64,6 +111,9 @@ exports.remove = async function () {
 }
 
 
+
+
+
 // Gui -> programInstall !!
 // ##============================================================##// ##============================================================##// ##============================================================##
 exports.programInstall = async function () {
@@ -74,7 +124,6 @@ exports.programInstall = async function () {
 
   // #. Hamonize Program Install
   let add = await installHamonizeProgram(retTanentNm);
-  log("add------------------" + add)
 
   process.exit(1)
 }
@@ -699,7 +748,13 @@ exports.fnUpdtAgentAction = async function (_dtype) {
   const exec = require('child_process').exec;
   let cmd = ''
   if (_dtype == "apt") {
-    cmd = "sudo /bin/bash /etc/hamonize/agentJobs/programInstall";
+
+    if (process.pkg) {
+      cmd = "sudo /bin/bash /etc/hamonize/agentJobs/programInstall";
+    } else {
+      cmd = "sudo /bin/bash ./shell/agentJobs/programInstall";
+    }
+
     // cmd = "sudo sh ./shell/agentJobs/programInstall";
   } else if (_dtype == "yum") {
     cmd = "sudo sh /etc/hamonize/agentJobs/rhel.sh";
@@ -730,8 +785,14 @@ exports.fnProgrmJob = async function (_dtype) {
 
   var exec = require('child_process').exec;
 
-  // exec("sudo /bin/bash ./shell/agentJobs/progrmBlock", function (err, stdout, stderr) {
-  exec("sudo /bin/bash /etc/hamonize/agentJobs/progrmBlock", function (err, stdout, stderr) {
+  let cmd = '';
+  if (process.pkg) {
+    cmd = "sudo /bin/bash /etc/hamonize/agentJobs/progrmBlock";
+  } else {
+    cmd = "sudo /bin/bash ./shell/agentJobs/progrmBlock";
+  }
+
+  exec(cmd, function (err, stdout, stderr) {
     log('ProgramBlock 정책 ::  stdout: ' + stdout);
     log('ProgramBlock 정책 :: stderr: ' + stderr);
 
@@ -747,8 +808,16 @@ exports.fnProgrmJob = async function (_dtype) {
 exports.fnFirewallJob = async function (_dtype) {
   var ufwDataObj = getFileData('ufw');
   var exec = require('child_process').exec;
-  // exec("sudo /bin/bash ./shell/agentJobs/ufwjob", function (err, stdout, stderr) {
-  exec("sudo /bin/bash /etc/hamonize/agentJobs/ufwjob", function (err, stdout, stderr) {
+
+
+  let cmd = '';
+  if (process.pkg) {
+    cmd = "sudo /bin/bash /etc/hamonize/agentJobs/ufwjob";
+  } else {
+    cmd = "sudo /bin/bash ./shell/agentJobs/ufwjob";
+  }
+
+  exec(cmd, function (err, stdout, stderr) {
     log('ProgramBlock 정책 ::  stdout: ' + stdout);
     log('ProgramBlock 정책 :: stderr: ' + stderr);
 

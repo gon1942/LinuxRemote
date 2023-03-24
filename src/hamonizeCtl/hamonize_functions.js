@@ -294,11 +294,22 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
         }
     }
 
-    let vpnipaddr = '';
-    if (typeof results['tun0'] != 'undefined') {
-        // console.log(results['tun0']); // result ::: [ '10.8.0.2', 'fe80::87f5:686f:a23:1002' ]
-        vpnipaddr = results['tun0'][0];
-    }
+    // let vpnipaddr = '';
+    // if (typeof results['tun0'] != 'undefined') {
+    //     // console.log(results['tun0']); // result ::: [ '10.8.0.2', 'fe80::87f5:686f:a23:1002' ]
+    //     vpnipaddr = results['tun0'][0];
+    // }
+
+    const ip = Object.entries(results).reduce((acc, [key, value]) => {
+        if (value[0].startsWith('20.')) {
+            return value[0];
+        }
+        return acc;
+    }, '');
+
+    vpnipaddr = ip;
+
+
     // console.log("=============vpnipaddr================" + vpnipaddr);
     var md5 = require('md5');
     let hwinfoMD5 = pcHostname + ipinfo.address() + cpuinfoMd5 + diskInfo + diskSerialNum + osinfoKernel + raminfo + machindid;
@@ -338,7 +349,7 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
 
 // Vpn Connection -----------------------------------------------------------------------------------------------------------------------------------------------------------------// --------------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-function vpnCreateTest () {
+function vpnCreateTest() {
     return new Promise(function (resolve, reject) {
 
         tailLogFIle("/var/log/hamonize/vpnlog/vpnlog.hm");
@@ -729,9 +740,11 @@ exports.sysinfoEqchk = async function () {
 }
 
 exports.updatePcInfo = async function (domain) {
+
     let vpnipaddr = '';
-    let vpnInfoData = '';
-    let pcHostname = await execShellCommand('hostname');
+
+    var os = require("os");
+    var pcHostname = os.hostname();
 
     const {
         networkInterfaces
@@ -753,16 +766,15 @@ exports.updatePcInfo = async function (domain) {
 
         }
     }
-    log("results['tun0']===========" + JSON.stringify(results));
-    if (typeof results['tun0'] != 'undefined') {
-        vpnInfoData = results['tun0'][0];
-    }
 
-    if (vpnInfoData.length == 0) {
-        vpnipaddr = 'no vpn';
-    } else {
-        vpnipaddr = vpnInfoData.trim();
-    }
+    const ip = Object.entries(results).reduce((acc, [key, value]) => {
+        if (value[0].startsWith('20.')) {
+            return value[0];
+        }
+        return acc;
+    }, '');
+    vpnipaddr = ip;
+
     const machineIdSync = require('node-machine-id').machineIdSync;
     let machindid = machineIdSync({
         original: true
@@ -777,7 +789,7 @@ exports.updatePcInfo = async function (domain) {
     JsonData.vpnipaddr = vpnipaddr;
     JsonData.hostname = pcHostname.trim();
     arrJsonData.push(JsonData);
-
+    log(arrJsonData)
     return arrJsonData;
 
 }

@@ -3,7 +3,8 @@
 . /etc/hamonize/propertiesJob/propertiesInfo.hm
 
 CENTERURL="http://${CENTERURL}/act/progrmAct"
-UUID=$(cat /etc/hamonize/uuid)
+UUID="1c67074bfc1640e2ad9db9f41b5bf7d0"
+# UUID=$(cat /etc/hamonize/uuid)
 LOGFILE="/var/log/hamonize/agentjob/progrmjobPolicyAct.log"
 
 # 파일이 존재하지 않으면 파일 생성
@@ -59,54 +60,57 @@ if [ "$RULES_ADD" != null ]; then
                 # EC=$(expr "$EC" + 1)
 
                 INSRET=$INSRET"{\"progrmname\":\"${str}\",\"status\":\"Y\",\"kind\":\"ins\",\"datetime\":\"$DATETIME\",\"hostname\":\"$HOSTNAME\",\"uuid\":\"$UUID\", \"domain\":\"$TENANT\"}"
-                if [ "$EC" -eq "$#" ]; then
-                        INSRET=$INSRET","
-                fi
+                # if [ "$EC" -eq "$#" ]; then
+                #         INSRET=$INSRET","
+                # fi
 
-                EC=$(expr "$EC" + 1)
+                # EC=$(expr "$EC" + 1)
 
-
-        done
-fi
-
-RULES_DEL=$(cat /etc/hamonize/progrm/progrm.hm | jq '.DEL' | sed -e "s/\"//g")
-
-if [ "$RULES_DEL" != null ]; then
-        IFS=',' read -ra str_array <<<"$RULES_DEL"
-        # IFS=',' read -ra str_array <<<"htop"
-
-        EC=0
-        for str in "${str_array[@]}"; do
-
-                # 차단 프로그램 실행 경로
-                echo "str====================>$str"
-                APP_PATH=$(which $str)
-                echo "차단 프로그램 경로====================>$APP_PATH"
-
-                # check if the auditd rule already exists
-
-                chkRules=$(auditctl -l | grep -e "$APP_PATH")
-                echo "chkRules====================>$chkRules"
-                if [[ -n $chkRules ]]; then
-                        echo "Deleting existing audit rule..."
-                        sed -i "/${str}/d" "$RULE_FILE"
-                fi
-
-                # auditd 규칙 파일 로드
-                /sbin/auditctl -R $RULE_FILE
-
-                # auditd 서비스 재시작
-                systemctl restart auditd
-
-                if [ "$EC" -eq "$#" ]; then
-                        INSRET=$INSRET","
-                fi
-                INSRET=$INSRET"{\"progrmname\":\"${str}\" , \"status\":\"N\", \"kind\":\"del\", \"datetime\":\"$DATETIME\", \"hostname\":\"$HOSTNAME\" , \"uuid\":\"$UUID\" , \"domain\":\"$TENANT\"}"
-
-                EC=$(expr "$EC" + 1)
 
         done
 fi
+
+# RULES_DEL=$(cat /etc/hamonize/progrm/progrm.hm | jq '.DEL' | sed -e "s/\"//g")
+
+# if [ "$RULES_DEL" != null ]; then
+#         IFS=',' read -ra str_array <<<"$RULES_DEL"
+#         # IFS=',' read -ra str_array <<<"htop"
+
+#         EC=0
+#         for str in "${str_array[@]}"; do
+
+#                 # # 차단 프로그램 실행 경로
+#                 # echo "str====================>$str"
+#                 # APP_PATH=$(which $str)
+#                 # echo "차단 프로그램 경로====================>$APP_PATH"
+
+#                 # # check if the auditd rule already exists
+
+#                 # chkRules=$(auditctl -l | grep -e "$APP_PATH")
+#                 # echo "chkRules====================>$chkRules"
+#                 # if [[ -n $chkRules ]]; then
+#                 #         echo "Deleting existing audit rule..."
+#                 #         sed -i "/${str}/d" "$RULE_FILE"
+#                 # fi
+
+#                 # # auditd 규칙 파일 로드
+#                 # /sbin/auditctl -R $RULE_FILE
+
+#                 # # auditd 서비스 재시작
+#                 # systemctl restart auditd
+
+#                 echo "ec====================>$EC"
+#                 echo "str==========####33==========>$#"
+
+#                 if [ "$EC" -eq "$#" ]; then
+#                         INSRET=$INSRET","
+#                 fi
+#                 INSRET=$INSRET"{\"progrmname\":\"${str}\" , \"status\":\"N\", \"kind\":\"del\", \"datetime\":\"$DATETIME\", \"hostname\":\"$HOSTNAME\" , \"uuid\":\"$UUID\" , \"domain\":\"$TENANT\"}"
+
+#                 EC=$(expr "$EC" + 1)
+
+#         done
+# fi
 
 sudo rm -fr /etc/hamonize/runprogrmblock >/dev/null 2>&1
 

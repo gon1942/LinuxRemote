@@ -30,8 +30,8 @@ program
 	.option('--help')
 
 	// Hamonize Connector	----------------
-	.option('--settings')	//	 init file create 
-	.option('--start') //	 cmd start 
+	.option('--settings')			//	 init file create 
+	.option('--start') 					//	 cmd start 
 	.option('--programInstall') // 프로그램 설치 
 
 	//	Hamonize Agent ---------------
@@ -45,24 +45,23 @@ program
 
 	.option('--remove')	//	프로그램 삭제
 	.option('--recover')	//	프로그램 복구
+
+	.option('--setpcinfo')
 	.parse();
 
  
-if (program.opts().remove) {
-	hamonizeCli.remove()
-}
+	if (program.opts().setpcinfo) {
+		hamonizeCli.setPcInfo()
+		process.exit(1)
+	}
 
-
-if (program.opts().recover) {
-	hamonizeCli.recover()
-}
 
 //	Hamonize Connect Commnad ===========================
 if (program.opts().help) {
 	hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
 	hamonizeFuns.printHelp('hamonize', '1.0')
 	process.exit(1)
-}
+} // =================================================
 
 // Gui Run ----
 if (program.opts().settings) {
@@ -80,7 +79,6 @@ if (program.opts().programInstall) {
 		hamonizeFuns.setbaseurl(baseurl);
 		log('baseurl====================', baseurl);
 		hamonizeCli.programInstall();
-		
 	})();
 }
 
@@ -97,7 +95,7 @@ if (program.opts().start) {
 
 //====================================================================//
 //	------------------------------------------ Hamonize Agent Commnad ------------------------------------------ //
-//====================================================================//
+//====================================================================// 
 
 if (program.opts().ufw) {	//	방화벽 관리
 	(async () => {
@@ -135,6 +133,16 @@ if (program.opts().eqchk) {	//	장비 체크
 	hamonizeFuns.setbaseurl(baseurl);
 	// hamonizeCli.hamonizeNeedsDir();
 	hamonizeCli.sysinfoEqchk();
+}
+
+
+if (program.opts().remove) {
+	hamonizeCli.remove()
+}
+
+
+if (program.opts().recover) {
+	hamonizeCli.recover()
 }
 
 //==================================================

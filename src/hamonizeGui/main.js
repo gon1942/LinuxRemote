@@ -306,7 +306,7 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 				});
 
 		}
-		
+
 		console.log("program install end -> pcinfo update ")
 		pcInfoUpdate(domain);
 
@@ -737,10 +737,19 @@ const sysInfo = async (event, groupname, sabun, username, domain) => {
 	}
 
 	let vpnipaddr = '';
-	if (typeof results['tun0'] != 'undefined') {
-		console.log(results['tun0']); // result ::: [ '10.8.0.2', 'fe80::87f5:686f:a23:1002' ]
-		vpnipaddr = results['tun0'][0];
-	}
+	// if (typeof results['tun0'] != 'undefined') {
+	// 	console.log(results['tun0']); // result ::: [ '10.8.0.2', 'fe80::87f5:686f:a23:1002' ]
+	// 	vpnipaddr = results['tun0'][0];
+	// }
+	const ip = Object.entries(results).reduce((acc, [key, value]) => {
+		if (value[0].startsWith('20.')) {
+			return value[0];
+		}
+		return acc;
+	}, '');
+	vpnipaddr = ip;
+
+
 	console.log("=============vpnipaddr================" + vpnipaddr);
 	var md5 = require('md5');
 	let hwinfoMD5 = pcHostname + ipinfo.address() + cpuinfoMd5 + diskInfo + diskSerialNum + osinfoKernel + raminfo + machindid;
@@ -754,7 +763,7 @@ const sysInfo = async (event, groupname, sabun, username, domain) => {
 	});
 
 	console.log("등록 버튼 클릭시 center url >> " + baseurl + '/hmsvc/setPcInfo');
-	console.log("machindid======+"+machindid);
+	console.log("machindid======+" + machindid);
 	unirest.post(baseurl + '/hmsvc/setPcInfo')
 		.header('content-type', 'application/json')
 		.send({
@@ -780,24 +789,44 @@ const sysInfo = async (event, groupname, sabun, username, domain) => {
 			console.log("sysinfo() = add  pc info ===========++" + response.body);
 			console.log("sysinfo() = add  pc info ===========++" + JSON.stringify(response.status));
 			// if( response.status == 500 ){
-				event.sender.send('pcInfoChkProc', response.body);
+			event.sender.send('pcInfoChkProc', response.body);
 			// }
 			// event.sender.send('pcInfoChkProc', response.body);
 			// 정상 등록 : true,  등록에러 :  false, 중복 pc : exist
-		}); 
+		});
 
 }
 
 // vpn 연결후 pc 정보 업데이트
 function pcInfoUpdate(domain) {
 	let vpnipaddr = '';
-	let vpnInfoData = vpnchk();
-	console.log("vpnInfoData====" + vpnInfoData);
-	if (vpnInfoData.length == 0) {
-		vpnipaddr = 'no vpn';
-	} else {
-		vpnipaddr = vpnInfoData;
+	let vpnInfoData = '';
+	const { networkInterfaces } = require('os');
+
+	const nets = networkInterfaces();
+	const results = Object.create(null); // Or just '{}', an empty object
+
+	for (const name of Object.keys(nets)) {
+		for (const net of nets[name]) {
+			// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+			if (!net.internal) {
+				// if (net.family === 'IPv4' && !net.internal) {
+				if (!results[name]) {
+					results[name] = [];
+				}
+				results[name].push(net.address);
+			}
+
+		}
 	}
+
+	const ip = Object.entries(results).reduce((acc, [key, value]) => {
+		if (value[0].startsWith('20.')) {
+			return value[0];
+		}
+		return acc;
+	}, '');
+	vpnipaddr = ip;
 
 	const machineIdSync = require('node-machine-id').machineIdSync;
 	let machindid = machineIdSync({

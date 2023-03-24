@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /etc/hamonize/propertiesJob/propertiesInfo.hm
-#CENTER_BASE_URL="$1"
+
 CENTER_BASE_URL=$CENTERURL
 DOMAININFO="$1"
 HOME_USERID="$2"

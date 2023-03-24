@@ -2,11 +2,13 @@
 
 
 . /etc/hamonize/propertiesJob/propertiesInfo.hm
-CENTERURL="http://${CENTERURL}/hmsvc/updtpolicy"
 
+CENTERURL="http://${CENTERURL}/hmsvc/updtpolicy"
 PCUUID=$(cat /etc/hamonize/uuid)
+
 LOGFILE="/var/log/hamonize/agentjob/updp.log"
 TENANT=$(cat /etc/hamonize/hamonize_tanent)
+
 # 파일을 다운로드할 서버 URL
 FILESERVERURL="192.168.0.200:5000"
 touch $LOGFILE
