@@ -3,14 +3,21 @@ all: build_node_app
 build_node_app:
 	@echo "Update node binary..." 
 	
-	cd src/ && \
+	
+	cd src/hamonizeGui/ && \
+	npm run clean && \
+	npm install && \
+	npm run build:linux && \
+	cp -v ./dist/hamonize-connect-1.0.0.AppImage ../../usr/local/hamonize-connect/hamonize-connect	&& \
+	cd ../../src/hamonizeCtl/ && \
 	npm run clean && \
 	npm install && \
 	npm run build && \
-	cp -v ./dist/hamonize-agent ../usr/share/hamonize-agent/ && \
-	cp -v ./dist/hamonize-agent ../bin && \
-	cp -r ./shell ../usr/share/hamonize-agent/
+	cp -v ./dist/hamonizeCtl ../../usr/local/hamonize-connect/hamonizeCtl && \
+    cd ../../src/hamonizeAuditd && \
+	gcc -o ryanProgramBlock ryanProgramBlock.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify -lssl -lcrypto -ljson-c -lcurl    && \
+	cp -v ./ryanProgramBlock ../../usr/local/hamonize-connect/ryanProgramBlock 
+
 
 clean:
-	rm -fv usr/share/hamonize-agent/hamonize-agent 
-	rm -fv bin/*
+	rm -fv usr/share/hamonize-connect

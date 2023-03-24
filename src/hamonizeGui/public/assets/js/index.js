@@ -23,7 +23,7 @@ function install_program_version_chkeck() {
 
 	ipcRenderer.send('install_program_version_chkeck');
 	// nextStap();
-	
+
 }
 
 
@@ -90,7 +90,7 @@ ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 var doubleSubmitFlag = false;
 const pcChkAuthBtn = document.getElementById('pcChkAuthBtn');
 pcChkAuthBtn.addEventListener('click', function (event) {
-	
+
 	if (!doubleSubmitFlag) {
 
 		let authkey_val = $("#authkey").val();
@@ -128,7 +128,7 @@ ipcRenderer.on('getAuthResult', (event, authResult) => {
 // 사용 갯수 
 ipcRenderer.on('chkHamonizeAppUsesResult', (event, ret) => {
 	// 사용갯수에 이상이 없다면..
-	console.log(" 사용갯수에 이상이 없다면..-------" + ret +"<---")
+	console.log(" 사용갯수에 이상이 없다면..-------" + ret + "<---")
 	if (ret == 'Y') {
 		$(".layerpop__container").text("인증이 완료되었습니다. 조직정보를 불러오는 중입니다.  잠시만 기다려주세요.!!");
 		ipcRenderer.send('getOrgData', $("#domain").val());
@@ -238,12 +238,15 @@ ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 		$("#stepA").removeClass("br animate");
 		$("#stepB").addClass("br animate");
 		$("#infoStepA").text("완료");
-		console.log("aaaaaaaaaaaaaaa")
+
 		// fn_hamonizeProgramInstall();
 		hamonizeSystemBackup();
+	} else if (isChkBool == "exist") {
+		doubleSubmitFlag = false;
+		fn_alert("이미 등록된 컴퓨터입니다. 재 설치를 하실경우 관리자에게 문의바랍니다.");
 	} else {
 		doubleSubmitFlag = false;
-		fn_alert("유효하지 않는 정보입니다. 확인 후 등록해 주시기바랍니다.\n 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.");
+		fn_alert("유효하지 않는 정보입니다..\n 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.");
 	}
 
 });

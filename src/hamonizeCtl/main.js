@@ -43,13 +43,19 @@ program
 	.option('--progrmblock')	//	프로그램 차단
 	.option('--updt')	//	프로그램 설치및 삭제		runupdt.deb
 
+	.option('--remove')	//	프로그램 삭제
+	.option('--recover')	//	프로그램 복구
 	.parse();
 
-
-if (program.opts().test3) {
-	hamonizeCli.back()
+ 
+if (program.opts().remove) {
+	hamonizeCli.remove()
 }
 
+
+if (program.opts().recover) {
+	hamonizeCli.recover()
+}
 
 //	Hamonize Connect Commnad ===========================
 if (program.opts().help) {
@@ -89,8 +95,10 @@ if (program.opts().start) {
 	})();
 }
 
-//==================================================
-//	Hamonize Agent Commnad =============================
+//====================================================================//
+//	------------------------------------------ Hamonize Agent Commnad ------------------------------------------ //
+//====================================================================//
+
 if (program.opts().ufw) {	//	방화벽 관리
 	(async () => {
 		hamonizeCli.hamonizeAgentFileChk();

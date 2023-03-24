@@ -25,7 +25,7 @@ char *hamonizeUpdt()
     syslog(LOG_INFO, "#----------hamonizeUpdt------------------###############.\n");
 
     // int ret = system("/home/gonpc/jobs/2023/hamonize/src/dist/hamonizeCtl --updt");
-    int ret = system("/etc/hamonize/hamonizeCtl --updt");
+    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
     WEXITSTATUS(ret);
     printf("ret : %d \n", ret);
     return 0;
@@ -36,12 +36,38 @@ char *hamonizeBlock()
     syslog(LOG_INFO, "#----------hamonizeBlock------------------###############.\n");
 
     // int ret = system("/home/gonpc/jobs/2023/hamonize/src/dist/hamonizeCtl --updt");
-    int ret = system("/etc/hamonize/hamonizeCtl --progrmblock");
+    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --progrmblock");
     WEXITSTATUS(ret);
     printf("ret : %d \n", ret);
     return 0;
 }
 
+char *hamonizeDevice()
+{
+    syslog(LOG_INFO, "#----------hamonizeDevice------------------###############.\n");
+    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --devicepolicy");
+    WEXITSTATUS(ret);
+    printf("ret : %d \n", ret);
+    return 0;
+}
+
+char *hamonizeDeviceSendLog()
+{
+    syslog(LOG_INFO, "#-------------------hamonizeDeviceSendLog-------------------------###############.\n");
+    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --devicepolicySend");
+    WEXITSTATUS(ret);
+    printf("ret : %d \n", ret);
+    return 0;
+}
+
+char *hamonizeUfw()
+{
+    syslog(LOG_INFO, "#-------------------hamonizeUfw-------------------------###############.\n");
+    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --ufw");
+    WEXITSTATUS(ret);
+    printf("ret : %d \n", ret);
+    return 0;
+}
 int main(int argc, char *argv[])
 {
 
@@ -78,6 +104,36 @@ int main(int argc, char *argv[])
             {
                 syslog(LOG_INFO, "BLOCK---------------  key : [%s] , keysArgv : [%s],  comm = [%s]", keyname, keysArgv, comm);
                 hamonizeBlock();
+            }
+        }
+
+        // Device
+        if (keyname && strcmp(keyname, "\"hamonizeDevice\"") == 0)
+        {
+            if (strcmp(comm, "\"rm\"") != 0)
+            {
+                syslog(LOG_INFO, "Device---------------  key : [%s] , keysArgv : [%s],  comm = [%s]", keyname, keysArgv, comm);
+                hamonizeDevice();
+            }
+        }
+
+        // Device Send Log
+        if (keyname && strcmp(keyname, "\"hamonizeUssb\"") == 0)
+        {
+            if (strcmp(comm, "\"rm\"") != 0)
+            {
+                syslog(LOG_INFO, "Device---------------  key : [%s] , keysArgv : [%s],  comm = [%s]", keyname, keysArgv, comm);
+                hamonizeDeviceSendLog();
+            }
+        }
+
+        // Ufw
+        if (keyname && strcmp(keyname, "\"hamonizeUfw\"") == 0)
+        {
+            if (strcmp(comm, "\"rm\"") != 0)
+            {
+                syslog(LOG_INFO, "Ufw---------------  key : [%s] , keysArgv : [%s],  comm = [%s]", keyname, keysArgv, comm);
+                hamonizeUfw();
             }
         }
     };

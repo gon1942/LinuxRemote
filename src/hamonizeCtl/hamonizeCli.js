@@ -24,8 +24,45 @@ exports.settings = async function (_var) {
 
   // Hamonize Server Info Config
   await hamonizeFuns.setServerInfoConfigProc();
-
 }
+
+
+exports.recover = async function () {
+  const exec = require('child_process').exec;
+  let cmd = '';
+  if (process.pkg) {
+    cmd = "sudo /bin/bash /etc/hamonize/agentJobs/backupJob_recovery.sh";
+  }else{
+    cmd = "sudo /bin/bash ./shell/backupJob_recovery.sh";
+  }
+  exec(cmd, function (err, stdout, stderr) {
+    log('recover 정책 ::  stdout: ' + stdout);
+    log('recover 정책 :: stderr: ' + stderr);
+
+    if (err !== null) {
+      log(' recover 정책 ::  error: ' + err);
+    }
+  });
+}
+
+exports.remove = async function () {
+  const exec = require('child_process').exec;
+  let cmd = '';
+  if (process.pkg) {
+    cmd = "sudo /bin/bash /etc/hamonize/agentJobs/remove.sh";
+  }else{
+    cmd = "sudo /bin/bash ./shell/remove.sh";
+  }
+  exec(cmd, function (err, stdout, stderr) {
+    log('remove 정책 ::  stdout: ' + stdout);
+    log('remove 정책 :: stderr: ' + stderr);
+
+    if (err !== null) {
+      log(' remove 정책 ::  error: ' + err);
+    }
+  });
+}
+
 
 // Gui -> programInstall !!
 // ##============================================================##// ##============================================================##// ##============================================================##
@@ -90,9 +127,11 @@ exports.hamonize_init = async function (_var) {
 
   //  #3. 컴퓨터 정보 등록
   //  To-Do 컴퓨터 등록 실패시...초기화 처리
-  let isAddPcInfo = await setPcInfo(retOrgInfo, '', '', retTanentNm);
+  log("1=====++" + retOrgInfo)
+  log("2=====++" + retTanentNm)
+  // let isAddPcInfo = await setPcInfo(retOrgInfo, '', '', retTanentNm);
 
-
+  // return ;
 
   //  #4. Hamonize Connector Shell FIle Copy -> /tmp/hamonize Folder 
   await copyHamonizeShellFile();
@@ -106,11 +145,12 @@ exports.hamonize_init = async function (_var) {
 
   // #6. Hamonize Program Install
   await installHamonizeProgram(retTanentNm);
-  
+
 
 
   await sleep(5000)
-  await pcInfoUpdate(retTanentNm)
+  // await pcInfoUpdate(retTanentNm)
+  let isAddPcInfo = await setPcInfo(retOrgInfo, '', '', retTanentNm);
 
   // // To-Do ::::   Hamonize Program Uninstall
   // // let hamonizeProgramUninstallProcResult = hamonizeProgramUninstallProc();
@@ -212,42 +252,6 @@ async function copyHamonizeShellFile() {
   }
 }
 
-
-// async function copyHamonizeAgentJobsFile() {
-//   try {
-//     // Hamonize Agent Job ------------
-
-//     // Program Install&remove
-//     fs.writeFileSync('/etc/hamonize/agent/programInstall', fs.readFileSync(path.resolve(__dirname, './shell/programInstall'))); 
-
-//     // 프로그램 차단    Auditd progrmBlock
-//     // fs.writeFileSync('/etc/hamonize/agent/progrmBlock', fs.readFileSync(path.resolve(__dirname, './shell/progrmBlock')));  
-
-//     // fs.writeFileSync('/etc/hamonize/agent/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/updtjob.sh')));
-//     // fs.writeFileSync('/etc/hamonize/agent/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/updtjob.sh')));
-//     // fs.writeFileSync('/etc/hamonize/agent/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/updtjob.sh')));
-//     // fs.writeFileSync('/etc/hamonize/agent/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/updtjob.sh')));
-
-
-//     const { exec } = require('child_process')
-//     exec("sudo chmod +x /tmp/hamonize/*", (error, stdout, stderr) => {
-//       if (error) {
-//         log(`command Run Error :: ${error.message}`);
-//       }
-//     });
-//     exec(" sudo chmod +x /tmp/hamonize/usb-lockdown/*", (error, stdout, stderr) => {
-//       if (error) {
-//         ``
-//         log(`command Run Error :: ${error.message}`);
-//       }
-//     });
-
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
-
-
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -260,10 +264,10 @@ async function hamonizeSystemBackup() {
   depSpin.start();
 
   let accountId = await hamonizeFuns.getOsAccountId();
-  log("accountId======>>>>>>>>>>>>>>>>>>>>>>>>>>>------------"+accountId);
+  log("accountId======>>>>>>>>>>>>>>>>>>>>>>>>>>>------------" + accountId);
   log("Hamonize 프로그램 실치 완료 후 백업 준비중....");
   let osBackupProcResult = await hamonizeFuns.osBackupProc(accountId);
-  log("osBackupProcResult======+"+osBackupProcResult);
+  log("osBackupProcResult======+" + osBackupProcResult);
   // 백업 실패인 경우 .
   if (osBackupProcResult == 'N') {
     hamonizeFuns.logErrorMsg('', 'Hamonize Program & OS Backup Fail')
@@ -322,16 +326,15 @@ async function installHamonizeProgram(retTanentNm) {
 
 
 
-  await sleep(5000)
+  // await sleep(5000)
+  // // #. pc info update
+  // await pcInfoUpdate(retTanentNm)
 
-  // #. pc info update
-  await pcInfoUpdate(retTanentNm)
-  
 
   depSpin.stop();
   depSpin.clearLine();
 
-  
+
   return retYn;
 
 
@@ -495,8 +498,19 @@ const sleep = (ms) => {
 
 async function setPcInfo(orginfo, sabun, usernm, domain) {
   let arrJsonData = await hamonizeFuns.addPcInfo(orginfo, sabun, usernm, domain);
+  log(arrJsonData)
+  log("----------------------")
   let authChkResult = await hamonizeFuns.apiRequest(arrJsonData, 'setPcInfo', 'post');
+  log(authChkResult)
 
+  if (authChkResult == 'exist') {
+    hamonizeFuns.logErrorMsg('N003', '이미 등록된 컴퓨터입니다. 재 설치를 하실경우 관리자에게 문의바랍니다.')
+    process.exit(1)
+  } else {
+
+    hamonizeFuns.logErrorMsg('N004', '유효하지 않는 정보입니다..\n 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.')
+    process.exit(1)
+  }
   if (!authChkResult) {
     /* 
     To-Do
@@ -555,34 +569,6 @@ exports.hamonizeNeedsDir = async function () {
     }
   }
 
-  // const paths = [
-  //   "/etc/hamonize/hwinfo",
-  //   "/etc/hamonize/progrm",
-  //   "/etc/hamonize/siteblock",
-  //   "/etc/hamonize/backup",
-  //   "/etc/hamonize/updt",
-  //   "/etc/hamonize/security",
-  //   "/etc/hamonize/firewall",
-  //   "/etc/hamonize/recovery"
-  // ];
-
-  // for (let path of paths) {
-  //   try {
-  //     fs.lstatSync(path).isDirectory();
-  //   } catch (e) {
-  //     if (e.code == 'ENOENT') {
-  //       console.log(`Creating directory: ${path}`);
-  //       exec(`sudo mkdir ${path} && sudo touch ${path}/${path.split('/').pop()}.hm`,
-  //         function (err, stdout, stderr) {
-  //           console.log(`stdout: ${stdout}`);
-  //           console.log(`stderr: ${stderr}`);
-  //           if (err !== null) {
-  //             console.log(`mkdir error: ${err}`);
-  //           }
-  //         });
-  //     }
-  //   }
-  // }
 }
 
 
@@ -786,8 +772,11 @@ const jobFiles = [
   { name: 'rhel.sh', path: './shell/agentJobs/rhel.sh' },
   { name: 'programInstall', path: './shell/agentJobs/programInstall' },
   { name: 'progrmBlock', path: './shell/agentJobs/progrmBlock' },
-  { name: 'ufwjob', path: './shell/agentJobs/ufwjob' }
+  { name: 'ufwjob', path: './shell/agentJobs/ufwjob' },
+  { name: 'remove.sh', path: './shell/agentJobs/remove.sh' },
+  { name: 'backupJob_recovery.sh', path: './shell/agentJobs/backupJob_recovery.sh' }
 ];
+
 
 
 exports.hamonizeAgentFileChk = async function () {

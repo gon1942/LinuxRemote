@@ -127,7 +127,7 @@ echo $(cat $FILEPATH) >>$Log_backup
             if [[ "$backupProcessVal" == *"0.00%"* ]]; then
                 echo "rsync로 파일 동기화 중입니다. " >>/tmp/backup.log
             else
-                echo "ㅁㅁㅁㅁ없음ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ" >>/tmp/backup.log
+                echo $backupProcessVal >>/tmp/backup.log
             fi
 
             # echo $backupProcessVal >>/tmp/backup.log

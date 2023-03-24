@@ -311,6 +311,8 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
         }
     });
 
+    var vpnip = await vpnCreateTest();
+    log("#######vpnip===", vpnip);
 
     var JsonData = new Object();
     var arrJsonData = new Array();
@@ -336,6 +338,26 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
 
 // Vpn Connection -----------------------------------------------------------------------------------------------------------------------------------------------------------------// --------------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+function vpnCreateTest () {
+    return new Promise(function (resolve, reject) {
+
+        tailLogFIle("/var/log/hamonize/vpnlog/vpnlog.hm");
+
+        const { exec } = require('child_process')
+        exec("/bin/bash /tmp/hamonize/vpnInstall.sh", (err, output) => {
+            if (err) {
+                return resolve("N");
+            }
+            if (output.trim() == 'N') {
+                return resolve("N");
+            } else {
+                return resolve("Y");
+            }
+        })
+    });
+}
+
+
 exports.vpnCreate = function (winFolderDir) {
     return new Promise(function (resolve, reject) {
 
@@ -370,7 +392,7 @@ exports.vpnCreateChk = async function (winFolderDir) {
         //     return resolve('Y');
         // }
         const { exec } = require('child_process')
-        exec("ifconfig | awk '/inet .*destination/' | awk '{print $2}' | grep 20 | wc -l", (err, output) => {
+        exec("ifconfig | awk '/inet .*destination/' | awk '{print $2}' | grep 20 ", (err, output) => {
             if (err) {
                 return resolve("N");
             }

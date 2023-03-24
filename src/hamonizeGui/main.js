@@ -206,7 +206,7 @@ ipcMain.on('hamonizeVpnInstall', (event, domain) => {
 
 function installProgramHamonize() {
 	return new Promise(function (resolve, reject) {
-		var initJobShell = "sudo node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --programInstall"
+		var initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --programInstall"
 		// var initJobShell = "sudo /bin/bash /tmp/hamonize/hamonizeProgramInstall.sh ";
 		console.log("installProgramHamonizeinstallProgramHamonizeinstallProgramHamonizeinstallProgramHamonizeinstallProgramHamonize===")
 		// const exec = require('child_process').exec;111111111111
@@ -319,8 +319,8 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 function hamonizeProgramInstallProc(domain, userId) {
 	return new Promise(function (resolve, reject) {
 		console.log("#############33 program proc action###################--" + domain + "--" + userId)
-		var aptRepositoryChkJobShell = "sudo /tmp/hamonize/hamonizeProgramInstall.sh " + " " + domain + " " + userId;
-		// var aptRepositoryChkJobShell = "sudo node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --programInstall"
+		var aptRepositoryChkJobShell = "/bin/bash /tmp/hamonize/hamonizeProgramInstall.sh " + " " + domain + " " + userId;
+		// var aptRepositoryChkJobShell = "sudo node /home/gonpc/jobs/2023/newHamonize/src//usr/local/hamonize-connect/hamonizeCtl/main.js  --programInstall"
 
 		exec(aptRepositoryChkJobShell, (error, stdout, stderr) => {
 			if (error) {
@@ -455,7 +455,7 @@ function setServerInfo() {
 function initHamonizeJob() {
 	return new Promise(function (resolve, reject) {
 		// var initJobShell = "/bin/bash " + __dirname + "/shell/initHamonizeInstall.sh";
-		var initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js  --settings"
+		var initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --settings"
 		console.log("initJobShell==========================================================")
 		// exec("gnome-session-quit --no-prompt", (error, stdout, stderr) => {
 		// 	if (error) {
@@ -503,7 +503,7 @@ function install_program_version_chkeckProc() {
 function vpnCreate() {
 	return new Promise(function (resolve, reject) {
 		// var initJobShell = "/bin/bash " + __dirname + "/shell/vpnInstall.sh";
-		var initJobShell = "sudo /tmp/hamonize/vpnInstall.sh";
+		var initJobShell = "/bin/bash /tmp/hamonize/vpnInstall.sh";
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {
 				if (error) {
@@ -778,8 +778,13 @@ const sysInfo = async (event, groupname, sabun, username, domain) => {
 		})
 		.end(function (response) {
 			console.log("sysinfo() = add  pc info ===========++" + response.body);
-			event.sender.send('pcInfoChkProc', response.body);
-		});
+			console.log("sysinfo() = add  pc info ===========++" + JSON.stringify(response.status));
+			// if( response.status == 500 ){
+				event.sender.send('pcInfoChkProc', response.body);
+			// }
+			// event.sender.send('pcInfoChkProc', response.body);
+			// 정상 등록 : true,  등록에러 :  false, 중복 pc : exist
+		}); 
 
 }
 
