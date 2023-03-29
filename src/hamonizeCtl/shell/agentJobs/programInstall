@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 . /etc/hamonize/propertiesJob/propertiesInfo.hm
 
 CENTERURL="http://${CENTERURL}/hmsvc/updtpolicy"
@@ -17,9 +16,6 @@ echo "################### updt deb install ###########################" >>$LOGFI
 
 UPDT_INS=$(cat /etc/hamonize/updt/updtInfo.hm | jq '.INS' | sed -e "s/\"//g")
 SID=$(cat /etc/hamonize/updt/updtInfo.hm | jq '.SID' | sed -e "s/\"//g")
-
-echo "UPDT_INS------------------>$UPDT_INS ,"
-echo "SID=========$SID"
 
 if [ "$UPDT_INS" != null ]; then
     echo "install file total  data=========$UPDT_INS" #  >>$LOGFILE
@@ -50,7 +46,7 @@ if [ "$UPDT_INS" != null ]; then
 
                 echo $INSRET
 
-                rm /tmp/${str}
+                # rm /tmp/${str}
 
             else
                 echo "$str 설치가 실패했습니다."
@@ -74,64 +70,67 @@ if [ "$UPDT_INS" != null ]; then
     RETUPDT=$(curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$UPDT_INSTALL_JSON" $CENTERURL)
 fi
 
+UPDT_DEL=$(cat /etc/hamonize/updt/updtInfo.hm | jq '.DEL' | sed -e "s/\"//g" | tr -d '[:space:]')
+echo "delete file total  data=========$UPDT_DEL" #>>$LOGFILE
 
+if [ "$UPDT_DEL" != null ]; then
+    # systemctl stop auditd
+    # echo " data delete ==$UPDT_DEL===" >>$LOGFILE
 
-UPDT_DEL=`cat /etc/hamonize/updt/updtInfo.hm | jq '.DEL' | sed -e "s/\"//g" | tr -d '[:space:]' `
-echo "delete file total  data=========$UPDT_DEL"  #>>$LOGFILE
-
-
-
-if [ "$UPDT_DEL" != null ]
-then
-    echo " data delete ==$UPDT_DEL===" #>>$LOGFILE
     EC=0
     DELRET=""
-    OLD_IFS=$IFS;
-    IFS=,;
-    for I in $UPDT_DEL;
-    do
-        
+    OLD_IFS=$IFS
+    IFS=,
+    for I in $UPDT_DEL; do
+
         echo "delete deb name is ===> $I" #>>$LOGFILE
-        
-        
-        INIT_DELETED_CHK=`dpkg --get-selections | grep $I | grep -v "[[:graph:]]$I\|$I[[:graph:]]" | wc -l`
+
+        INIT_DELETED_CHK=$(dpkg --get-selections | grep $I | grep -v "[[:graph:]]$I\|$I[[:graph:]]" | wc -l)
         echo "INIT_DELETED_CHK==========>$INIT_DELETED_CHK" #>>$LOGFILE
-        
-        if [ "$INIT_DELETED_CHK" -eq 1 ]
-        then
-            echo "[$I] Not Deleted " #>>$LOGFILE
-            sudo apt-get remove --purge  $I -y #>>$LOGFILE
+
+        if [ "$INIT_DELETED_CHK" -eq 1 ]; then
+            # echo "[$I] Not Deleted "          #>>$LOGFILE
+            sudo apt-get remove --purge $I -y >>$LOGFILE
+
             sleep 1
+
+            # Audit Program Block Delete
+            APP_PATH=$(which $I)
+            chkRules=$(auditctl -l | grep -e "$APP_PATH")
+            if [[ -n $chkRules ]]; then
+                sed -i "/${str}/d" "$RULE_FILE"
+            fi
+
         else
             echo "[$I] package Deleted  " #>>$LOGFILE
         fi
-        
-        
-        # sudo apt-get remove --purge $I -y >>$LOGFILE
-        # sleep 1
-        
-        
-        DEL_CHK_CNT=`dpkg --get-selections | grep $I | grep -v "[[:graph:]]$I\|$I[[:graph:]]" | wc -l`
-        echo "del chk wc -l is ==> $DEL_CHK_CNT"  #>>$LOGFILE
-        
-        DEL_PKG_VER=`apt-cache policy $NAME | grep -E '설치|Installed' | awk '{print $2}'`
-        
-        
+
+        DEL_CHK_CNT=$(dpkg --get-selections | grep $I | grep -v "[[:graph:]]$I\|$I[[:graph:]]" | wc -l)
+        echo "del chk wc -l is ==> $DEL_CHK_CNT" #>>$LOGFILE
+
+        DEL_PKG_VER=$(apt-cache policy $NAME | grep -E '설치|Installed' | awk '{print $2}')
+
         DELRET=$DELRET"{\"debname\":\"${I}\",\"debver\":\"${DEL_PKG_VER}\",\"state\":\"$DEL_CHK_CNT\",\"path\":\"\"}"
-        
+
         if [ "$EC" -eq "$#" ]; then
             DELRET=$DELRET","
         fi
-        
-        EC=`expr "$EC" + 1`
-    done;
+
+        EC=$(expr "$EC" + 1)
+    done
+
+    # auditd 규칙 파일 로드
+    /sbin/auditctl -R $RULE_FILE
+
+    # auditd 서비스 재시작
+    systemctl restart auditd
+
     IFS=$OLD_IFS
-    
-    echo "===delete result data is ===>$DELRET"  #>>$LOGFILE
-    
-    
-    echo "################## updt json data ############################"  #>>$LOGFILE
-    
+
+    echo "===delete result data is ===>$DELRET" #>>$LOGFILE
+
+    echo "################## updt json data ############################" #>>$LOGFILE
+
     UPDT_DELETE_JSON="{\
         \"insresert\":[],\
         \"updtresert\": [],\
@@ -139,15 +138,12 @@ then
         \"domain\": \"$TENANT\",\
         \"uuid\": \"$PCUUID\"\
     }"
-    
+
     echo "UPDT_DELETE_JSON >>> $UPDT_DELETE_JSON" #>> $LOGFILE
-    
-    RETUPDT=`curl  -X  POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$UPDT_DELETE_JSON" $CENTERURL`
+
+    RETUPDT=$(curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$UPDT_DELETE_JSON" $CENTERURL)
     echo $RETUPDT
-    
-    
+
 fi
-
-
 
 rm -fr /etc/hamonize/runupdt.deb 2>/dev/null

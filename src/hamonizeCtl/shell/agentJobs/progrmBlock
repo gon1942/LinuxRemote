@@ -23,13 +23,14 @@ if [ ! -f $RULE_FILE ]; then
         touch $RULE_FILE
 fi
 
+# systemctl stop auditd
+
 RULES_ADD=$(cat /etc/hamonize/progrm/progrm.hm | jq '.INS' | sed -e "s/\"//g")
 if [ "$RULES_ADD" != null ]; then
 
         IFS=',' read -ra str_array <<<"$RULES_ADD"
         EC=0
         for str in "${str_array[@]}"; do
-
                 # 차단 프로그램 실행 경로
                 APP_PATH=$(which $str)
                 echo "차단 프로그램 경로====================>$APP_PATH"
@@ -63,9 +64,8 @@ if [ "$RULES_ADD" != null ]; then
                 if [ "$EC" -eq "$#" ]; then
                         INSRET=$INSRET","
                 fi
-echo "2===$INSRET"
-                EC=$(expr "$EC" + 1)
 
+                EC=$(expr "$EC" + 1)
 
         done
 fi
@@ -74,22 +74,16 @@ RULES_DEL=$(cat /etc/hamonize/progrm/progrm.hm | jq '.DEL' | sed -e "s/\"//g")
 
 if [ "$RULES_DEL" != null ]; then
         IFS=',' read -ra str_array <<<"$RULES_DEL"
-        # IFS=',' read -ra str_array <<<"htop"
 
         EC=0
         for str in "${str_array[@]}"; do
 
                 # 차단 프로그램 실행 경로
-                echo "str====================>$str"
                 APP_PATH=$(which $str)
-                echo "차단 프로그램 경로====================>$APP_PATH"
-
                 # check if the auditd rule already exists
-
                 chkRules=$(auditctl -l | grep -e "$APP_PATH")
                 echo "chkRules====================>$chkRules"
                 if [[ -n $chkRules ]]; then
-                        echo "Deleting existing audit rule..."
                         sed -i "/${str}/d" "$RULE_FILE"
                 fi
 
@@ -98,6 +92,7 @@ if [ "$RULES_DEL" != null ]; then
 
                 # auditd 서비스 재시작
                 systemctl restart auditd
+
                 INSRET=$INSRET"{\"progrmname\":\"${str}\" , \"status\":\"N\", \"kind\":\"del\", \"datetime\":\"$DATETIME\", \"hostname\":\"$HOSTNAME\" , \"uuid\":\"$UUID\" , \"domain\":\"$TENANT\"}"
 
                 if [ "$EC" -eq "$#" ]; then

@@ -92,44 +92,44 @@ fi
 #=== agent & pcmngr upgradle ====
 sudo apt-get update >/dev/null 2>&1
 
-# Hamonize Agent Application =====================================================#
-CHK_AGNET_INSTALLED=$(dpkg-query -W | grep hamonize-agent | wc -l)
-echo "agent install checked is =="$CHK_AGNET_INSTALLED >>$LOGFILE
-if [ $CHK_AGNET_INSTALLED = 0 ]; then
-        sudo apt-get install hamonize-agent -y >>$LOGFILE
-fi
+# # Hamonize Agent Application =====================================================#
+# CHK_AGNET_INSTALLED=$(dpkg-query -W | grep hamonize-agent | wc -l)
+# echo "agent install checked is =="$CHK_AGNET_INSTALLED >>$LOGFILE
+# if [ $CHK_AGNET_INSTALLED = 0 ]; then
+#         sudo apt-get install hamonize-agent -y >>$LOGFILE
+# fi
 
-CHK_AGENT=$(apt list --upgradable 2>/dev/null | grep hamonize-agent | wc -l)
-echo "agent upgrade able is =="$CHK_AGENT >>$LOGFILE
-if [ $CHK_AGENT -gt 0 ]; then
-        sudo apt-get --only-upgrade install hamonize-agent -y >/dev/null 2>&1
-fi
+# CHK_AGENT=$(apt list --upgradable 2>/dev/null | grep hamonize-agent | wc -l)
+# echo "agent upgrade able is =="$CHK_AGENT >>$LOGFILE
+# if [ $CHK_AGENT -gt 0 ]; then
+#         sudo apt-get --only-upgrade install hamonize-agent -y >/dev/null 2>&1
+# fi
 
-# Hamonize Admin Application =====================================================#
-CHK_ADMIN_INSTALLED=$(dpkg-query -W | grep hamonize-admin | wc -l)
-echo "hamonize-admin install checked is =="$CHK_ADMIN_INSTALLED >>$LOGFILE
-if [ $CHK_ADMIN_INSTALLED = 0 ]; then
-        sudo apt-get install hamonize-admin -y >>$LOGFILE
-fi
+# # Hamonize Admin Application =====================================================#
+# CHK_ADMIN_INSTALLED=$(dpkg-query -W | grep hamonize-admin | wc -l)
+# echo "hamonize-admin install checked is =="$CHK_ADMIN_INSTALLED >>$LOGFILE
+# if [ $CHK_ADMIN_INSTALLED = 0 ]; then
+#         sudo apt-get install hamonize-admin -y >>$LOGFILE
+# fi
 
-CHK_ADMIN=$(apt list --upgradable 2>/dev/null | grep hamonize-admin | wc -l)
-echo "hamonize-admin upgrade able is =="$CHK_ADMIN >>$LOGFILE
-if [ $CHK_ADMIN -gt 0 ]; then
-        sudo apt-get --only-upgrade install hamonize-admin -y >/dev/null 2>&1
-fi
+# CHK_ADMIN=$(apt list --upgradable 2>/dev/null | grep hamonize-admin | wc -l)
+# echo "hamonize-admin upgrade able is =="$CHK_ADMIN >>$LOGFILE
+# if [ $CHK_ADMIN -gt 0 ]; then
+#         sudo apt-get --only-upgrade install hamonize-admin -y >/dev/null 2>&1
+# fi
 
-# Hamonize Help Application =====================================================#
-CHK_HAMONIZE_HELP_INSTALLED=$(dpkg-query -W | grep hamonize-help | wc -l)
-echo "hamonize-help install checked is =="$CHK_HAMONIZE_HELP_INSTALLED >>$LOGFILE
-if [ $CHK_ADMIN_INSTALLED = 0 ]; then
-        sudo apt-get install hamonize-help -y >>$LOGFILE
-fi
+# # Hamonize Help Application =====================================================#
+# CHK_HAMONIZE_HELP_INSTALLED=$(dpkg-query -W | grep hamonize-help | wc -l)
+# echo "hamonize-help install checked is =="$CHK_HAMONIZE_HELP_INSTALLED >>$LOGFILE
+# if [ $CHK_ADMIN_INSTALLED = 0 ]; then
+#         sudo apt-get install hamonize-help -y >>$LOGFILE
+# fi
 
-CHK_HAMONIZE_HELP=$(apt list --upgradable 2>/dev/null | grep hamonize-help | wc -l)
-echo "hamonize-help upgrade able is =="$CHK_HAMONIZE_HELP >>$LOGFILE
-if [ $CHK_HAMONIZE_HELP -gt 0 ]; then
-        sudo apt-get --only-upgrade install hamonize-help -y >/dev/null 2>&1
-fi
+# CHK_HAMONIZE_HELP=$(apt list --upgradable 2>/dev/null | grep hamonize-help | wc -l)
+# echo "hamonize-help upgrade able is =="$CHK_HAMONIZE_HELP >>$LOGFILE
+# if [ $CHK_HAMONIZE_HELP -gt 0 ]; then
+#         sudo apt-get --only-upgrade install hamonize-help -y >/dev/null 2>&1
+# fi
 
 
 

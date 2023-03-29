@@ -3,8 +3,8 @@
  
 int main()
 {
-    int ret = system("/home/gonpc/jobs/2023/blockchain/demo-server/agent.sh");
- 
+    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
+    WEXITSTATUS(ret);
     printf("ret : %d \n", ret);
  
     return 0;

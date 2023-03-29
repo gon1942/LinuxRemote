@@ -6,12 +6,9 @@ CENTER_BASE_URL=$CENTERURL
 DOMAININFO="$1"
 HOME_USERID="$2"
 
-
 LOGFILE="/var/log/hamonize/propertiesJob/propertiesJob.log"
 WORK_PATH=$(dirname $(realpath $0))
 retval=-1
-
-
 
 # OS Display Check -------------------------------------------------------------------------------------#
 if [ "$(ps -A | egrep -i 'xorg|wayland' | awk '{print $NF}')" = "Xorg" ]; then
@@ -24,12 +21,10 @@ fi
 
 #---------------------------------------------------##---------------------------------------------------##---------------------------------------------------##---------------------------------------------------#
 
-
-
 deviceSettings() {
     retval=-1
     echo " #### 4. usb protect install #### [start]" >>$LOGFILE
-    echo "$WORK_PATH " >> $LOGFILE
+    echo "$WORK_PATH " >>$LOGFILE
     cd $WORK_PATH/usb-lockdown
     sudo make install >>$LOGFILE
 
@@ -67,7 +62,7 @@ deviceSettings() {
     return $retval
 }
 
-osLoginoutSettings() {  #---------------------------------------------------##---------------------------------------------------##---------------------------------------------------##---------------------------------------------------#
+osLoginoutSettings() { #---------------------------------------------------##---------------------------------------------------##---------------------------------------------------##---------------------------------------------------#
     retval=-1
     echo " 5. user loginout install ============== [start]" >>$LOGFILE
     cp $WORK_PATH/hamonize-logout.service /etc/systemd/system/
@@ -716,7 +711,7 @@ Init_program_package_chk() {
     retval=""
     retPackage=""
 
-    for i in curl jq make openssh-server net-tools xrdp; do
+    for i in curl jq make openssh-server net-tools xrdp auditd; do
         RE_PKG_CHK=$(dpkg-query -W --showformat='${Status}\n' $i | grep "install ok installed")
 
         if [ "" = "$RE_PKG_CHK" ]; then
@@ -788,8 +783,8 @@ InstallHamonizeProgram() {
                 \"domain\": \"$DOMAININFO\"\
         } ]\
     }"
-    echo "$Param_Install_Used=========="    >>$LOGFILE
-    echo "$CENTER_BASE_URL----------" >> $LOGFILE
+    echo "$Param_Install_Used==========" >>$LOGFILE
+    echo "$CENTER_BASE_URL----------" >>$LOGFILE
     ProgramInstallUsed=$(curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$Param_Install_Used" "$CENTER_BASE_URL/hmsvc/getTenantOption")
     echo "ProgramInstallUsed==============$ProgramInstallUsed" >>$LOGFILE
     VPN_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .tenant_vpn_used' | sed -e "s/\"//g")
@@ -807,6 +802,73 @@ InstallHamonizeProgram() {
     echo "OS AutoLogin Used YN [  > $AUTOLOGIN_USED_YN ]" >>$LOGFILE
     echo "" >>$LOGFILE
 
+    #==== AUditd Install -------------------------#
+    if [ "$AUDITD_USED_YN" == "Y" ]; then
+        echo "Auditd Install" >>$LOGFILE
+        apt-get install -y auditd >/dev/null
+
+        # auditd_version=$(dpkg -s auditd | grep Version | cut -d " " -f 2)
+        # auditd_major_version=$(echo $auditd_version | cut -d "." -f 1)
+
+        # echo "Installed auditd version: $auditd_version"
+        # echo "Auditd major version: $auditd_major_version"
+
+        # if [ "$auditd_major_version" = "1:2" ]; then
+        #     echo "Processing for auditd version $auditd_major_version"
+        #     # auditd 1.2에 대한 처리를 추가합니다.
+        # elif [ "$auditd_major_version" = "1:3" ]; then
+        #     echo "Processing for auditd version $auditd_major_version"
+        #     # auditd 1.3에 대한 처리를 추가합니다.
+        # else
+        #     echo "No processing needed for auditd version $auditd_major_version"
+        # fi
+
+        # # auditd 폴더 경로
+        # AUDITD_PATH="/etc/audit"
+
+        # if [ -d "$AUDITD_PATH/rules.d" ] && [ -d "$AUDITD_PATH/plugins.d" ]; then
+        #     echo "Both rules.d and plugins.d directories exist in $AUDITD_PATH"
+        #     cp
+        # else
+        #     if [ ! -d "/etc/audit/rules.d" ]; then
+        #         echo "rules.d directory not found in $AUDITD_PATH/rules.d"
+        #     fi
+
+        #     if [ ! -d "/etc/audisp/plugins.d" ]; then
+        #         echo "plugins.d directory not found in $AUDITD_PATH/plugins.d"
+        #     fi
+        # fi
+
+        echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####" >>$LOGFILE
+    fi
+
+    # hamonize.ruels 파일 생성
+    echo "Hamonize Rules File Create" >>$LOGFILE
+    RULE_FILE="/etc/audit/rules.d/hamonize.rules"
+
+    # Device Send Log
+    echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb" >>$RULE_FILE
+    # Program Install & remove
+    echo "-w /etc/hamonize/runupdt.deb -p w -k hamonizeUpdt" >>$RULE_FILE
+    # Program Block
+    echo "-w /etc/hamonize/runprogrmblock -p w -k hamonizeBlock" >>$RULE_FILE
+    # Device
+    echo "-w /etc/hamonize/rundevicepolicy -p w -k hamonizeDevice" >>$RULE_FILE
+    # Device Send Log
+    echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb" >>$RULE_FILE
+    # UFW
+    echo "-w /etc/hamonize/runufw -p w -k hamonizeUfw" >>$RULE_FILE
+    # Recovery
+    echo "-w /etc/hamonize/runrecovery -p w -k hamonizeRecovery" >>$RULE_FILE
+
+    # 파일 경로와 내용을 변수에 저장합니다.
+    filepath="/etc/audisp/plugins.d/hamonizePolicy.conf"
+    content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizePolicy\ntype = always\n#args = \"hmProgramBlock\"\nformat = string"
+
+    # 파일을 생성합니다.
+    echo -e "$content" >"$filepath"
+    systemctl restart auditd
+ 
     #==== os init job -------------------------#
     if [ "$PCINIT_USED_YN" == "Y" ]; then
         cp $WORK_PATH/osInitJob.service /etc/systemd/system/
@@ -959,7 +1021,6 @@ InstallHamonizeProgram() {
             fi
         fi
     fi
-
 
 }
 

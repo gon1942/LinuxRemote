@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "notify.h": "c",
+        "locale.h": "c",
+        "auparse.h": "c"
+    }
+}

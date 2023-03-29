@@ -4,11 +4,13 @@
 RUID=$(who | awk 'FNR == 1 {print $1}')
 RUSER_UID=$(id -u ${RUID})
 DISPLAY=:0  sudo -u ${RUID} DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${RUSER_UID}/bus" /usr/share/hamonize-agent/shell/hamonize-noti-1.0.0.AppImage --no-sandbox
-
+# ------------------------------------------
+# 복구 시 hamonize-agent 경로 수정해야함 ryanupdate
+# ------------------------------------------
 
 ) & {
 
-UUID=`cat /etc/uuid |head -1`
+UUID=$(cat /etc/machine-id)
 DATETIME=`date +'%Y-%m-%d %H:%M:%S'`
 HOSTNAME=`hostname`
 BKDIR="/timeshift/snapshots"

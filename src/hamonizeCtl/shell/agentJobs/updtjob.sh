@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-# sudo systemctl stop hamonize-agentmngr.service
 
 dtyp=''
 installCmd=''

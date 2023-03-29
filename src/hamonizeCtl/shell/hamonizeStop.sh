@@ -23,8 +23,8 @@ ldapSettings() {
     hamonize-cli service stop  > /dev/null
 
 
-    #==== hamonize-agent mngr -----------------#
-    systemctl stop hamonize-agentmngr  > /dev/null
+    # #==== hamonize-agent mngr -----------------#
+    # systemctl stop hamonize-agentmngr  > /dev/null
 
     #==== vpn stop -----------------#
     MACHIDTMP=`cat /etc/hamonize/uuid |head -1`

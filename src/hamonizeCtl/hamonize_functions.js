@@ -19,6 +19,7 @@ restApiUrl.set('setPcInfo', '/hmsvc/setPcInfo');
 restApiUrl.set('setVpnUpdate', '/hmsvc/setVpnUpdate');
 restApiUrl.set('eqhw', '/hmsvc/eqhw');
 restApiUrl.set('unauth', '/hmsvc/unauth');
+restApiUrl.set('pcreset', '/hmsvc/pcInfoReset');
 
 // Call Linux Cmd  -----------------------------------------------------------------------------------------------------------------------------------------------------------------// --------------------------------------------------------------------------------------------------------------------------------------------- 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -59,6 +60,7 @@ async function run(cmd) {
 
 //  os User Root Check 
 exports.isCurrentUserRoot = async function () {
+    // log(`os User Root Check---isCurrentUserRoot==${process.getuid() == 0}`);
     return process.getuid() == 0;
 }
 
@@ -238,41 +240,30 @@ exports.hamonize_CmdList = {
 // #### Add Pc Info -----------------------------------------------------------------------------------------------------------------------------------------------------------------// ------------------------------------------------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 exports.addPcInfo = async function (groupname, sabun, username, domain) {
-
     const pcHostname = await execShellCommand('hostname');
-    // let pcHostNameVal = pcHostname;
     const cpu = await si.cpu(); // CPU Info
     let cpuinfo = ` ${cpu.manufacturer} ${cpu.brand} ${cpu.speed}GHz`;
     cpuinfo += ` ${cpu.cores} (${cpu.physicalCores} Physical)`;
-
     let cpuinfoMd5 = ` ${cpu.manufacturer} ${cpu.brand}`;
     cpuinfoMd5 += ` ${cpu.cores} (${cpu.physicalCores} Physical)`;
-
     const disk = (await si.diskLayout())[0]; // Disk Info
     const size = Math.round(disk.size / 1024 / 1024 / 1024);
     let diskInfo = ` ${disk.vendor} ${disk.name} ${size}GB ${disk.type} (${disk.interfaceType})`;
     let diskSerialNum = disk.serialNum;
-
     const os = await si.osInfo(); //OS Info
     let osinfo = ` ${os.distro} ${os.release} ${os.codename} (${os.platform})`;
-
     let osinfoKernel = ` ${os.kernel} ${os.arch}`;
-
     const ram = await si.mem(); // RAM Info
     const totalRam = Math.round(ram.total / 1024 / 1024 / 1024);
     let raminfo = ` ${totalRam}GB`;
-
     const ipinfo = require("ip"); //	get os ip address
     const pcuuid = (await si.uuid()); //	 get os mac address 
-
     const macs = pcuuid.macs;
-
 
     const machineIdSync = require('node-machine-id').machineIdSync;
     let machindid = machineIdSync({
         original: true
     });
-
     const {
         networkInterfaces
     } = require('os');
@@ -293,7 +284,6 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
 
         }
     }
-
     // let vpnipaddr = '';
     // if (typeof results['tun0'] != 'undefined') {
     //     // console.log(results['tun0']); // result ::: [ '10.8.0.2', 'fe80::87f5:686f:a23:1002' ]
@@ -309,22 +299,19 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
 
     vpnipaddr = ip;
 
-
-    // console.log("=============vpnipaddr================" + vpnipaddr);
     var md5 = require('md5');
     let hwinfoMD5 = pcHostname + ipinfo.address() + cpuinfoMd5 + diskInfo + diskSerialNum + osinfoKernel + raminfo + machindid;
     let hwData = md5(hwinfoMD5);
-
+    log("hwData====++"+hwData)
     let fileDir = "/etc/hamonize/hwinfo/hwinfo.hm";
     fs.writeFile(fileDir, hwData, (err) => {
         if (err) {
-            // log("//== sysInfo hw check create file error  "+ err.message)
+            log("//== sysInfo hw check create file error  "+ err.message)
         }
     });
-
-    var vpnip = await vpnCreateTest();
-    log("#######vpnip===", vpnip);
-
+    
+    // var vpnip = await vpnCreateTest();
+    
     var JsonData = new Object();
     var arrJsonData = new Array();
     JsonData.uuid = machindid;
@@ -343,6 +330,7 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
     JsonData.domain = domain.trim();
 
     arrJsonData.push(JsonData);
+
     return arrJsonData;
 
 }
@@ -496,26 +484,7 @@ exports.hamonizeProgramUninstallProc = async function (domain, userId) {
 // Hamonize & OS Backup -----------------------------------------------------------------------------------------------------------------------------------------------------------------// -----------------------------------------------------------------------------------------------------------------------------------------
 exports.osBackupProc = async function (userId) {
     return new Promise(function (resolve, reject) {
-
-        // return resolve("Y");
-        log("userId=====================> " + userId)
-
-        // var backupCmd = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
         var backupCmd = "/bin/bash  /tmp/hamonize/hamonizeBackup.sh " + userId;
-        log(backupCmd)
-        // sudo.exec(backupCmd, options,
-        //     function (error, stdout, stderr) {
-        //         if (error) {
-        //             console.log("hamonizeSystemBackupProc error is " + error);
-        //             return resolve("N");
-        //         } else {
-        //             // console.log('stdout: ' + stdout);
-        //             // console.log('stderr: ' + stderr);
-        //             resolve("Y");
-        //         }
-        //     }
-        // );
-
         const { exec } = require('child_process')
         exec(backupCmd, (err, output) => {
             if (err) {
@@ -536,7 +505,8 @@ exports.osBackupProc = async function (userId) {
 exports.setServerInfoConfigProc = async function () {
     return new Promise(function (resolve, reject) {
         const { exec } = require('child_process')
-        exec("/bin/bash /tmp/hamonize/setServerInfo.sh " + baseurl, (err, output) => {
+        // fs.writeFileSync('/etc/hamonize/agentJobs/setServerInfo.sh', fs.readFileSync(path.resolve(__dirname, './shell/setServerInfo.sh')));
+        exec("/bin/bash /etc/hamonize/agentJobs/setServerInfo.sh " + baseurl, (err, output) => {
             if (err) {
                 return resolve("N");
             } else {

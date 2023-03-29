@@ -71,17 +71,17 @@ ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 	// 	$("#hmInstalledBody").show();
 
 
-	// } else if (isChkVal == "FREEDONE") {
-	// 	document.title = "𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮";
-	// 	$modal.hide();
-	// 	$("#loadingInfoText").text("");
+	else if (isChkVal == "FREEDONE") {
+		document.title = "𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮";
+		$modal.hide();
+		$("#loadingInfoText").text("");
 
-	// 	$("#hmInstallIng").hide();
-	// 	$("#hmInstallIngBody").hide();
+		$("#hmInstallIng").hide();
+		$("#hmInstallIngBody").hide();
 
-	// 	$("#hmInstalled").show();
-	// 	$("#hmFreeDoneBody").show();
-	// }
+		$("#hmInstalled").show();
+		$("#hmFreeDoneBody").show();
+	}
 
 });
 
@@ -196,6 +196,11 @@ function nextStap() {
 	$("#procLayerBody").show();
 
 	initLayer
+	console.log("####nextstap");
+
+	$("#stepA").removeClass("br animate");
+	$("#stepB").addClass("br animate");
+	$("#infoStepA").text("완료");
 
 	fn_hamonizeProgramInstall();
 	// setPcinfo();
@@ -235,9 +240,9 @@ function setPcinfo() {
 
 ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 	if (isChkBool == true) {
-		$("#stepA").removeClass("br animate");
-		$("#stepB").addClass("br animate");
-		$("#infoStepA").text("완료");
+		// $("#stepA").removeClass("br animate");
+		// $("#stepB").addClass("br animate");
+		// $("#infoStepA").text("완료");
 
 		// fn_hamonizeProgramInstall();
 		hamonizeSystemBackup();
@@ -254,7 +259,6 @@ ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 
 // ======== step 3. PC 관리 프로그램 설치... =========================================/
 function fn_hamonizeProgramInstall() {
-	console.log("bbbbbbbbbbbbbbbbbbbbbb")
 	ipcRenderer.send('hamonizeProgramInstall', $("#domain").val());
 }
 
@@ -267,7 +271,6 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 		$("#stepC").addClass("br animate");
 		$("#infoStepB").text("완료");
 
-		// hamonizeSystemBackup();
 		setPcinfo();
 
 	} else {
@@ -331,7 +334,7 @@ ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
 		$("#infoStepC").text("완료");
 		$("#EndBody").show();
 
-		//====================================================테스트용 주석
+		//====================================================테스트용 주석 실 배포시 주석 해제
 		// setTimeout(() => {
 		// 	ipcRenderer.send('rebootProc');
 		// }, 5 * 1000);

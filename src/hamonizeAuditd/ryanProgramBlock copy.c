@@ -155,7 +155,7 @@ char *test3(const char *d)
     /* Setup the notification stuff */
     char msg[256], *name = NULL;
 
-    NotifyNotification *n = notify_notification_new(note, "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.!!!!!!!!!!!!!!", NULL);
+    NotifyNotification *n = notify_notification_new(note, "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.", NULL);
     notify_notification_set_urgency(n, NOTIFY_URGENCY_NORMAL);
     notify_notification_set_timeout(n, 3000); // 3 seconds
     notify_notification_show(n, NULL);
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
         comm = auparse_find_field(au, "comm");
         keyname = auparse_find_field(au, "key");
 
-        if (keyname && strcmp(keyname, "\"hamonizeBlockRules\"") == 0)
+        if (keyname && strcmp(keyname, "\"hamonizeBlock\"") == 0)
         {
 
             // do

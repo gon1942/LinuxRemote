@@ -2,7 +2,7 @@
 
 #==== backup timeShift ==============================================
 
-DEVICE=$(df -T | grep 'ext*' | awk '{print $1}')
+DEVICE=$(df -T  / | grep 'ext*' | awk '{print $1}')
 Log_backup="/var/log/hamonize/adcon/backuplog.log"
 INFOHM="/etc/hamonize/propertiesJob/propertiesInfo.hm"
 CENTERURL=$(cat $INFOHM | grep CENTERURL | awk -F '=' '{print $2}')
@@ -13,7 +13,7 @@ HOSTNAME=$(hostname)
 TENANT=$(cat /etc/hamonize/hamonize_tanent)
 
 cat /dev/null >$Log_backup
-touch /tmp/backup.log
+# touch /tmp/backup.log
 
 echo "DEVICE === > $DEVICE"
 
@@ -63,24 +63,31 @@ sed -i "s/do_first_run\" \: \"true\"/do_first_run\" \: \"first\"/g" $FILEPATH
 
 # # # backup directory  설정
 USERID=$1
-echo "a=======wwwwwwwwwwwww====$USERID" >>$Log_backup
 
 sed -i "s/exclude\" \: \[/exclude\" \: \[\n \"+ \/home\/$USERID\/**\" /g" $FILEPATH
 # sed -i "s/exclude\" \: \[/exclude\" \: \[\n \"+ \/root\/**\", /g" $FILEPATH
 
-echo $(cat $FILEPATH) >>$Log_backup
 
 (
-
-    echo "start==========" >>$Log_backup
-    echo "start==device========$DEVICE" >>$Log_backup
 
     sudo timeshift --snapshot-device "$DEVICE" --scripted --create --comments "init backup" >>$Log_backup
 
     BKNAME=$(cat $Log_backup | grep 'Tagged*' | awk '{print $3}' | awk -F "'" '{print $2}')
     # BKUUID=$(cat /etc/hamonize/uuid | head -1)
     BKDIR="/timeshift/snapshots"
-    BKCENTERURL="https://$CENTERURL/backup/setBackupJob"
+
+    if curl --output /dev/null --silent --head --fail "$CENTERURL"; then
+        # HTTP 요청이 성공하면 HTTP로 curl 명령어를 실행합니다.
+        echo "HTTP 연결 성공"
+        BKCENTERURL="http://$CENTERURL/backup/setBackupJob"
+
+    else
+        # HTTP 요청이 실패하면 HTTPS로 curl 명령어를 실행합니다.
+        echo "HTTP 연결 실패. HTTPS로 시도합니다."
+        BKCENTERURL="https://$CENTERURL/backup/setBackupJob"
+    fi
+
+    
 
     BK_JSON="{\
                 \"events\" : [ {\
@@ -125,7 +132,7 @@ echo $(cat $FILEPATH) >>$Log_backup
             # fi
 
             if [[ "$backupProcessVal" == *"0.00%"* ]]; then
-                echo "rsync로 파일 동기화 중입니다. " >>/tmp/backup.log
+                echo "OS 백업중 중입니다. 잠시만 기달려주세요. " >>/tmp/backup.log
             else
                 echo $backupProcessVal >>/tmp/backup.log
             fi

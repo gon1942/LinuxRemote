@@ -26,10 +26,15 @@ char *hamonizeUpdt()
 
     // int ret = system("/home/gonpc/jobs/2023/hamonize/src/dist/hamonizeCtl --updt");
     int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
+    // int ret = system("/etc/hamonize/agentJobs/programInstall");
+    
     WEXITSTATUS(ret);
-    printf("ret : %d \n", ret);
+    syslog(LOG_INFO, "--------hamonizeUpdt---------ret : %d \n", ret);
     return 0;
 }
+
+
+
 
 char *hamonizeBlock()
 {
@@ -64,6 +69,15 @@ char *hamonizeUfw()
 {
     syslog(LOG_INFO, "#-------------------hamonizeUfw-------------------------###############.\n");
     int ret = system("/usr/local/hamonize-connect/hamonizeCtl --ufw");
+    WEXITSTATUS(ret);
+    printf("ret : %d \n", ret);
+    return 0;
+}
+
+char *hamonizeLogin()
+{
+    syslog(LOG_INFO, "#-------------------hamonizeLogin-------------------------###############.\n");
+    int ret = system("touch /tmp/aaaa-login-1");
     WEXITSTATUS(ret);
     printf("ret : %d \n", ret);
     return 0;
@@ -136,6 +150,17 @@ int main(int argc, char *argv[])
                 hamonizeUfw();
             }
         }
+
+
+        // Login
+        // if (keyname && strcmp(keyname, "\"login\"") == 0)
+        // {
+        //     if (strcmp(comm, "\"rm\"") != 0)
+        //     {
+        //         syslog(LOG_INFO, "Ufw---------------  key : [%s] , keysArgv : [%s],  comm = [%s]", keyname, keysArgv, comm);
+        //         hamonizeLogin();
+        //     }
+        // }
     };
 
     closelog();

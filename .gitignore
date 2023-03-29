@@ -13,3 +13,5 @@ gitAutoPush.sh
 usr/local/hamonize-connect/*
 src/hamonizeCtl/dist/*
 src/hamonizeGui/dist/*
+bin/*
+usr/local/hamonize-connect/*

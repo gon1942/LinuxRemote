@@ -194,66 +194,61 @@ ipcMain.on('install_program_version_chkeck', (event) => {
 //========================================================================
 // # STEP 2. hamonize vpn install
 //========================================================================
-ipcMain.on('hamonizeVpnInstall', (event, domain) => {
-	mainWindow.setSize(620, 447);
+// ipcMain.on('hamonizeVpnInstall', (event, domain) => {
+// 	mainWindow.setSize(620, 447);
 
-	(async () => {
-		var abc = await installProgramHamonize();
-		console.log("a===============" + abc)
-	})();
-});
-
-
-function installProgramHamonize() {
-	return new Promise(function (resolve, reject) {
-		var initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --programInstall"
-		// var initJobShell = "sudo /bin/bash /tmp/hamonize/hamonizeProgramInstall.sh ";
-		console.log("installProgramHamonizeinstallProgramHamonizeinstallProgramHamonizeinstallProgramHamonizeinstallProgramHamonize===")
-		// const exec = require('child_process').exec;111111111111
-		exec(initJobShell, function (err, stdout, stderr) {
-			console.log('initJobShell 정책 ::  stdout: ' + stdout);
-			console.log('initJobShell 정책 :: stderr: ' + stderr);
-
-			if (err !== null) {
-				console.log(' initJobShell 정책 ::  error: ' + err);
-				return resolve("Y");
-			} else {
-				return resolve("N");
-			}
-		});
-
-		// sudo.exec(initJobShell, options,
-		// 	function (error, stdout, stderr) {
-		// 		if (error) {
-		// 			console.log(error);
-		// 			return resolve("N");
-		// 		} else {
-		// 			return resolve('Y');
-		// 		}
-		// 	}
-		// );
-	});
-}
+// 	(async () => {
+// 		var abc = await installProgramHamonize();
+// 		console.log("a===============" + abc)
+// 	})();
+// });
 
 
-const hamonizeVpnInstall_Action = async (event, domain) => {
-	try {
-		// vpn install 
-		await vpnCreate();
-		// vpn install check 
-		let vpnCreateResult = await vpnCreateChk();
-		if (vpnCreateResult == 'Y') {
-			// vpn 연결후 pc 정보 업데이트
-			// pcInfoUpdate(domain);
-			event.sender.send('hamonizeVpnInstall_Result', 'Y');
-		} else {
-			event.sender.send('hamonizeVpnInstall_Result', 'N002');
-		}
-	} catch (err) {
-		console.log("hamonizeVpnInstall_Action Error---" + err);
-		return Object.assign(err);
-	}
-} // hamonize vpn install END -----------------------------------------------#
+// function installProgramHamonize() {
+// 	return new Promise(function (resolve, reject) {
+
+// 		if (isDev) {
+// 			initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js --programInstall";
+// 		}else{
+// 			initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --programInstall"
+// 		}
+
+// 		// var initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --programInstall"
+		
+// 		exec(initJobShell, function (err, stdout, stderr) {
+// 			console.log('initJobShell 정책 ::  stdout: ' + stdout);
+// 			console.log('initJobShell 정책 :: stderr: ' + stderr);
+
+// 			if (err !== null) {
+// 				console.log(' initJobShell 정책 ::  error: ' + err);
+// 				return resolve("Y");
+// 			} else {
+// 				return resolve("N");
+// 			}
+// 		});
+
+// 	});
+// }
+
+
+// const hamonizeVpnInstall_Action = async (event, domain) => {
+// 	try {
+// 		// vpn install 
+// 		await vpnCreate();
+// 		// vpn install check 
+// 		let vpnCreateResult = await vpnCreateChk();
+// 		if (vpnCreateResult == 'Y') {
+// 			// vpn 연결후 pc 정보 업데이트
+// 			// pcInfoUpdate(domain);
+// 			event.sender.send('hamonizeVpnInstall_Result', 'Y');
+// 		} else {
+// 			event.sender.send('hamonizeVpnInstall_Result', 'N002');
+// 		}
+// 	} catch (err) {
+// 		console.log("hamonizeVpnInstall_Action Error---" + err);
+// 		return Object.assign(err);
+// 	}
+// } // hamonize vpn install END -----------------------------------------------#
 
 
 
@@ -262,16 +257,11 @@ const hamonizeVpnInstall_Action = async (event, domain) => {
 //========================================================================
 
 ipcMain.on('hamonizeProgramInstall', async (event, domain) => {
-	console.log("sta1111111111111111111111111111111111111111111111111")
 	hamonizeProgramInstall_Action(event, domain);
 });
 const hamonizeProgramInstall_Action = async (event, domain) => {
 	try {
 		let userId = await execShellCommand("cat /etc/passwd | grep 1000 | awk -F':' '{print $1}' ");
-		console.log("####################userId#########333" + userId);
-
-
-		// vnp install 
 
 		// vpn install 
 		let vpnCreateResult = await vpnCreate();
@@ -307,8 +297,8 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 
 		}
 
-		console.log("program install end -> pcinfo update ")
-		pcInfoUpdate(domain);
+		// console.log("program install end -> pcinfo update ")
+		// pcInfoUpdate(domain);
 
 	} catch (err) {
 		console.log("hamonizeProgramInstall_Action Error---" + err);
@@ -318,10 +308,8 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 
 function hamonizeProgramInstallProc(domain, userId) {
 	return new Promise(function (resolve, reject) {
-		console.log("#############33 program proc action###################--" + domain + "--" + userId)
-		var aptRepositoryChkJobShell = "/bin/bash /tmp/hamonize/hamonizeProgramInstall.sh " + " " + domain + " " + userId;
-		// var aptRepositoryChkJobShell = "sudo node /home/gonpc/jobs/2023/newHamonize/src//usr/local/hamonize-connect/hamonizeCtl/main.js  --programInstall"
 
+		var aptRepositoryChkJobShell = "/bin/bash /tmp/hamonize/hamonizeProgramInstall.sh " + " " + domain + " " + userId;
 		exec(aptRepositoryChkJobShell, (error, stdout, stderr) => {
 			if (error) {
 				console.log("hamonizeProgramInstallProc Error is " + error);
@@ -449,20 +437,30 @@ function setServerInfo() {
 	});
 }
 
+var isDev = process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false;
+if (isDev) {
+	console.log('##############################################################################');
+	console.log('########################## Run by Node.js  ##########################');
+	console.log('##############################################################################');
+} else {
+	console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+	console.log('@@@@@@@@@@@@@@@@@@  Run as packaged @@@@@@@@@@@@@@@@@@@@@@@@@@');
+	console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+}
 
 //== init Shell Job  ===========================================
 // 기본 폴더 및 프로그램 설치
 function initHamonizeJob() {
 	return new Promise(function (resolve, reject) {
-		// var initJobShell = "/bin/bash " + __dirname + "/shell/initHamonizeInstall.sh";
-		var initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --settings"
-		console.log("initJobShell==========================================================")
-		// exec("gnome-session-quit --no-prompt", (error, stdout, stderr) => {
-		// 	if (error) {
-		// 		return;
-		// 	}
-		// });
+		var initJobShell = ""
+		if (isDev) {
+			initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js --settings";
+		}else{
+			initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --settings"
+		}
 
+		
+		console.log("initJobShell==========================================================")
 
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {
@@ -502,7 +500,6 @@ function install_program_version_chkeckProc() {
 //== vpn create  Shell Job  ===========================================
 function vpnCreate() {
 	return new Promise(function (resolve, reject) {
-		// var initJobShell = "/bin/bash " + __dirname + "/shell/vpnInstall.sh";
 		var initJobShell = "/bin/bash /tmp/hamonize/vpnInstall.sh";
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {

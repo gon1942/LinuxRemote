@@ -14,9 +14,10 @@ build_node_app:
 	npm install && \
 	npm run build && \
 	cp -v ./dist/hamonizeCtl ../../usr/local/hamonize-connect/hamonizeCtl && \
+	cp -v ./dist/hamonizeCtl ../../bin && \
     cd ../../src/hamonizeAuditd && \
-	gcc -o ryanProgramBlock ryanProgramBlock.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify -lssl -lcrypto -ljson-c -lcurl    && \
-	cp -v ./ryanProgramBlock ../../usr/local/hamonize-connect/ryanProgramBlock 
+	gcc -o hamonizePolicy hamonizePolicy.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify -lssl -lcrypto -ljson-c -lcurl  && \
+	cp -v ./hamonizePolicy ../../usr/local/hamonize-connect/hamonizePolicy 
 
 
 clean:

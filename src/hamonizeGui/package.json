@@ -13,7 +13,7 @@
   },
   "scripts": {
     "cache-clean": "rm -rf ~/.electron",
-    "start": "electron main.js --no-sandbox",
+    "start": "APP_DEV=true electron main.js --no-sandbox",
     "test": "electron ./testJquery/test.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
