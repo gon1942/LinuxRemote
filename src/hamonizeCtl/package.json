@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A hamonizeCtl application",
   "main": "main.js",
-  "url": "http://192.168.0.240:8083",
+  "url": "http://61.32.208.27:8083",
   "scripts": {
     "start": "sudo node main.js",
     "clean": "rm -rf node_modules/ ./hamonizeCtl",

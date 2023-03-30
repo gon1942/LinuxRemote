@@ -48,12 +48,23 @@ program
 
 
 	.option('--backup')	//	백업
+	.option('--check')
 	.parse();
 
 if (program.opts().backup) {
 	(async () => {
 		hamonizeCli.back();
 		// process.exit(1)
+	})();
+}
+
+
+if (program.opts().check) {	//	방화벽 관리
+	(async () => {
+		hamonizeCli.hamonizeNeedsDir();
+		hamonizeCli.hamonizeAgentFileChk();
+		hamonizeFuns.setbaseurl(baseurl);
+		await hamonizeFuns.setServerInfoConfigProc();
 	})();
 }
 
@@ -71,6 +82,7 @@ if (program.opts().settings) {
 		console.clear();
 		hamonizeFuns.setbaseurl(baseurl);
 		hamonizeCli.settings();		//	 shell job &  init file create
+		hamonizeCli.hamonizeNeedsDir();
 		// hamonizeCli.hamonizeNeedsDir();
 	})();
 }

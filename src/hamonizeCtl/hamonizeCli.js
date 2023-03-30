@@ -282,7 +282,7 @@ async function hamonizeSystemBackup() {
 
   depSpin.stop();
   depSpin.clearLine();
-  
+
   depSpin = new Spinner(' Hamonize Program & OS Backup..... %s');
   depSpin.setSpinnerString(18);
   depSpin.start();
@@ -584,7 +584,8 @@ async function setPcInfo(orginfo, sabun, usernm, domain) {
 
 exports.hamonizeNeedsDir = async function () {
   var exec = require('child_process').exec;
-  const paths = [
+  const forders = [
+    "/etc/hamonize/",
     "/etc/hamonize/hwinfo",
     "/etc/hamonize/progrm",
     "/etc/hamonize/siteblock",
@@ -592,35 +593,60 @@ exports.hamonizeNeedsDir = async function () {
     "/etc/hamonize/updt",
     "/etc/hamonize/security",
     "/etc/hamonize/firewall",
-    "/etc/hamonize/recovery"
+    "/etc/hamonize/recovery",
+    "/etc/hamonize/usblog"
   ];
 
-  for (let path of paths) {
-    try {
-      // 주어진 경로가 파일인지 디렉토리인지 확인
-      const stats = fs.lstatSync(path);
-      if (stats.isDirectory()) {
-        console.log(`Directory already exists: ${path}`);
-      } else if (stats.isFile()) {
-        console.log(`File already exists: ${path}`);
-      }
-    } catch (e) {
-      // 파일 또는 디렉토리가 없으면 생성
-      if (e.code == 'ENOENT') {
-        console.log(`Creating directory: ${path}`);
-        exec(`sudo mkdir ${path} && sudo touch ${path}/${path.split('/').pop()}.hm`,
-          function (err, stdout, stderr) {
-            console.log(`stdout: ${stdout}`);
-            console.log(`stderr: ${stderr}`);
-            if (err !== null) {
-              console.log(`mkdir error: ${err}`);
-            }
-          });
-      } else {
-        console.log(`Error checking path: ${path}`);
-      }
+  const files = [
+    "/etc/hamonize/hwinfo/hwinfo.hm",
+    "/etc/hamonize/usblog/usb-unauth.hm",
+    "/etc/hamonize/runupdt.deb",
+    "/etc/hamonize/runprogrmblock",
+    "/etc/hamonize/rundevicepolicy",
+    "/etc/hamonize/runufw",
+    "/etc/hamonize/runrecovery"
+  ];
+
+  // Create folders
+  forders.forEach((folder) => {
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder, { recursive: true });
     }
-  }
+  });
+
+  // Create files
+  files.forEach((file) => {
+    if (!fs.existsSync(file)) {
+      fs.writeFileSync(file, '', { flag: 'wx' });
+    }
+  });
+
+  // for (let path of paths) {
+  //   try {
+  //     // 주어진 경로가 파일인지 디렉토리인지 확인
+  //     const stats = fs.lstatSync(path);
+  //     if (stats.isDirectory()) {
+  //       console.log(`Directory already exists: ${path}`);
+  //     } else if (stats.isFile()) {
+  //       console.log(`File already exists: ${path}`);
+  //     }
+  //   } catch (e) {
+  //     // 파일 또는 디렉토리가 없으면 생성
+  //     if (e.code == 'ENOENT') {
+  //       console.log(`Creating directory: ${path}`);
+  //       exec(`sudo mkdir ${path} && sudo touch ${path}/${path.split('/').pop()}.hm`,
+  //         function (err, stdout, stderr) {
+  //           console.log(`stdout: ${stdout}`);
+  //           console.log(`stderr: ${stderr}`);
+  //           if (err !== null) {
+  //             console.log(`mkdir error: ${err}`);
+  //           }
+  //         });
+  //     } else {
+  //       console.log(`Error checking path: ${path}`);
+  //     }
+  //   }
+  // }
 
 }
 
@@ -728,7 +754,7 @@ exports.sendToCenter_unauth = async function () {
     var events = JSON.parse(data);
 
 
-    request.post('http://192.168.0.240:8083/hmsvc/unauth', {
+    request.post('http://61.32.208.27:8083/hmsvc/unauth', {
       json: events
     }, (error, res, body) => {
       if (error) {
@@ -795,7 +821,7 @@ exports.fnProgrmJob = async function (_dtype) {
   } else {
     cmd = "sudo /bin/bash ./shell/agentJobs/progrmBlock";
   }
-  log("cnd===+"+ cmd)
+  log("cnd===+" + cmd)
   exec(cmd, function (err, stdout, stderr) {
     log('ProgramBlock 정책 ::  stdout: ' + stdout);
     log('ProgramBlock 정책 :: stderr: ' + stderr);
@@ -849,7 +875,8 @@ const jobFiles = [
   { name: 'remove.sh', path: './shell/agentJobs/remove.sh' },
   { name: 'backupJob_recovery.sh', path: './shell/agentJobs/backupJob_recovery.sh' },
   { name: 'setServerInfo.sh', path: './shell/setServerInfo.sh' },
-  { name: 'hamonizeBackup.sh', path: './shell/hamonizeBackup.sh' }
+  { name: 'hamonizeBackup.sh', path: './shell/hamonizeBackup.sh' },
+  { name: 'updtjob.sh', path: './shell/agentJobs/updtjob.sh' }
 
 ];
 
@@ -882,9 +909,10 @@ async function copyHamonizeAgentFile() {
     JobsMkdir('/etc/hamonize/agentJobs/');
 
     // Agent] program ----#
-    // fs.writeFileSync('/etc/hamonize/agentJobs/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/agent/updtjob.sh')));
-    fs.writeFileSync('/etc/hamonize/agentJobs/rhel.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/rhel.sh')));
+    fs.writeFileSync('/etc/hamonize/agentJobs/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/agent/updtjob.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/programInstall', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/programInstall')));
+
+    fs.writeFileSync('/etc/hamonize/agentJobs/rhel.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/rhel.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/progrmBlock', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/progrmBlock')));
     fs.writeFileSync('/etc/hamonize/agentJobs/ufwjob', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/ufwjob')));
     fs.writeFileSync('/etc/hamonize/agentJobs/remove.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/remove.sh')));

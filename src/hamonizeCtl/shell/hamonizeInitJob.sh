@@ -18,7 +18,7 @@ echo "$DATETIME] resboot==========START" >>$LOGFILE
 UUID=$(cat /etc/hamonize/uuid)
 
 # 초기 필수 정보......
-CENTERURL="CHANGE_CENTERURL/hmsvc/commInfoData"
+CENTERURL="http://61.32.208.27:8083/hmsvc/commInfoData"
 # CENTERURL="$1/hmsvc/commInfoData"
 
 DATA_JSON="{\
@@ -39,9 +39,10 @@ echo "$RETDATA" >>$LOGFILE
 setHamonizeServer() {
         WRITE_DATA=""
         FILEPATH_DATA=$(cat ${FILEPATH})
+        echo $FILEPATH
         FILEPATH_BOOL=false
 
-        if [ -z "$FILEPATH_DATA" ]; then
+        if [ -z "$FILEPATH" ]; then
                 echo "no file"
                 touch $FILEPATH
                 FILEPATH_BOOL=true
@@ -89,59 +90,15 @@ else
         setHamonizeServer
 fi
 
-#=== agent & pcmngr upgradle ====
-sudo apt-get update >/dev/null 2>&1
+echo "$DATETIME] hamonize-user && admin 필수 포트 allow ==========END" >>$LOGFILE
 
-# # Hamonize Agent Application =====================================================#
-# CHK_AGNET_INSTALLED=$(dpkg-query -W | grep hamonize-agent | wc -l)
-# echo "agent install checked is =="$CHK_AGNET_INSTALLED >>$LOGFILE
-# if [ $CHK_AGNET_INSTALLED = 0 ]; then
-#         sudo apt-get install hamonize-agent -y >>$LOGFILE
-# fi
+# UFW에 허용할 포트 리스트
+ports=(11100 11400 22 2202 1234)
 
-# CHK_AGENT=$(apt list --upgradable 2>/dev/null | grep hamonize-agent | wc -l)
-# echo "agent upgrade able is =="$CHK_AGENT >>$LOGFILE
-# if [ $CHK_AGENT -gt 0 ]; then
-#         sudo apt-get --only-upgrade install hamonize-agent -y >/dev/null 2>&1
-# fi
-
-# # Hamonize Admin Application =====================================================#
-# CHK_ADMIN_INSTALLED=$(dpkg-query -W | grep hamonize-admin | wc -l)
-# echo "hamonize-admin install checked is =="$CHK_ADMIN_INSTALLED >>$LOGFILE
-# if [ $CHK_ADMIN_INSTALLED = 0 ]; then
-#         sudo apt-get install hamonize-admin -y >>$LOGFILE
-# fi
-
-# CHK_ADMIN=$(apt list --upgradable 2>/dev/null | grep hamonize-admin | wc -l)
-# echo "hamonize-admin upgrade able is =="$CHK_ADMIN >>$LOGFILE
-# if [ $CHK_ADMIN -gt 0 ]; then
-#         sudo apt-get --only-upgrade install hamonize-admin -y >/dev/null 2>&1
-# fi
-
-# # Hamonize Help Application =====================================================#
-# CHK_HAMONIZE_HELP_INSTALLED=$(dpkg-query -W | grep hamonize-help | wc -l)
-# echo "hamonize-help install checked is =="$CHK_HAMONIZE_HELP_INSTALLED >>$LOGFILE
-# if [ $CHK_ADMIN_INSTALLED = 0 ]; then
-#         sudo apt-get install hamonize-help -y >>$LOGFILE
-# fi
-
-# CHK_HAMONIZE_HELP=$(apt list --upgradable 2>/dev/null | grep hamonize-help | wc -l)
-# echo "hamonize-help upgrade able is =="$CHK_HAMONIZE_HELP >>$LOGFILE
-# if [ $CHK_HAMONIZE_HELP -gt 0 ]; then
-#         sudo apt-get --only-upgrade install hamonize-help -y >/dev/null 2>&1
-# fi
-
-
-
-echo "$DATETIME] hamonize-user && admin 필수 포트 allow 11100==========END" >>$LOGFILE
-sudo ufw allow 11100 >>$LOGFILE
-sudo ufw allow 11400 >>$LOGFILE
-sudo ufw allow 22 >>$LOGFILE
-sudo ufw allow 2202 >>$LOGFILE
-
-sudo systemctl restart hamonize-agent
-
-
+# UFW에서 포트 허용이 되어있는지 확인
+for port in "${ports[@]}"; do
+        ufw allow "$port"
+done
 
 echo "$DATETIME] resboot==========END" >>$LOGFILE
 exit 0

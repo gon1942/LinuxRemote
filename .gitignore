@@ -15,3 +15,4 @@ src/hamonizeCtl/dist/*
 src/hamonizeGui/dist/*
 bin/*
 usr/local/hamonize-connect/*
+debin/hamonize-connect/*

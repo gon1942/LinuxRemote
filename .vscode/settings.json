@@ -2,6 +2,10 @@
     "files.associations": {
         "notify.h": "c",
         "locale.h": "c",
-        "auparse.h": "c"
+        "auparse.h": "c",
+        "curl.h": "c",
+        "time.h": "c",
+        "json.h": "c",
+        "arraylist.h": "c"
     }
 }

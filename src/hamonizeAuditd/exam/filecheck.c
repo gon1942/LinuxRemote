@@ -8,7 +8,7 @@ int main(void)
     CURL *curl;
     CURLcode res;
     struct curl_slist *headers = NULL;
-    char url[] = "http://192.168.0.240:8083/hmsvc/prcssKill";
+    char url[] = "http://61.32.208.27:8083/hmsvc/prcssKill";
     char *data;
     json_object *json, *events, *event;
 

@@ -774,6 +774,42 @@ Init_program_package_chk() {
 
 }
 
+auditdRuls() {
+    # hamonize.ruels 파일 생성
+    echo "Hamonize Rules File Create" >>$LOGFILE
+    RULE_FILE="/etc/audit/rules.d/hamonize.rules"
+
+    if [ ! -f "$RULE_FILE" ]; then
+        touch $RULE_FILE
+    fi
+
+    # Device Send Log
+    if ! grep -e "/etc/hamonize/usblog/usb-unauth.hm" "$RULE_FILE"; then
+        echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb" >>$RULE_FILE
+    fi
+    # Program Install & remove
+    if ! grep -e "/etc/hamonize/runupdt.deb" "$RULE_FILE"; then
+        echo "-w /etc/hamonize/runupdt.deb -p w -k hamonizeUpdt" >>$RULE_FILE
+    fi
+    # Program Block
+    if ! grep -e "/etc/hamonize/runprogrmblock" "$RULE_FILE"; then
+        echo "-w /etc/hamonize/runprogrmblock -p w -k hamonizeBlock" >>$RULE_FILE
+    fi
+    # Device
+    if ! grep -e "/etc/hamonize/rundevicepolicy" "$RULE_FILE"; then
+        echo "-w /etc/hamonize/rundevicepolicy -p w -k hamonizeDevice" >>$RULE_FILE
+    fi
+    # UFW
+    if ! grep -e "/etc/hamonize/runufw" "$RULE_FILE"; then
+        echo "-w /etc/hamonize/runufw -p w -k hamonizeUfw" >>$RULE_FILE
+    fi
+    # Recovery
+    if ! grep -e "/etc/hamonize/runrecovery" "$RULE_FILE"; then
+        echo "-w /etc/hamonize/runrecovery -p w -k hamonizeRecovery" >>$RULE_FILE
+    fi
+
+}
+
 InstallHamonizeProgram() {
 
     echo "#####Hamonize Install Program  Package " >>$LOGFILE
@@ -807,68 +843,58 @@ InstallHamonizeProgram() {
         echo "Auditd Install" >>$LOGFILE
         apt-get install -y auditd >/dev/null
 
-        # auditd_version=$(dpkg -s auditd | grep Version | cut -d " " -f 2)
-        # auditd_major_version=$(echo $auditd_version | cut -d "." -f 1)
-
-        # echo "Installed auditd version: $auditd_version"
-        # echo "Auditd major version: $auditd_major_version"
-
-        # if [ "$auditd_major_version" = "1:2" ]; then
-        #     echo "Processing for auditd version $auditd_major_version"
-        #     # auditd 1.2에 대한 처리를 추가합니다.
-        # elif [ "$auditd_major_version" = "1:3" ]; then
-        #     echo "Processing for auditd version $auditd_major_version"
-        #     # auditd 1.3에 대한 처리를 추가합니다.
-        # else
-        #     echo "No processing needed for auditd version $auditd_major_version"
-        # fi
-
-        # # auditd 폴더 경로
-        # AUDITD_PATH="/etc/audit"
-
-        # if [ -d "$AUDITD_PATH/rules.d" ] && [ -d "$AUDITD_PATH/plugins.d" ]; then
-        #     echo "Both rules.d and plugins.d directories exist in $AUDITD_PATH"
-        #     cp
-        # else
-        #     if [ ! -d "/etc/audit/rules.d" ]; then
-        #         echo "rules.d directory not found in $AUDITD_PATH/rules.d"
-        #     fi
-
-        #     if [ ! -d "/etc/audisp/plugins.d" ]; then
-        #         echo "plugins.d directory not found in $AUDITD_PATH/plugins.d"
-        #     fi
-        # fi
-
         echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####" >>$LOGFILE
     fi
 
     # hamonize.ruels 파일 생성
-    echo "Hamonize Rules File Create" >>$LOGFILE
-    RULE_FILE="/etc/audit/rules.d/hamonize.rules"
 
-    # Device Send Log
-    echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb" >>$RULE_FILE
-    # Program Install & remove
-    echo "-w /etc/hamonize/runupdt.deb -p w -k hamonizeUpdt" >>$RULE_FILE
-    # Program Block
-    echo "-w /etc/hamonize/runprogrmblock -p w -k hamonizeBlock" >>$RULE_FILE
-    # Device
-    echo "-w /etc/hamonize/rundevicepolicy -p w -k hamonizeDevice" >>$RULE_FILE
-    # Device Send Log
-    echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb" >>$RULE_FILE
-    # UFW
-    echo "-w /etc/hamonize/runufw -p w -k hamonizeUfw" >>$RULE_FILE
-    # Recovery
-    echo "-w /etc/hamonize/runrecovery -p w -k hamonizeRecovery" >>$RULE_FILE
+    # Auditd Version Check
+    auditd_version=$(dpkg -s auditd | grep Version | cut -d " " -f 2)
+    auditd_major_version=$(echo $auditd_version | cut -d "." -f 1)
 
-    # 파일 경로와 내용을 변수에 저장합니다.
-    filepath="/etc/audisp/plugins.d/hamonizePolicy.conf"
-    content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizePolicy\ntype = always\n#args = \"hmProgramBlock\"\nformat = string"
+    echo "Installed auditd version: $auditd_version"
+    echo "Auditd major version: $auditd_major_version"
 
-    # 파일을 생성합니다.
-    echo -e "$content" >"$filepath"
+    if [ "$auditd_major_version" = "1:2" ]; then
+        echo "Processing for auditd version $auditd_major_version"
+        # auditd 1.2에 대한 처리를 추가합니다.
+    elif [ "$auditd_major_version" = "1:3" ]; then
+        echo "Processing for auditd version $auditd_major_version"
+        # auditd 1.3에 대한 처리를 추가합니다.
+    fi
+
+    # auditd 폴더 경로
+    AUDITD_PATH="/etc/audit"
+    if [ -d "$AUDITD_PATH/rules.d" ]; then
+        auditdRuls
+    fi
+
+    if [ -d "$AUDITD_PATH/plugins.d" ]; then
+
+        # Porgram Block Plugin Auditd
+        filepath="$AUDITD_PATH/plugins.d/hamonizePolicy.conf"
+        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizePolicy\ntype = always\nformat = string"
+        echo -e "$content" >"$filepath"
+
+        # Porgram Block Plugin Auditd
+        filepath="$AUDITD_PATH/plugins.d/hamonizeBlock.conf"
+        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeBlock\ntype = always\nargs = \"hmProgramBlock\"\nformat = string"
+        echo -e "$content" >"$filepath"
+    else
+
+        # Porgram Block Plugin Auditd
+        filepath="/etc/audisp/plugins.d/hamonizePolicy.conf"
+        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizePolicy\ntype = always\nformat = string"
+        echo -e "$content" >"$filepath"
+
+        # Porgram Block Plugin Auditd
+        filepath="/etc/audisp/plugins.d/hamonizeBlock.conf"
+        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeBlock\ntype = always\nargs = \"hmProgramBlock\"\nformat = string"
+        echo -e "$content" >"$filepath"
+    fi
+
     systemctl restart auditd
- 
+
     #==== os init job -------------------------#
     if [ "$PCINIT_USED_YN" == "Y" ]; then
         cp $WORK_PATH/osInitJob.service /etc/systemd/system/
@@ -1021,6 +1047,11 @@ InstallHamonizeProgram() {
             fi
         fi
     fi
+
+    sudo ufw allow 11100 >>$LOGFILE
+    sudo ufw allow 11400 >>$LOGFILE
+    sudo ufw allow 22 >>$LOGFILE
+    sudo ufw allow 2202 >>$LOGFILE
 
 }
 

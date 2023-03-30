@@ -20,28 +20,44 @@
 #define MY_ACCOUNT 1000
 #define BUFFER_SIZE 1024
 
-char *hamonizeUpdt()
+char *hamonizeBlockRules(const char *d)
 {
-    syslog(LOG_INFO, "#----------hamonizeUpdt------------------###############.\n");
+    const char *data = d;
+    syslog(LOG_INFO, "test2] ----------------------------> d : [%s], data: [%s], lens:[%ld] \n", d, data, strlen(d));
+    syslog(LOG_INFO, "#----------hamonizeBlockRules------------------###############.\n");
 
-    // int ret = system("/home/gonpc/jobs/2023/hamonize/src/dist/hamonizeCtl --updt");
-    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
-    // int ret = system("/etc/hamonize/agentJobs/programInstall");
-    
-    WEXITSTATUS(ret);
-    syslog(LOG_INFO, "--------hamonizeUpdt---------ret : %d \n", ret);
+    syslog(LOG_INFO, "test@@@@@@@@@@@@@@-----------------------execl호출 %s \n", data);
+    // execl("/bin/sudo", "sudo", "kill", "-9", data, NULL);
+
+    // kill 함수를 사용하여 프로세스를 종료
+    kill(atoi(data), SIGKILL);
+
     return 0;
 }
 
+char *hamonizeUpdt()
+{
+    syslog(LOG_INFO, "#----------hamonizeUpdt------------------###############.\n");
+    // int ret = system("/bin/bash /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/shell/agentJobs/updtjob.sh");
+    int ret = system("/etc/hamonize/agentJobs/updtjob.sh");
+    // int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
+    // int ret = system("/bin/bash /etc/hamonize/agentJobs/updtjob.sh");
 
+    WEXITSTATUS(ret);
 
+    syslog(LOG_INFO, "--------hamonizeUpdt---------ret : %d \n", ret);
+    return 0;
+}
 
 char *hamonizeBlock()
 {
     syslog(LOG_INFO, "#----------hamonizeBlock------------------###############.\n");
 
-    // int ret = system("/home/gonpc/jobs/2023/hamonize/src/dist/hamonizeCtl --updt");
-    int ret = system("/usr/local/hamonize-connect/hamonizeCtl --progrmblock");
+    // int ret = system("/home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/shell/agentJobs/progrmBlock");
+    int ret = system("/etc/hamonize/agentJobs/progrmBlock");
+
+    // int ret = system("/usr/local/hamonize-connect/hamonizeCtl --progrmblock");
+
     WEXITSTATUS(ret);
     printf("ret : %d \n", ret);
     return 0;
@@ -151,6 +167,15 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (keyname && strcmp(keyname, "\"hamonizeBlockRules\"") == 0)
+
+        {
+            if (strcmp(comm, "\"rm\"") != 0)
+            {
+                syslog(LOG_INFO, "Ufw---------------  key : [%s] , keysArgv : [%s],  comm = [%s]", keyname, keysArgv, comm);
+                hamonizeBlockRules(pid);
+            }
+        }
 
         // Login
         // if (keyname && strcmp(keyname, "\"login\"") == 0)
