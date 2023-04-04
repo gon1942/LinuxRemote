@@ -4,7 +4,12 @@ build_node_app:
 	@echo "Update node binary..." 
 	
 	
-	cd src/hamonizeGui/ && \
+	cd src/hamonizeAuditd/dockerBuild/ && \
+	/bin/bash buildV2.sh && \
+	cp  hamonizeProcV2 ../../../usr/local/hamonize-connect/	&& \
+	/bin/bash buildV3.sh && \
+	cp  hamonizeProcV3 ../../../usr/local/hamonize-connect/ && \
+	cd ../../../src/hamonizeGui/ && \
 	npm run clean && \
 	npm install && \
 	npm run build:linux && \
@@ -14,12 +19,9 @@ build_node_app:
 	npm install && \
 	npm run build && \
 	cp -v ./dist/hamonizeCtl ../../usr/local/hamonize-connect/hamonizeCtl && \
-	cp -v ./dist/hamonizeCtl ../../bin && \
-    cd ../../src/hamonizeAuditd && \
-	gcc -o hamonizePolicy hamonizePolicy.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify -lssl -lcrypto -ljson-c -lcurl  && \
-	cp -v ./hamonizePolicy ../../usr/local/hamonize-connect/hamonizePolicy && \
-	gcc -o hamonizeBlock hamonizeBlock.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify -lssl -lcrypto -ljson-c -lcurl && \
-	cp -v ./hamonizeBlock ../../usr/local/hamonize-connect/hamonizeBlock
+	cp -v ./dist/hamonizeCtl ../../bin 
+    
+	
 
 
 clean:
