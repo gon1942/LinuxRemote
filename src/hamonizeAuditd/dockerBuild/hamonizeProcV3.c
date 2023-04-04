@@ -12,17 +12,24 @@
 #include <string.h>
 #include <signal.h>
 
+
+#include <libnotify/notify.h>
+
 /* Global Data */
 static volatile int stop = 0;
 static volatile int hup = 0;
 static auparse_state_t *au = NULL;
+
+#define MY_ACCOUNT 1000
+const char *note = "Hamonize  Alert";
+
 
 /* Local declarations */
 static void handle_event(auparse_state_t *au,
 						 auparse_cb_event_t cb_event_type, void *user_data);
 
 /*
- * SIGTERM handler
+ * SIGTERM handler 
  */
 static void term_handler(int sig)
 {
@@ -52,6 +59,18 @@ int main(int argc, char *argv[])
 	syslog(LOG_INFO, "----------------------------");
 	char tmp[MAX_AUDIT_MESSAGE_LENGTH];
 	struct sigaction sa;
+
+	/* notify--------------------------------*/
+	char bus[32];
+	notify_init(note);
+    snprintf(bus, sizeof(bus), "unix:path=/run/user/%d/bus", MY_ACCOUNT);
+    setenv("DBUS_SESSION_BUS_ADDRESS", bus, 1);
+	if (setresuid(MY_ACCOUNT, MY_ACCOUNT, MY_ACCOUNT))
+    {
+        syslog(LOG_INFO, "setresuid failed");
+        return 1;
+    }
+
 
 	/* Register sighandlers */
 	sa.sa_flags = 0;
@@ -203,6 +222,34 @@ char *hamonizeLogin()
 	return 0;
 }
 
+
+static void notify(){
+	/* send a message */
+    /* Setup the notification stuff */
+    char msg[256], *name = NULL;
+
+    NotifyNotification *n = notify_notification_new(note, "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.", NULL);
+    notify_notification_set_urgency(n, NOTIFY_URGENCY_NORMAL);
+    notify_notification_set_timeout(n, 3000); // 3 seconds
+    notify_notification_show(n, NULL);
+    g_object_unref(G_OBJECT(n));
+
+    free(name);
+
+    syslog(LOG_INFO, "notify@@@@@@@@@@@@@@-----------------------execl호출  \n");
+}
+
+void wallNotify(const char* pnm){
+	syslog(LOG_INFO, "wallNotifywallNotifywallNotifywallNotifywallNotifywallNotify@@@@@@@@@@@@@@-----------------------execl호출  \n");
+    char command[1024];
+    //const char* message = "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.";
+    const char* message = " is Block Program(Application) by Admin";
+    //sprintf(command, "echo '%s' | iconv -t utf-8 | wall", message);
+
+    sprintf(command, "printf ['%s']'%s' | iconv -t utf-8 | wall ",pnm, message);
+    system(command);
+    return;
+}
 /* This function shows how to dump a whole record's text */
 static void dump_whole_record(auparse_state_t *au)
 {
@@ -273,6 +320,8 @@ static void dump_whole_record(auparse_state_t *au)
 		pid_t pidt = atoi(pid);
 		kill(pidt, SIGKILL);
 		syslog(LOG_INFO, "--------------------Failed to kill process with PID %d.\n", pidt);
+		notify();
+		wallNotify();
 	}
 	syslog(LOG_INFO, "--------------------ENDEND");
 }
