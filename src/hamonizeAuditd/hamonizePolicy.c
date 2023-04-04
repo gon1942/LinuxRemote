@@ -30,7 +30,7 @@ char *hamonizeBlockRules(const char *d)
     // execl("/bin/sudo", "sudo", "kill", "-9", data, NULL);
 
     // kill 함수를 사용하여 프로세스를 종료
-    kill(atoi(data), SIGKILL);
+    // kill(atoi(data), SIGKILL);
 
     return 0;
 }

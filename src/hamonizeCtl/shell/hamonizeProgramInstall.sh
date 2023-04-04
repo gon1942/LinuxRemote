@@ -841,7 +841,7 @@ InstallHamonizeProgram() {
     #==== AUditd Install -------------------------#
     if [ "$AUDITD_USED_YN" == "Y" ]; then
         echo "Auditd Install" >>$LOGFILE
-        apt-get install -y auditd >/dev/null
+        apt-get install -y auditd audispd-plugins >/dev/null
 
         echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####" >>$LOGFILE
     fi
@@ -1068,10 +1068,7 @@ InstallHamonizeProgram
 # sleep 1
 
 # # 필수 프로그램 스케쥴링 설정
-if [ "$IS_DISPLAY_YN" == "Y" ]; then
-    hamonizeServerSettings
-fi
+# if [ "$IS_DISPLAY_YN" == "Y" ]; then
+#     hamonizeServerSettings
+# fi
 # sleep 1
-
-# #  Add Tenant Apt
-# hamonieTenantAptUrl

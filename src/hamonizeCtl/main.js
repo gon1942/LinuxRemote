@@ -133,12 +133,12 @@ if (program.opts().progrmblock) {	//	프로그램 차단
 }
 if (program.opts().updt) {	//	프로그램 설치및 삭제
 	(async () => {
+		log("프로그램 설치및 삭제")
+		hamonizeFuns.setbaseurl(baseurl);
 		await hamonizeCli.hamonizeAgentFileChk();
-		await hamonizeFuns.setbaseurl(baseurl);
 		await hamonizeFuns.setServerInfoConfigProc();
 		let osPlatForm = await hamonizeFuns.getOsPlatform();
 		await hamonizeCli.fnUpdtAgentAction(osPlatForm);
-		// process.exit(1)
 	})();
 }
 if (program.opts().devicepolicy) {	//	비인가 디바이스 정책

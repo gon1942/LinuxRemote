@@ -16,6 +16,8 @@ const log = console.log;
 
 
 
+const hamonizeUrl = hamonizeFuns.getbaseurl();
+log(`hamonizeUrl===================> ${hamonizeUrl}`);
 
 
 
@@ -85,7 +87,7 @@ exports.remove = async function () {
 exports.programInstall = async function () {
   var retTanentNm = fs.readFileSync('/etc/hamonize/hamonize_tanent', 'utf8');
   // #. 하모나이즈 vpn Install
-  let isVpnUsed = await getVpnUsed(retTanentNm);
+  // let isVpnUsed = await getVpnUsed(retTanentNm);
   // #. Hamonize Program Install
   let add = await installHamonizeProgram(retTanentNm);
 
@@ -121,6 +123,9 @@ exports.hamonize_init = async function (_var) {
       }),
     ),
   );
+
+
+  // return; 
 
   let isRoot = await hamonizeFuns.isCurrentUserRoot();
   if (!isRoot) {
@@ -250,10 +255,6 @@ async function copyHamonizeShellFile() {
     // Hamonize Init Job 
     fs.writeFileSync('/tmp/hamonize/hamonizeInitJob.sh', fs.readFileSync(path.resolve(__dirname, './shell/hamonizeInitJob.sh')));
 
-
-
-    // Hamonize Agent Job
-    // fs.writeFileSync('/etc/hamonize/hamonizeInitJob.sh', fs.readFileSync(path.resolve(__dirname, './shell/hamonizeInitJob.sh')));
 
 
     const { exec } = require('child_process')
@@ -621,6 +622,7 @@ exports.hamonizeNeedsDir = async function () {
     }
   });
 
+  copyHamonizeShellFile();
   // for (let path of paths) {
   //   try {
   //     // 주어진 경로가 파일인지 디렉토리인지 확인
@@ -733,15 +735,6 @@ exports.fnDeviceJob = async function () {
 exports.sendToCenter_unauth = async function () {
 
   const request = require('request');
-  // var events_str = fs.readFileSync('/etc/hamonize/usblog/usb-unauth.hm', 'utf8');
-  // events_str = events_str.replace(/'/g, '\"');
-  // events_str = events_str.replace(/\n/g, ',').slice(0, -1);
-
-  // var data = '{"events": [ ' + events_str + ' ]}';
-  // console.log("data==== : " + data);
-  // var events = JSON.parse(data);
-  // let authChkResult = await hamonizeFuns.apiRequest(events, 'unauth', 'unauth');
-  // log(authChkResult);
 
   if (fs.existsSync('/etc/hamonize/usblog/usb-unauth.hm')) {
     var events_str = fs.readFileSync('/etc/hamonize/usblog/usb-unauth.hm', 'utf8');
@@ -754,7 +747,7 @@ exports.sendToCenter_unauth = async function () {
     var events = JSON.parse(data);
 
 
-    request.post('http://61.32.208.27:8083/hmsvc/unauth', {
+    request.post(hamonizeUrl + '/hmsvc/unauth', {
       json: events
     }, (error, res, body) => {
       if (error) {
@@ -774,7 +767,6 @@ exports.sendToCenter_unauth = async function () {
 
 //  Agent ] Program Install & Remove  ---------------------------------#---------------------------------#---------------------------------#---------------------------------#---------------------------------#
 exports.fnUpdtAgentAction = async function (_dtype) {
-
   const exec = require('child_process').exec;
   let cmd = ''
   if (_dtype == "apt") {
@@ -806,12 +798,6 @@ exports.fnUpdtAgentAction = async function (_dtype) {
 exports.fnProgrmJob = async function (_dtype) {
   var progrmblockDataObj = getFileData('progrmblock');
   log("//==progrm 정책:: progrmblockDataObj Data is : " + progrmblockDataObj)
-  // if (progrmblockDataObj != '') {
-  //   var progrmDataObj = JSON.parse(progrmblockDataObj);
-  //   log("//==progrm 정책:: progrmDataObj Data is : " + JSON.stringify(progrmDataObj));
-  //   log("//==progrm 정책:: progrmDataObj.INS Data is : " + JSON.stringify(progrmDataObj.INS));
-  //   log("//==progrm 정책:: progrmDataObj.DEL Data is : " + JSON.stringify(progrmDataObj.DEL));
-  // }
 
   var exec = require('child_process').exec;
 
@@ -909,7 +895,7 @@ async function copyHamonizeAgentFile() {
     JobsMkdir('/etc/hamonize/agentJobs/');
 
     // Agent] program ----#
-    fs.writeFileSync('/etc/hamonize/agentJobs/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/agent/updtjob.sh')));
+    fs.writeFileSync('/etc/hamonize/agentJobs/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/updtjob.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/programInstall', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/programInstall')));
 
     fs.writeFileSync('/etc/hamonize/agentJobs/rhel.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/rhel.sh')));
