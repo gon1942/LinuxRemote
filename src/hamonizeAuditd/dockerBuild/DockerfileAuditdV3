@@ -1,38 +1,15 @@
-FROM ubuntu:22.04
+FROM gon1942/hamonizeauditd_buldv3:1.3
 
-### TimeZone 환경 변수 지정
-ENV TZ Asia/Seoul
-
-### TimeZone 설정    
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-
-# update and install dependencies
-RUN apt-get update \
-    && apt-get install -y \
-        make \
-        curl \
-        vim \
-        libauparse-dev \
-        libauparse-dev \
-        libaudit-dev \
-        libglib2.0-dev \
-        libgdk-pixbuf2.0-dev \
-    && apt-get install -y gcc
-
-
-RUN mkdir /home/dev
 
 # 소스파일을 업로드
-COPY hamonizeProcV3.c /home/dev/
+COPY hamonizeProcV3.c /home/build/
 
 # 소스파일 컴파일
-RUN cd /home/dev/ && \
-gcc -o ./hamonizeProcV3 hamonizeProcV3.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit
-
+RUN cd /home/build/ && \
+gcc -o hamonizeProcV3 hamonizeProcV3.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify  -ljson-c -lcurl
 
 # 볼륨 추가
 VOLUME /tmp
 
 # 컴파일된 파일을 로컬 컴퓨터로 복사
-CMD ["cp", "/home/dev/hamonizeProcV3", "/tmp/"]
+CMD ["cp", "/home/build/hamonizeProcV3", "/tmp/"]

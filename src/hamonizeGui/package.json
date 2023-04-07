@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "readme": "readme.txt",
   "main": "main.js",
-  "url": "http://61.32.208.27:8083",
+  "url": "http://192.168.0.240:8083",
   "bin": {
     "hamonize-connector": "./main.js"
   },

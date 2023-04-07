@@ -14,6 +14,8 @@
 
 
 #include <libnotify/notify.h>
+#include <curl/curl.h>
+#include <json-c/json.h>
 
 /* Global Data */
 static volatile int stop = 0;
@@ -21,6 +23,9 @@ static volatile int hup = 0;
 static auparse_state_t *au = NULL;
 
 #define MY_ACCOUNT 1000
+#define MAX_ID_LENGTH 1024
+#define FILE_PATH "/etc/hamonize/propertiesJob/propertiesInfo.hm"
+
 const char *note = "Hamonize  Alert";
 
 
@@ -222,6 +227,126 @@ char *hamonizeLogin()
 	return 0;
 }
 
+char *sendInfo()
+{
+	syslog(LOG_INFO, "-----------sendinfo() =============>호출  \n");
+	CURL *curl;
+	CURLcode res;
+	json_object *json, *events, *event;
+	time_t now = time(NULL);
+	struct curl_slist *headers = NULL;
+	char *data;
+	char str_time[20];
+	char machine_id[MAX_ID_LENGTH];
+	char tanent_id[MAX_ID_LENGTH];
+
+	struct tm *t = localtime(&now);
+	strftime(str_time, sizeof(str_time), "%Y-%m-%d %H:%M:%S", t);
+
+	FILE *hamonizeInfoFile = fopen(FILE_PATH, "r");
+
+	char line[MAX_ID_LENGTH];
+	char *center_url = NULL;
+
+	while (fgets(line, sizeof(line), hamonizeInfoFile) != NULL)
+	{
+		if (strstr(line, "CENTERURL=") != NULL)
+		{
+			// "CENTERURL=" 문자열을 찾았을 때, 값을 추출
+			center_url = strdup(line + strlen("CENTERURL="));
+			// 개행 문자 제거
+			center_url[strcspn(center_url, "\n")] = '\0';
+			break;
+		}
+	}
+
+	fclose(hamonizeInfoFile);
+	char *url_with_http = NULL;
+	url_with_http = (char *)malloc(strlen(center_url) + 8);
+	sprintf(url_with_http, "http://%s", center_url);
+	syslog(LOG_INFO, "-----####center_url-------------- [%s] --> [%s] \n", center_url, url_with_http);
+	
+
+	// char url[] = "http://61.32.208.27:8083/hmsvc/prcssKill";
+	// char url[] = center_url; //"http://192.168.0.240:8083/hmsvc/prcssKill";
+
+	// Get Machine_id  --------------------------//
+	FILE *fp = fopen("/etc/machine-id", "r");
+	if (!fp)
+	{
+		syslog(LOG_INFO, "-----####Failed to open /etc/machine-id");
+		exit(1);
+	}
+
+	// 파일에서 ID 값을 읽어와서 변수에 저장
+	if (fgets(machine_id, MAX_ID_LENGTH, fp))
+	{
+		machine_id[strcspn(machine_id, "\n")] = 0;
+	}
+	fclose(fp);
+	syslog(LOG_INFO, "-----#######Machine ID: %s\n", machine_id);
+
+	// Get tanent id  --------------------------//
+	FILE *fpTanent = fopen("/etc/hamonize/hamonize_tanent", "r");
+	if (!fpTanent)
+	{
+		syslog(LOG_INFO, "-----####Failed to open /etc/hamonize/hamonize_tanent ");
+		exit(1);
+	}
+
+	// 파일에서 ID 값을 읽어와서 변수에 저장
+	if (fgets(tanent_id, MAX_ID_LENGTH, fpTanent))
+	{
+		tanent_id[strcspn(tanent_id, "\n")] = 0;
+	}
+	fclose(fpTanent);
+	syslog(LOG_INFO, "-----#######tanent_ ID: %s\n", tanent_id);
+
+	/* Create JSON object */
+	json = json_object_new_object();
+	events = json_object_new_array();
+	json_object_object_add(json, "events", events);
+	event = json_object_new_object();
+	json_object_object_add(event, "datetime", json_object_new_string(str_time));
+	json_object_object_add(event, "uuid", json_object_new_string(machine_id));
+	json_object_object_add(event, "domain", json_object_new_string("aaa"));
+	json_object_object_add(event, "name", json_object_new_string("htop"));
+	json_object_array_add(events, event);
+	data = (char *)json_object_to_json_string(json);
+	syslog(LOG_INFO, "-----#######333----------_> json_object_to_json_string is [%s]", data);
+	/* Initialize curl */
+	curl = curl_easy_init();
+	if (curl)
+	{
+		/* Set headers */
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		headers = curl_slist_append(headers, "Accept: application/json");
+		/* Set options */
+		curl_easy_setopt(curl, CURLOPT_URL, url_with_http);
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		/* Perform request */
+		res = curl_easy_perform(curl);
+		syslog(LOG_INFO, "----#########--curl request---------_> data is [%d]", res);
+		/* Check for errors */
+		if (res != CURLE_OK)
+		{
+			syslog(LOG_ERR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+			syslog(LOG_INFO, "--@@@@@@@@@@@@@@@@curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		}
+		else
+		{
+			syslog(LOG_ERR, "curl_ okkkkkkkkkkkkkkkkkkkkkkkkkk\n");
+		}
+		/* Cleanup */
+		curl_slist_free_all(headers);
+		curl_easy_cleanup(curl);
+	}
+	/* Cleanup JSON object */
+	json_object_put(json);
+	free(url_with_http);
+}
 
 static void notify(){
 	/* send a message */
@@ -320,8 +445,9 @@ static void dump_whole_record(auparse_state_t *au)
 		pid_t pidt = atoi(pid);
 		kill(pidt, SIGKILL);
 		syslog(LOG_INFO, "--------------------Failed to kill process with PID %d.\n", pidt);
-		notify();
-		wallNotify();
+		// notify();
+		wallNotify(comm);
+		sendInfo();
 	}
 	syslog(LOG_INFO, "--------------------ENDEND");
 }

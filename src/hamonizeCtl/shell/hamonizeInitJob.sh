@@ -18,7 +18,8 @@ echo "$DATETIME] resboot==========START" >>$LOGFILE
 UUID=$(cat /etc/hamonize/uuid)
 
 # 초기 필수 정보......
-CENTERURL="http://61.32.208.27:8083/hmsvc/commInfoData"
+CENTERURL="http://192.168.0.240:8083/hmsvc/commInfoData"
+# CENTERURL="http://61.32.208.27:8083/hmsvc/commInfoData"
 # CENTERURL="$1/hmsvc/commInfoData"
 
 DATA_JSON="{\

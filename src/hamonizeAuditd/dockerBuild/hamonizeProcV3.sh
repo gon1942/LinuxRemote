@@ -14,6 +14,5 @@ cp hamonizeProcV3 /sbin/
 
 service auditd start 
 
-service auditd status
 
-exit 0
+exit 0 

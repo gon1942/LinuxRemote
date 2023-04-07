@@ -7,13 +7,12 @@ sleep 1
 
 service auditd stop
 
-rm -fr /sbin/hamonizeProcV2
+rm -fr /usr/local/hamonize-connect/hamonizeProcV2
 
-cp hamonizeProcV2 /sbin/
+cp hamonizeProcV2 /usr/local/hamonize-connect/
 
 
 service auditd start 
 
-service auditd status
 
 exit 0

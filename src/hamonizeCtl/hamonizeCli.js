@@ -862,7 +862,9 @@ const jobFiles = [
   { name: 'backupJob_recovery.sh', path: './shell/agentJobs/backupJob_recovery.sh' },
   { name: 'setServerInfo.sh', path: './shell/setServerInfo.sh' },
   { name: 'hamonizeBackup.sh', path: './shell/hamonizeBackup.sh' },
-  { name: 'updtjob.sh', path: './shell/agentJobs/updtjob.sh' }
+  { name: 'updtjob.sh', path: './shell/agentJobs/updtjob.sh' },
+  { name: 'hamonizeProcV2', path: './shell/agentJobs/hamonizeProcV2' },
+  { name: 'hamonizeProcV3', path: './shell/agentJobs/hamonizeProcV3' }
 
 ];
 

@@ -5,9 +5,9 @@ file_path="/tmp/hamonizeProcV3"
 WORK_PATH=$(dirname $(realpath $0))
 echo $WORK_PATH
 
-docker build -f $WORK_PATH/DockerfileAuditdV3 -t audisp_build:1.0 .
+docker build -f $WORK_PATH/DockerfileAuditdV3 -t audit_v3_build:1.0 .
 
-docker run --rm -v /tmp:/tmp audisp_build:1.0
+docker run --rm -v /tmp:/tmp audit_v3_build:1.0
 
 username=$(whoami)
 

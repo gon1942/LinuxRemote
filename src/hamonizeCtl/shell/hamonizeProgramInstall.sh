@@ -839,16 +839,47 @@ InstallHamonizeProgram() {
     echo "" >>$LOGFILE
 
     #==== AUditd Install -------------------------#
-    if [ "$AUDITD_USED_YN" == "Y" ]; then
-        echo "Auditd Install" >>$LOGFILE
+    if dpkg -s auditd >/dev/null 2>&1; then
+        echo "auditd가 설치되어 있습니다."
+
+    else
         apt-get install -y auditd audispd-plugins >/dev/null
 
-        echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####" >>$LOGFILE
+        echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####"
     fi
 
-    # hamonize.ruels 파일 생성
+    # 생성할 파일 경로 리스트
+    file_list=(
+        "/etc/hamonize/runupdt.deb"
+        "/etc/hamonize/runprogrmblock"
+        "/etc/hamonize/rundevicepolicy"
+        "/etc/hamonize/runufw"
+        "/etc/hamonize/runrecovery"
+    )
 
-    # Auditd Version Check
+    # 파일 생성
+    for file_path in "${file_list[@]}"; do
+        if [ ! -f "$file_path" ]; then
+            # 파일 생성
+            sudo touch "$file_path"
+        fi
+    done
+
+    if [ ! -d "/etc/hamonize/usblog/" ]; then
+        mkdir -p "/etc/hamonize/usblog/"
+    fi
+    
+    if [ ! -f "/etc/hamonize/usblog/usb-unauth.hm" ]; then
+        touch "/etc/hamonize/usblog/usb-unauth.hm"
+    fi
+
+    #============================================================== Auditd Run File Copy#
+    if [ ! -d "/usr/local/hamonize-connect" ]; then
+        echo "/usr/local/hamonize-connect 폴더가 존재하지 않습니다. 폴더를 생성합니다."
+        sudo mkdir /usr/local/hamonize-connect
+    fi
+
+    #==============================================================Auditd Version Check#
     auditd_version=$(dpkg -s auditd | grep Version | cut -d " " -f 2)
     auditd_major_version=$(echo $auditd_version | cut -d "." -f 1)
 
@@ -858,38 +889,30 @@ InstallHamonizeProgram() {
     if [ "$auditd_major_version" = "1:2" ]; then
         echo "Processing for auditd version $auditd_major_version"
         # auditd 1.2에 대한 처리를 추가합니다.
+        mv /etc/hamonize/agentJobs/hamonizeProcV2 /usr/local/hamonize-connect/
+        chown root:root /usr/local/hamonize-connect/hamonizeProcV2
     elif [ "$auditd_major_version" = "1:3" ]; then
         echo "Processing for auditd version $auditd_major_version"
         # auditd 1.3에 대한 처리를 추가합니다.
+        mv /etc/hamonize/agentJobs/hamonizeProcV3 /usr/local/hamonize-connect/
+        chown root:root /usr/local/hamonize-connect/hamonizeProcV3
     fi
 
-    # auditd 폴더 경로
+    #===============================================================auditd 폴더 경로
     AUDITD_PATH="/etc/audit"
     if [ -d "$AUDITD_PATH/rules.d" ]; then
         auditdRuls
     fi
 
     if [ -d "$AUDITD_PATH/plugins.d" ]; then
-
         # Porgram Block Plugin Auditd
         filepath="$AUDITD_PATH/plugins.d/hamonizePolicy.conf"
-        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizePolicy\ntype = always\nformat = string"
-        echo -e "$content" >"$filepath"
-
-        # Porgram Block Plugin Auditd
-        filepath="$AUDITD_PATH/plugins.d/hamonizeBlock.conf"
-        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeBlock\ntype = always\nargs = \"hmProgramBlock\"\nformat = string"
+        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
         echo -e "$content" >"$filepath"
     else
-
         # Porgram Block Plugin Auditd
         filepath="/etc/audisp/plugins.d/hamonizePolicy.conf"
-        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizePolicy\ntype = always\nformat = string"
-        echo -e "$content" >"$filepath"
-
-        # Porgram Block Plugin Auditd
-        filepath="/etc/audisp/plugins.d/hamonizeBlock.conf"
-        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeBlock\ntype = always\nargs = \"hmProgramBlock\"\nformat = string"
+        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
         echo -e "$content" >"$filepath"
     fi
 
