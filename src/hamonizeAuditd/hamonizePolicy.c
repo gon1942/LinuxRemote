@@ -39,9 +39,9 @@ char *hamonizeUpdt()
 {
     syslog(LOG_INFO, "#----------hamonizeUpdt------------------###############.\n");
     // int ret = system("/bin/bash /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/shell/agentJobs/updtjob.sh");
-    int ret = system("/etc/hamonize/agentJobs/updtjob.sh");
+    // int ret = system("/etc/hamonize/agentJobs/updtjob.sh");
     // int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
-    // int ret = system("/bin/bash /etc/hamonize/agentJobs/updtjob.sh");
+    int ret = system("/bin/bash /etc/hamonize/agentJobs/updtjob.sh");
 
     WEXITSTATUS(ret);
 

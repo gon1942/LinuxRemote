@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-file_path="/tmp/hamonizeProcV3"
+file_path="/tmp/hamonizeProcBlock"
 WORK_PATH=$(dirname $(realpath $0))
 echo $WORK_PATH
 

@@ -8,18 +8,21 @@ const packageJson = require('./package.json');
 const baseurl = packageJson.url;
 const { Command } = require('commander');
 const program = new Command();
+
+var log = require('./logger');
+
 // #----------------------------------------------------------------------------##----------------------------------------------------------------------------#
 
-const log = console.log;
+// const log = console.log;
 
 if (process.pkg) {
-	log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-	log('@@@@@@@@@@@@@@@@@@  Run as packaged @@@@@@@@@@@@@@@@@@@@@@@@@@');
-	log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+	log.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+	log.info('@@@@@@@@@@@@@@@@@@  Run as packaged @@@@@@@@@@@@@@@@@@@@@@@@@@');
+	log.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 } else {
-	log('##############################################################################');
-	log('########################## Run by Node.js  ##########################');
-	log('##############################################################################');
+	log.info('##############################################################################');
+	log.info('########################## Run by Node.js  ##########################');
+	log.info('##############################################################################');
 }
 
 
@@ -91,7 +94,7 @@ if (program.opts().programInstall) {
 	(async () => {
 		console.clear();
 		hamonizeFuns.setbaseurl(baseurl);
-		log('baseurl====================', baseurl);
+		log.info('baseurl====================', baseurl);
 		hamonizeCli.programInstall();
 	})();
 }
@@ -133,7 +136,7 @@ if (program.opts().progrmblock) {	//	프로그램 차단
 }
 if (program.opts().updt) {	//	프로그램 설치및 삭제
 	(async () => {
-		log("프로그램 설치및 삭제")
+		log.info("프로그램 설치및 삭제")
 		hamonizeFuns.setbaseurl(baseurl);
 		await hamonizeCli.hamonizeAgentFileChk();
 		await hamonizeFuns.setServerInfoConfigProc();
@@ -161,10 +164,11 @@ if (program.opts().devicepolicySend) {	//	비인가 디바이스 정책
 }
 if (program.opts().eqchk) {	//	장비 체크
 	(async () => {
+		log.info("baseurl========"+ baseurl)
 		hamonizeCli.hamonizeAgentFileChk();
 		hamonizeFuns.setbaseurl(baseurl);
 		await hamonizeFuns.setServerInfoConfigProc();
-		hamonizeCli.sysinfoEqchk();
+		await hamonizeCli.sysinfoEqchk();
 		// process.exit(1)
 	})();
 }

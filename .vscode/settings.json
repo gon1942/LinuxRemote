@@ -6,6 +6,7 @@
         "curl.h": "c",
         "time.h": "c",
         "json.h": "c",
-        "arraylist.h": "c"
+        "arraylist.h": "c",
+        "fcntl.h": "c"
     }
 }

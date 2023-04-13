@@ -4,33 +4,29 @@ LOGFILE="/tmp/usb-lockdown.log"
 DEVICEFILE="/etc/hamonize/security/device.hm"
 RULESFILE="/etc/udev/rules.d/30-usb-lockdown.rules"
 
-
-
-if [ -f "${DEVICEFILE}" ]; then 
+if [ -f "${DEVICEFILE}" ]; then
 
     echo "--- Center Lockdown Start ---" | tee -a ${LOGFILE}
 
     VAL=$(cat ${DEVICEFILE})
     REGEXP="(-[0-9A-Za-z]{4}+):([0-9A-Za-z]{4}+)"
-    INS=($(echo ${VAL} | grep -Po '(?<="INS":")[^"]*' | grep -Eo "${REGEXP}" | cut -d"-" -f2 ))
-    DEL=($(echo ${VAL} | grep -Po '(?<="DEL":")[^"]*' | grep -Eo "${REGEXP}" | cut -d"-" -f2 ))
-    
+    INS=($(echo ${VAL} | grep -Po '(?<="INS":")[^"]*' | grep -Eo "${REGEXP}" | cut -d"-" -f2))
+    DEL=($(echo ${VAL} | grep -Po '(?<="DEL":")[^"]*' | grep -Eo "${REGEXP}" | cut -d"-" -f2))
 
     # 장치 추가
     if [ ! -z "$INS" ]; then
 
         echo "--- INSERT Start ---" | tee -a ${LOGFILE}
 
-        for i in "${INS[@]}"
-        do
-        
-            VENDORCODE=`echo $i | cut -d":" -f1`
-            PRODUCTCODE=`echo $i | cut -d":" -f2`
-                
+        for i in "${INS[@]}"; do
+            
+            VENDORCODE=$(echo $i | cut -d":" -f1)
+            PRODUCTCODE=$(echo $i | cut -d":" -f2)
+
             #중복체크 (CHECK 가 없을 경우 추가)
-            CHECK=`cat ${RULESFILE} | grep ${VENDORCODE} | grep ${PRODUCTCODE}`
+            CHECK=$(cat ${RULESFILE} | grep ${VENDORCODE} | grep ${PRODUCTCODE})
             if [ -z "${CHECK}" ]; then
-cat << EOF | tee -a $RULESFILE
+                cat <<EOF | tee -a $RULESFILE
 ACTION=="add", SUBSYSTEMS=="usb", ENV{DEVTYPE}=="usb_interface", ATTRS{idVendor}=="${VENDORCODE}", ATTRS{idProduct}=="${PRODUCTCODE}", RUN="/usr/local/bin/usb-lockdown-work allow"
 EOF
             fi
@@ -38,6 +34,27 @@ EOF
         done
 
         echo "--- INSERT End ---" | tee -a ${LOGFILE}
+        UUID=$(cat /etc/hamonize/uuid)
+        DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
+        HOSTNAME=$(hostname)
+        TENANT=$(cat /etc/hamonize/hamonize_tanent)
+        PRODUCT=($(echo ${VAL} | grep -Po '(?<="INS":")[^"]*' | awk -F'[-:]' '{print $1}'))
+        ALLOW_JSON="{\
+            \"events\" : [ {\
+            \"hostname\": \"$HOSTNAME\",\
+            \"uuidVal\":\"$UUID\",\
+            \"product\":\"$PRODUCT\",\
+            \"productCode\": \"$PRODUCTCODE\",\
+            \"vendorCode\": \"$VENDORCODE\",\
+            \"statusyn\": \"Y\",\
+                \"domain\": \"$TENANT\"\
+            } ]\
+        }"
+
+        echo "$ALLOW_JSON"  | tee -a ${LOGFILE}
+        . /etc/hamonize/propertiesJob/propertiesInfo.hm
+        IVSC="http://${CENTERURL}/act/deviceAct"
+        curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$ALLOW_JSON" $IVSC
 
     fi
 
@@ -46,13 +63,12 @@ EOF
 
         echo "--- DELETE Start ---" | tee -a ${LOGFILE}
 
-        for i in "${DEL[@]}"
-        do
+        for i in "${DEL[@]}"; do
 
-            VENDORCODE=`echo $i | cut -d":" -f1`
-            PRODUCTCODE=`echo $i | cut -d":" -f2`
+            VENDORCODE=$(echo $i | cut -d":" -f1)
+            PRODUCTCODE=$(echo $i | cut -d":" -f2)
 
-            CHECK=`cat ${RULESFILE} | grep ${VENDORCODE} | grep ${PRODUCTCODE}`
+            CHECK=$(cat ${RULESFILE} | grep ${VENDORCODE} | grep ${PRODUCTCODE})
 
             if [ ! -z "$CHECK" ]; then
                 sed -i "/ATTRS{idVendor}==\"${VENDORCODE}\", ATTRS{idProduct}==\"${PRODUCTCODE}\"/d" ${RULESFILE}
@@ -66,5 +82,29 @@ EOF
     echo "--- Center Lockdown Start ---" | tee -a $LOGFILE
 
     udevadm control --reload-rules
+
+    UUID=$(cat /etc/hamonize/uuid)
+    DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
+    HOSTNAME=$(hostname)
+    TENANT=$(cat /etc/hamonize/hamonize_tanent)
+    PRODUCT=($(echo ${VAL} | grep -Po '(?<="DEL":")[^"]*' | awk -F'[-:]' '{print $1}'))
+    ALLOW_JSON="{\
+        \"events\" : [ {\
+        \"hostname\": \"$HOSTNAME\",\
+        \"uuidVal\":\"$UUID\",\
+        \"product\":\"$PRODUCT\",\
+        \"productCode\": \"$PRODUCTCODE\",\
+        \"vendorCode\": \"$VENDORCODE\",\
+        \"statusyn\": \"N\",\
+            \"domain\": \"$TENANT\"\
+        } ]\
+    }"
+
+    echo "$ALLOW_JSON"  | tee -a ${LOGFILE}
+    . /etc/hamonize/propertiesJob/propertiesInfo.hm
+    IVSC="http://${CENTERURL}/act/deviceAct"
+    echo "$IVSC" | tee -a ${LOGFILE}
+    curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$ALLOW_JSON" $IVSC
     
+
 fi

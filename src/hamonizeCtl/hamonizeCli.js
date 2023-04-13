@@ -1,4 +1,3 @@
-//#!/usr/bin/env node
 'use strict';
 
 const fs = require('fs');
@@ -13,6 +12,7 @@ const fse = require('fs-extra');
 const hamonizeFuns = require('./hamonize_functions');
 let depSpin;  // Spinner
 const log = console.log;
+// var log = require('./logger');
 
 
 
@@ -696,6 +696,7 @@ function getCenterInfo() {
 exports.sysinfoEqchk = async function () {
   var centerUrl = getCenterInfo();
   let arrJsonData = await hamonizeFuns.sysinfoEqchk();
+  log("hamonizeCli===>"+ JSON.stringify(arrJsonData))
   if (arrJsonData != true) {
     let authChkResult = await hamonizeFuns.apiRequest(arrJsonData, 'eqhw', 'post');
   }
@@ -767,6 +768,8 @@ exports.sendToCenter_unauth = async function () {
 
 //  Agent ] Program Install & Remove  ---------------------------------#---------------------------------#---------------------------------#---------------------------------#---------------------------------#
 exports.fnUpdtAgentAction = async function (_dtype) {
+  log("Agent ] Program Install & Remove");
+
   const exec = require('child_process').exec;
   let cmd = ''
   if (_dtype == "apt") {
@@ -782,6 +785,7 @@ exports.fnUpdtAgentAction = async function (_dtype) {
     cmd = "sudo sh /etc/hamonize/agentJobs/rhel.sh";
   }
 
+  log("updt 정책 :: cmd : " + cmd);
   exec(cmd, function (err, stdout, stderr) {
     log('updt 정책 ::  stdout: ' + stdout);
     log('updt 정책 :: stderr: ' + stderr);
@@ -863,6 +867,7 @@ const jobFiles = [
   { name: 'setServerInfo.sh', path: './shell/setServerInfo.sh' },
   { name: 'hamonizeBackup.sh', path: './shell/hamonizeBackup.sh' },
   { name: 'updtjob.sh', path: './shell/agentJobs/updtjob.sh' },
+  { name: 'usbLogSend', path: './shell/agentJobs/usbLogSend' },
   { name: 'hamonizeProcV2', path: './shell/agentJobs/hamonizeProcV2' },
   { name: 'hamonizeProcV3', path: './shell/agentJobs/hamonizeProcV3' }
 
@@ -898,8 +903,9 @@ async function copyHamonizeAgentFile() {
 
     // Agent] program ----#
     fs.writeFileSync('/etc/hamonize/agentJobs/updtjob.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/updtjob.sh')));
+    
     fs.writeFileSync('/etc/hamonize/agentJobs/programInstall', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/programInstall')));
-
+    fs.writeFileSync('/etc/hamonize/agentJobs/usbLogSend', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/usbLogSend')));
     fs.writeFileSync('/etc/hamonize/agentJobs/rhel.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/rhel.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/progrmBlock', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/progrmBlock')));
     fs.writeFileSync('/etc/hamonize/agentJobs/ufwjob', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/ufwjob')));

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 const si = require('systeminformation');
 const helpFormatter = require('./lib/help-formatter.js');
@@ -11,6 +10,8 @@ const { resolve } = require('path');
 // clean : require('./lib/clean.js') 
 
 const log = console.log;
+var logw = require('./logger');
+
 var restApiUrl = new Map();
 restApiUrl.set('authchk', '/hmsvc/getOrgAuth');
 restApiUrl.set('orgdata', '/hmsvc/getOrgData');
@@ -670,8 +671,8 @@ exports.sysinfoEqchk = async function () {
 
     const base_hwinfo = getHwpInfo("hwinfo.hm");
 
-    log("hwData.trim().... " + hwData.trim());
-    log("base_hwinfo.trim().... " + base_hwinfo.trim());
+    logw.info("hwData.trim().... " + hwData);
+    logw.info("base_hwinfo.trim().... " + base_hwinfo.trim());
     let isSendYn = false;
     if (hwData.trim() == base_hwinfo.trim()) {
         isSendYn = false;
@@ -680,7 +681,7 @@ exports.sysinfoEqchk = async function () {
         let fileDir = "/etc/hamonize/hwinfo/hwinfo.hm";
         fs.writeFile(fileDir, hwData, (err) => {
             if (err) {
-                log("//== sysInfo hw check() error  " + err.message)
+                logw.info("//== sysInfo hw check() error  " + err.message)
             }
         });
     }
@@ -704,7 +705,7 @@ exports.sysinfoEqchk = async function () {
 
         JsonData.datetime = 'datetime';
 
-        log(JsonData)
+        logw.info("hamonizeFunctions--->"+JSON.stringify(JsonData))
         arrJsonData.push(JsonData);
         return arrJsonData;
     } else {

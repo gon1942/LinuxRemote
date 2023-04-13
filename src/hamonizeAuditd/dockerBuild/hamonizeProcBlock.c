@@ -7,15 +7,11 @@
 #include <fcntl.h>
 #include "libaudit.h"
 #include "auparse.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 
-
-#include <libnotify/notify.h>
-#include <curl/curl.h>
-#include <json-c/json.h>
+// #include <libnotify/notify.h>
 
 /* Global Data */
 static volatile int stop = 0;
@@ -23,18 +19,14 @@ static volatile int hup = 0;
 static auparse_state_t *au = NULL;
 
 #define MY_ACCOUNT 1000
-#define MAX_ID_LENGTH 1024
-#define FILE_PATH "/etc/hamonize/propertiesJob/propertiesInfo.hm"
-
 const char *note = "Hamonize  Alert";
-
 
 /* Local declarations */
 static void handle_event(auparse_state_t *au,
 						 auparse_cb_event_t cb_event_type, void *user_data);
 
 /*
- * SIGTERM handler 
+ * SIGTERM handler
  */
 static void term_handler(int sig)
 {
@@ -61,21 +53,8 @@ static void reload_config(void)
 
 int main(int argc, char *argv[])
 {
-	syslog(LOG_INFO, "----------------------------");
 	char tmp[MAX_AUDIT_MESSAGE_LENGTH];
 	struct sigaction sa;
-
-	/* notify--------------------------------*/
-	char bus[32];
-	notify_init(note);
-    snprintf(bus, sizeof(bus), "unix:path=/run/user/%d/bus", MY_ACCOUNT);
-    setenv("DBUS_SESSION_BUS_ADDRESS", bus, 1);
-	if (setresuid(MY_ACCOUNT, MY_ACCOUNT, MY_ACCOUNT))
-    {
-        syslog(LOG_INFO, "setresuid failed");
-        return 1;
-    }
-
 
 	/* Register sighandlers */
 	sa.sa_flags = 0;
@@ -95,11 +74,11 @@ int main(int argc, char *argv[])
 		printf("audisp-example is exiting due to auparse init errors");
 		return -1;
 	}
-	auparse_set_eoe_timeout(2);
+	// auparse_set_eoe_timeout(2);
 	auparse_add_callback(au, handle_event, NULL, NULL);
 	do
 	{
-		syslog(LOG_INFO, "------------------222222222222--------------");
+		syslog(LOG_INFO, "------------------Audit Plugin Start --------------");
 
 		fd_set read_mask;
 		int retval;
@@ -146,10 +125,10 @@ int main(int argc, char *argv[])
 	/* Flush any accumulated events from queue */
 	auparse_flush_feed(au);
 	auparse_destroy(au);
-	if (stop)
-		syslog(LOG_INFO, "----------------1111111------------audisp-example is exiting on stop request\n");
-	else
-		syslog(LOG_INFO, "----------------2222222------------audisp-example is exiting on stdin EOF\n");
+	// if (stop)
+	// 	syslog(LOG_INFO, "----------------1111111------------audisp-example is exiting on stop request\n");
+	// else
+	// 	syslog(LOG_INFO, "----------------2222222------------audisp-example is exiting on stdin EOF\n");
 
 	return 0;
 }
@@ -165,12 +144,12 @@ static void dump_whole_event(auparse_state_t *au)
 	printf("\n");
 }
 
-
 char *hamonizeUpdt()
 {
 	syslog(LOG_INFO, "#----------hamonizeUpdt------------------###############.\n");
+	int ret = system("/etc/hamonize/agentJobs/programInstall");
 	// int ret = system("/etc/hamonize/agentJobs/updtjob.sh");
-	int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
+	// int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
 
 	WEXITSTATUS(ret);
 	syslog(LOG_INFO, "--------hamonizeUpdt---------ret : %d \n", ret);
@@ -221,160 +200,42 @@ char *hamonizeUfw()
 char *hamonizeLogin()
 {
 	syslog(LOG_INFO, "#-------------------hamonizeLogin-------------------------###############.\n");
-	int ret = system("touch /tmp/aaaa-login-1");
+	// int ret = system("touch /tmp/aaaa-login-1");
+	int ret = system("/usr/local/hamonize-connect/hamonizeCtl --eqchk");
 	WEXITSTATUS(ret);
 	syslog(LOG_INFO, "--------hamonizeLogin---------ret : %d \n", ret);
 	return 0;
 }
 
-char *sendInfo()
-{
-	syslog(LOG_INFO, "-----------sendinfo() =============>호출  \n");
-	CURL *curl;
-	CURLcode res;
-	json_object *json, *events, *event;
-	time_t now = time(NULL);
-	struct curl_slist *headers = NULL;
-	char *data;
-	char str_time[20];
-	char machine_id[MAX_ID_LENGTH];
-	char tanent_id[MAX_ID_LENGTH];
+// static void notify()
+// {
+// 	/* send a message */
+// 	/* Setup the notification stuff */
+// 	char msg[256], *name = NULL;
 
-	struct tm *t = localtime(&now);
-	strftime(str_time, sizeof(str_time), "%Y-%m-%d %H:%M:%S", t);
+// 	NotifyNotification *n = notify_notification_new(note, "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.", NULL);
+// 	notify_notification_set_urgency(n, NOTIFY_URGENCY_NORMAL);
+// 	notify_notification_set_timeout(n, 3000); // 3 seconds
+// 	notify_notification_show(n, NULL);
+// 	g_object_unref(G_OBJECT(n));
 
-	FILE *hamonizeInfoFile = fopen(FILE_PATH, "r");
+// 	free(name);
 
-	char line[MAX_ID_LENGTH];
-	char *center_url = NULL;
+// 	syslog(LOG_INFO, "notify@@@@@@@@@@@@@@-----------------------execl호출  \n");
+// }
 
-	while (fgets(line, sizeof(line), hamonizeInfoFile) != NULL)
-	{
-		if (strstr(line, "CENTERURL=") != NULL)
-		{
-			// "CENTERURL=" 문자열을 찾았을 때, 값을 추출
-			center_url = strdup(line + strlen("CENTERURL="));
-			// 개행 문자 제거
-			center_url[strcspn(center_url, "\n")] = '\0';
-			break;
-		}
-	}
+// void wallNotify(const char *pnm)
+// {
+// 	syslog(LOG_INFO, "wallNotifywallNotifywallNotifywallNotifywallNotifywallNotify@@@@@@@@@@@@@@-----------------------execl호출  \n");
+// 	char command[1024];
+// 	// const char* message = "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.";
+// 	const char *message = " is Block Program(Application) by Admin";
+// 	// sprintf(command, "echo '%s' | iconv -t utf-8 | wall", message);
 
-	fclose(hamonizeInfoFile);
-	char *url_with_http = NULL;
-	url_with_http = (char *)malloc(strlen(center_url) + 8);
-	sprintf(url_with_http, "http://%s", center_url);
-	syslog(LOG_INFO, "-----####center_url-------------- [%s] --> [%s] \n", center_url, url_with_http);
-	
-
-	// char url[] = "http://61.32.208.27:8083/hmsvc/prcssKill";
-	// char url[] = center_url; //"http://192.168.0.240:8083/hmsvc/prcssKill";
-
-	// Get Machine_id  --------------------------//
-	FILE *fp = fopen("/etc/machine-id", "r");
-	if (!fp)
-	{
-		syslog(LOG_INFO, "-----####Failed to open /etc/machine-id");
-		exit(1);
-	}
-
-	// 파일에서 ID 값을 읽어와서 변수에 저장
-	if (fgets(machine_id, MAX_ID_LENGTH, fp))
-	{
-		machine_id[strcspn(machine_id, "\n")] = 0;
-	}
-	fclose(fp);
-	syslog(LOG_INFO, "-----#######Machine ID: %s\n", machine_id);
-
-	// Get tanent id  --------------------------//
-	FILE *fpTanent = fopen("/etc/hamonize/hamonize_tanent", "r");
-	if (!fpTanent)
-	{
-		syslog(LOG_INFO, "-----####Failed to open /etc/hamonize/hamonize_tanent ");
-		exit(1);
-	}
-
-	// 파일에서 ID 값을 읽어와서 변수에 저장
-	if (fgets(tanent_id, MAX_ID_LENGTH, fpTanent))
-	{
-		tanent_id[strcspn(tanent_id, "\n")] = 0;
-	}
-	fclose(fpTanent);
-	syslog(LOG_INFO, "-----#######tanent_ ID: %s\n", tanent_id);
-
-	/* Create JSON object */
-	json = json_object_new_object();
-	events = json_object_new_array();
-	json_object_object_add(json, "events", events);
-	event = json_object_new_object();
-	json_object_object_add(event, "datetime", json_object_new_string(str_time));
-	json_object_object_add(event, "uuid", json_object_new_string(machine_id));
-	json_object_object_add(event, "domain", json_object_new_string("aaa"));
-	json_object_object_add(event, "name", json_object_new_string("htop"));
-	json_object_array_add(events, event);
-	data = (char *)json_object_to_json_string(json);
-	syslog(LOG_INFO, "-----#######333----------_> json_object_to_json_string is [%s]", data);
-	/* Initialize curl */
-	curl = curl_easy_init();
-	if (curl)
-	{
-		/* Set headers */
-		headers = curl_slist_append(headers, "Content-Type: application/json");
-		headers = curl_slist_append(headers, "Accept: application/json");
-		/* Set options */
-		curl_easy_setopt(curl, CURLOPT_URL, url_with_http);
-		curl_easy_setopt(curl, CURLOPT_POST, 1L);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-		/* Perform request */
-		res = curl_easy_perform(curl);
-		syslog(LOG_INFO, "----#########--curl request---------_> data is [%d]", res);
-		/* Check for errors */
-		if (res != CURLE_OK)
-		{
-			syslog(LOG_ERR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-			syslog(LOG_INFO, "--@@@@@@@@@@@@@@@@curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		}
-		else
-		{
-			syslog(LOG_ERR, "curl_ okkkkkkkkkkkkkkkkkkkkkkkkkk\n");
-		}
-		/* Cleanup */
-		curl_slist_free_all(headers);
-		curl_easy_cleanup(curl);
-	}
-	/* Cleanup JSON object */
-	json_object_put(json);
-	free(url_with_http);
-}
-
-static void notify(){
-	/* send a message */
-    /* Setup the notification stuff */
-    char msg[256], *name = NULL;
-
-    NotifyNotification *n = notify_notification_new(note, "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.", NULL);
-    notify_notification_set_urgency(n, NOTIFY_URGENCY_NORMAL);
-    notify_notification_set_timeout(n, 3000); // 3 seconds
-    notify_notification_show(n, NULL);
-    g_object_unref(G_OBJECT(n));
-
-    free(name);
-
-    syslog(LOG_INFO, "notify@@@@@@@@@@@@@@-----------------------execl호출  \n");
-}
-
-void wallNotify(const char* pnm){
-	syslog(LOG_INFO, "wallNotifywallNotifywallNotifywallNotifywallNotifywallNotify@@@@@@@@@@@@@@-----------------------execl호출  \n");
-    char command[1024];
-    //const char* message = "해당프로그램은 Hamonize 관리자로 부터 실행 차단프로그램입니다.";
-    const char* message = " is Block Program(Application) by Admin";
-    //sprintf(command, "echo '%s' | iconv -t utf-8 | wall", message);
-
-    sprintf(command, "printf ['%s']'%s' | iconv -t utf-8 | wall ",pnm, message);
-    system(command);
-    return;
-}
+// 	sprintf(command, "printf ['%s']'%s' | iconv -t utf-8 | wall ", pnm, message);
+// 	system(command);
+// 	return;
+// }
 /* This function shows how to dump a whole record's text */
 static void dump_whole_record(auparse_state_t *au)
 {
@@ -394,7 +255,7 @@ static void dump_whole_record(auparse_state_t *au)
 		if (strcmp(comm, "\"rm\"") != 0)
 		{
 			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
-			hamonizeUpdt();
+			// hamonizeUpdt();
 		}
 	}
 
@@ -404,7 +265,7 @@ static void dump_whole_record(auparse_state_t *au)
 		if (strcmp(comm, "\"rm\"") != 0)
 		{
 			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
-			hamonizeBlock();
+			// hamonizeBlock();
 		}
 	}
 
@@ -414,7 +275,7 @@ static void dump_whole_record(auparse_state_t *au)
 		if (strcmp(comm, "\"rm\"") != 0)
 		{
 			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
-			hamonizeDevice();
+			// hamonizeDevice();
 		}
 	}
 
@@ -423,8 +284,8 @@ static void dump_whole_record(auparse_state_t *au)
 	{
 		if (strcmp(comm, "\"rm\"") != 0)
 		{
-			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
-			hamonizeDeviceSendLog();
+			syslog(LOG_INFO, "hamonizeUssb---------------  key : [%s] , comm = [%s]", keyname, comm);
+			// hamonizeDeviceSendLog();
 		}
 	}
 
@@ -434,7 +295,7 @@ static void dump_whole_record(auparse_state_t *au)
 		if (strcmp(comm, "\"rm\"") != 0)
 		{
 			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
-			hamonizeUfw();
+			// hamonizeUfw();
 		}
 	}
 
@@ -446,8 +307,7 @@ static void dump_whole_record(auparse_state_t *au)
 		kill(pidt, SIGKILL);
 		syslog(LOG_INFO, "--------------------Failed to kill process with PID %d.\n", pidt);
 		// notify();
-		wallNotify(comm);
-		sendInfo();
+		// wallNotify();
 	}
 	syslog(LOG_INFO, "--------------------ENDEND");
 }
@@ -512,6 +372,7 @@ static void handle_event(auparse_state_t *au,
 			dump_whole_record(au);
 			break;
 		case AUDIT_USER_LOGIN:
+			hamonizeLogin();
 			break;
 		case AUDIT_ANOM_ABEND:
 			break;

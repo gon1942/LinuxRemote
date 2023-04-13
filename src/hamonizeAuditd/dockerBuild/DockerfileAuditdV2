@@ -5,13 +5,18 @@ RUN mkdir /home/auditd2_build
 
 # 소스파일을 업로드
 COPY hamonizeProcV2.c /home/auditd2_build/
+COPY hamonizeProcBlock.c /home/auditd2_build/
 
 # 소스파일 컴파일
 RUN cd /home/auditd2_build/ && \
-gcc -o hamonizeProcV2 hamonizeProcV2.c `pkg-config --cflags glib-2.0` `pkg-config --cflags gdk-pixbuf-2.0` `pkg-config --libs glib-2.0` `pkg-config --libs gdk-pixbuf-2.0` -lauparse -laudit -lnotify  -ljson-c -lcurl
+gcc -o hamonizeProcV2 hamonizeProcV2.c -lauparse -laudit `pkg-config --cflags gdk-pixbuf-2.0` && \
+gcc -o hamonizeProcBlock hamonizeProcBlock.c -lauparse -laudit 
+
 
 # 볼륨 추가
 VOLUME /tmp
 
 # 컴파일된 파일을 로컬 컴퓨터로 복사
-CMD ["cp", "/home/auditd2_build/hamonizeProcV2", "/tmp/"]
+# CMD ["cp", "/home/auditd2_build/hamonizeProcV2 && /home/auditd2_build/hamonizeProcBlock", "/tmp/"]
+# CMD ["cp", "/home/auditd2_build/hamonizeProcBlock", "/tmp/"]
+CMD cp /home/auditd2_build/hamonizeProcV2 /tmp/ && cp /home/auditd2_build/hamonizeProcBlock /tmp/

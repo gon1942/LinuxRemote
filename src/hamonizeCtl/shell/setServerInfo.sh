@@ -69,8 +69,6 @@ UUID=$(cat /etc/hamonize/uuid)
 cat /dev/null >/etc/hamonize/uuid
 cat /etc/machine-id | sudo tee -a /etc/hamonize/uuid
 
-sleep 1
-
 apt-get update
 
 sleep 1

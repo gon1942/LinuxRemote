@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if test -s /etc/hamonize/usblog/usb-unauth.hm; then
+    echo "The file /etc/hamonize/usblog/usb-unauth.hm is not empty"
+
+    data=$(cat /etc/hamonize/usblog/usb-unauth.hm)
+    json="{\"events\": [$data]}"
+    echo $json
+
+    . /etc/hamonize/propertiesJob/propertiesInfo.hm
+    IVSC="http://${CENTERURL}/hmsvc/unauth"
+    curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$json" $IVSC
+
+    echo -n >/etc/hamonize/usblog/usb-unauth.hm
+fi
