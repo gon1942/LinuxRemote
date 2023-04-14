@@ -845,13 +845,6 @@ exports.fnFirewallJob = async function (_dtype) {
       log(' ProgramBlock 정책 ::  error: ' + err);
     }
   });
-
-  // exec('sudo /bin/bash ./shell/agentJobs/ufwjob  ', function (err, stdout, stderr) {
-  // exec('sudo sh /etc/hamonize/agentJobs/ufwjob  ', function (err, stdout, stderr) {
-  //   if (err !== null) {
-  //     log('//== fnFirewallJob error: ' + err);
-  //   }
-  // });
 }
 
 
@@ -868,8 +861,12 @@ const jobFiles = [
   { name: 'hamonizeBackup.sh', path: './shell/hamonizeBackup.sh' },
   { name: 'updtjob.sh', path: './shell/agentJobs/updtjob.sh' },
   { name: 'usbLogSend', path: './shell/agentJobs/usbLogSend' },
+  { name: 'eqchk', path: './shell/agentJobs/eqchk' },
+  { name: 'blockNoti', path: './shell/agentJobs/blockNoti' },
   { name: 'hamonizeProcV2', path: './shell/agentJobs/hamonizeProcV2' },
-  { name: 'hamonizeProcV3', path: './shell/agentJobs/hamonizeProcV3' }
+  { name: 'hamonizeProcV3', path: './shell/agentJobs/hamonizeProcV3' },
+  { name: 'eqchk', path: './shell/agentJobs/eqchk' },
+  { name: 'blockNoti', path: './shell/agentJobs/blockNoti' }
 
 ];
 
@@ -913,6 +910,10 @@ async function copyHamonizeAgentFile() {
     fs.writeFileSync('/etc/hamonize/agentJobs/backupJob_recovery.sh', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/backupJob_recovery.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/setServerInfo.sh', fs.readFileSync(path.resolve(__dirname, './shell/setServerInfo.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/hamonizeBackup.sh', fs.readFileSync(path.resolve(__dirname, './shell/hamonizeBackup.sh')));
+    fs.writeFileSync('/etc/hamonize/agentJobs/eqchk', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/eqchk')));
+    fs.writeFileSync('/etc/hamonize/agentJobs/blockNoti', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/blockNoti')));
+    
+
     const { exec } = require('child_process')
     exec("sudo chmod +x /etc/hamonize/agentJobs/*", (error, stdout, stderr) => {
       if (error) {

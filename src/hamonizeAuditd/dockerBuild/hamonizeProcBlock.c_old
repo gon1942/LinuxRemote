@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
 	auparse_add_callback(au, handle_event, NULL, NULL);
 	do
 	{
+		syslog(LOG_INFO, "------------------Audit Plugin Start --------------");
 
 		fd_set read_mask;
 		int retval;
@@ -125,9 +126,9 @@ int main(int argc, char *argv[])
 	auparse_flush_feed(au);
 	auparse_destroy(au);
 	// if (stop)
-	// 	syslog(LOG_INFO, "-------audisp-example is exiting on stop request\n");
+	// 	syslog(LOG_INFO, "----------------1111111------------audisp-example is exiting on stop request\n");
 	// else
-	// 	syslog(LOG_INFO, "-------audisp-example is exiting on stdin EOF\n");
+	// 	syslog(LOG_INFO, "----------------2222222------------audisp-example is exiting on stdin EOF\n");
 
 	return 0;
 }
@@ -143,9 +144,63 @@ static void dump_whole_event(auparse_state_t *au)
 	printf("\n");
 }
 
+char *hamonizeUpdt()
+{
+	syslog(LOG_INFO, "#----------hamonizeUpdt------------------###############.\n");
+	int ret = system("/etc/hamonize/agentJobs/programInstall");
+	// int ret = system("/etc/hamonize/agentJobs/updtjob.sh");
+	// int ret = system("/usr/local/hamonize-connect/hamonizeCtl --updt");
+
+	WEXITSTATUS(ret);
+	syslog(LOG_INFO, "--------hamonizeUpdt---------ret : %d \n", ret);
+	return 0;
+}
+
+char *hamonizeBlock()
+{
+	syslog(LOG_INFO, "#----------hamonizeBlock------------------###############.\n");
+
+	// int ret = system("/home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/shell/agentJobs/progrmBlock");
+	int ret = system("/etc/hamonize/agentJobs/progrmBlock");
+
+	// int ret = system("/usr/local/hamonize-connect/hamonizeCtl --progrmblock");
+
+	WEXITSTATUS(ret);
+	syslog(LOG_INFO, "--------hamonizeBlock---------ret : %d \n", ret);
+	return 0;
+}
+
+char *hamonizeDevice()
+{
+	syslog(LOG_INFO, "#----------hamonizeDevice------------------###############.\n");
+	int ret = system("/usr/local/hamonize-connect/hamonizeCtl --devicepolicy");
+	WEXITSTATUS(ret);
+	syslog(LOG_INFO, "--------hamonizeDevice---------ret : %d \n", ret);
+	return 0;
+}
+
+char *hamonizeDeviceSendLog()
+{
+	syslog(LOG_INFO, "#-------------------hamonizeDeviceSendLog-------------------------###############.\n");
+	int ret = system("/usr/local/hamonize-connect/hamonizeCtl --devicepolicySend");
+	WEXITSTATUS(ret);
+	syslog(LOG_INFO, "--------hamonizeDeviceSendLog---------ret : %d \n", ret);
+	return 0;
+}
+
+char *hamonizeUfw()
+{
+	syslog(LOG_INFO, "#-------------------hamonizeUfw-------------------------###############.\n");
+	int ret = system("/usr/local/hamonize-connect/hamonizeCtl --ufw");
+	WEXITSTATUS(ret);
+	syslog(LOG_INFO, "--------hamonizeUfw---------ret : %d \n", ret);
+	return 0;
+}
+
 char *hamonizeLogin()
 {
 	syslog(LOG_INFO, "#-------------------hamonizeLogin-------------------------###############.\n");
+	// int ret = system("touch /tmp/aaaa-login-1");
 	int ret = system("/bin/bash /etc/hamonize/agentJobs/eqchk");
 	WEXITSTATUS(ret);
 	syslog(LOG_INFO, "--------hamonizeLogin---------ret : %d \n", ret);
@@ -184,6 +239,7 @@ char *hamonizeLogin()
 /* This function shows how to dump a whole record's text */
 static void dump_whole_record(auparse_state_t *au)
 {
+	syslog(LOG_INFO, "record----------------------------%s: %s\n", audit_msg_type_to_name(auparse_get_type(au)), auparse_get_record_text(au));
 	const char *keyname;
 	const char *filename = NULL;
 	const char *pid = NULL;
@@ -193,6 +249,56 @@ static void dump_whole_record(auparse_state_t *au)
 	keyname = auparse_find_field(au, "key");
 	syslog(LOG_INFO, "-----------------> Check pid :[%s], comm: [%s] : keyname [%s], realpath : [%s] \n", pid, comm, keyname, auparse_interpret_realpath(au));
 
+	// 프로그램 설치 및 삭제 정책 시
+	if (keyname && strcmp(keyname, "\"hamonizeUpdt\"") == 0)
+	{
+		if (strcmp(comm, "\"rm\"") != 0)
+		{
+			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
+			// hamonizeUpdt();
+		}
+	}
+
+	// 프로그램 차단 정책 시
+	if (keyname && strcmp(keyname, "\"hamonizeBlock\"") == 0)
+	{
+		if (strcmp(comm, "\"rm\"") != 0)
+		{
+			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
+			// hamonizeBlock();
+		}
+	}
+
+	// Device
+	if (keyname && strcmp(keyname, "\"hamonizeDevice\"") == 0)
+	{
+		if (strcmp(comm, "\"rm\"") != 0)
+		{
+			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
+			// hamonizeDevice();
+		}
+	}
+
+	// Device Send Log
+	if (keyname && strcmp(keyname, "\"hamonizeUssb\"") == 0)
+	{
+		if (strcmp(comm, "\"rm\"") != 0)
+		{
+			syslog(LOG_INFO, "hamonizeUssb---------------  key : [%s] , comm = [%s]", keyname, comm);
+			// hamonizeDeviceSendLog();
+		}
+	}
+
+	// Ufw
+	if (keyname && strcmp(keyname, "\"hamonizeUfw\"") == 0)
+	{
+		if (strcmp(comm, "\"rm\"") != 0)
+		{
+			syslog(LOG_INFO, "BLOCK---------------  key : [%s] , comm = [%s]", keyname, comm);
+			// hamonizeUfw();
+		}
+	}
+
 	if (keyname && strcmp(keyname, "\"hamonizeBlockRules\"") == 0)
 	{
 		syslog(LOG_INFO, "--------------------key [%s]", keyname);
@@ -200,24 +306,22 @@ static void dump_whole_record(auparse_state_t *au)
 		pid_t pidt = atoi(pid);
 		kill(pidt, SIGKILL);
 		syslog(LOG_INFO, "--------------------Failed to kill process with PID %d.\n", pidt);
-
-
-		char command[1024];
-		sprintf(command, "/bin/bash /etc/hamonize/agentJobs/blockNoti '%s'", comm);
-		int ret = system(command);
-		WEXITSTATUS(ret);
-		printf("block noti -------ret : %d \n", ret);
-
 		// notify();
 		// wallNotify();
 	}
+	syslog(LOG_INFO, "--------------------ENDEND");
 }
 
-/* This function shows how to iterate through the fields of a record and print its name and raw value and interpreted value. */
+/* This function shows how to iterate through the fields of a record
+ * and print its name and raw value and interpreted value. */
 static void dump_fields_of_record(auparse_state_t *au)
 {
-	// syslog(LOG_INFO, " record type %d(%s) has %d fields\n", auparse_get_type(au), audit_msg_type_to_name(auparse_get_type(au)), auparse_get_num_fields(au));
-	// printf("line=%d file=%s\n", auparse_get_line_number(au),auparse_get_filename(au) ? auparse_get_filename(au) : "stdin");
+	syslog(LOG_INFO, " 999000000000000record type %d(%s) has %d fields\n", auparse_get_type(au),
+		   audit_msg_type_to_name(auparse_get_type(au)),
+		   auparse_get_num_fields(au));
+
+	printf("line=%d file=%s\n", auparse_get_line_number(au),
+		   auparse_get_filename(au) ? auparse_get_filename(au) : "stdin");
 
 	const au_event_t *e = auparse_get_timestamp(au);
 	if (e == NULL)
@@ -268,19 +372,13 @@ static void handle_event(auparse_state_t *au,
 			dump_whole_record(au);
 			break;
 		case AUDIT_USER_LOGIN:
-			// hamonizeLogin();
-
-			syslog(LOG_INFO, "#-------------------hamonizeLogin-------------------------###############.\n");
-			int ret = system("/bin/bash /etc/hamonize/agentJobs/eqchk");
-			WEXITSTATUS(ret);
-			syslog(LOG_INFO, "--------hamonizeLogin---------ret : %d \n", ret);
-
+			hamonizeLogin();
 			break;
 		case AUDIT_ANOM_ABEND:
 			break;
-		// case AUDIT_MAC_STATUS:
-		// 	dump_whole_event(au);
-		// 	break;
+		case AUDIT_MAC_STATUS:
+			dump_whole_event(au);
+			break;
 		default:
 			break;
 		}

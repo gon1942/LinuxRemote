@@ -50,7 +50,6 @@ if [ "$UFW_ADD" != null ]; then
                 	} ]\
                 }"
                 echo $ALLOW_JSON
-
                 curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$ALLOW_JSON" $IVSC
 
         done

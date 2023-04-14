@@ -1,0 +1,114 @@
+#!/bin/bash
+
+. /etc/hamonize/propertiesJob/propertiesInfo.hm
+
+
+UUID=$(cat /etc/hamonize/uuid)
+DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
+HOSTNAME=$(hostname)
+TENANT=$(cat /etc/hamonize/hamonize_tanent)
+
+# Get CPU Info
+cpu=$(lscpu)
+cpu_manufacturer=$(echo "$cpu" | grep "Vendor ID:" | awk '{print $3}')
+cpu_brand=$(echo "$cpu" | grep "Model name:" | awk '{print $3,$4,$5,$6,$7,$8}')
+cpu_speed=$(echo "$cpu" | grep "CPU MHz:" | awk '{print $3/1000}')
+cpu_cores=$(echo "$cpu" | grep "^CPU(s):" | awk '{print $2}')
+cpu_physical_cores=$(echo "$cpu" | grep "Core(s) per socket:" | awk '{print $4}')
+cpu_info="$cpu_manufacturer $cpu_brand ${cpu_speed}GHz $cpu_cores ($cpu_physical_cores Physical)"
+
+# Get Disk Info
+disk=$(lsblk -bo vendor,name,size,type,tran | awk 'NR==2')
+disk_vendor=$(echo "$disk" | awk '{print $1}')
+disk_name=$(echo "$disk" | awk '{print $2}')
+disk_size=$(echo "$disk" | awk '{print $3/(1024^3)}')
+disk_type=$(echo "$disk" | awk '{print $4}')
+disk_interfaceType=$(echo "$disk" | awk '{print $5}')
+disk_info="$disk_vendor $disk_name ${disk_size}GB $disk_type ($disk_interfaceType)"
+
+# Get OS Info
+os_distro=$(lsb_release -i | awk '{print $3}')
+os_release=$(lsb_release -r | awk '{print $2}')
+os_codename=$(lsb_release -c | awk '{print $2}')
+os_platform=$(uname -s)
+os_info="$os_distro $os_release $os_codename ($os_platform)"
+
+# Get RAM Info
+ram_total=$(free -g | awk '/^Mem:/{print $2}')
+ram_info="${ram_total}GB"
+
+# Get IP Address
+ip_info=$(hostname -I | awk '{print $1}')
+
+# Get Machine ID
+machine_id=$(cat /etc/machine-id)
+
+# Get VPN Info
+vpn_info=$(ifconfig tun0 | grep "inet " | awk '{print $2}')
+
+# Get Hostname
+pc_hostname=$(hostname)
+
+# Get Username
+usernm=$(who | awk 'FNR == 1 {print $1}')
+
+# Get Disk Serial Number
+disk_serial_num=$(udevadm info --query=all --name=sda | grep ID_SERIAL= | awk -F= '{print $2}')
+
+# Get MAC Address
+MAC_ADDRESS=$(ifconfig | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}')
+
+# Generate MD5 hash for hardware information
+hwinfo_md5="$pc_hostname $ip_info $cpu_manufacturer $cpu_brand $cpu_cores ($cpu_physical_cores Physical) $disk_info $disk_serial_num $os_platform $(uname -r) $ram_info $machine_id"
+hw_data=$(echo "$hwinfo_md5" | md5sum | awk '{print $1}')
+
+# Read base hardware info from file
+base_hwinfo=$(cat /etc/hamonize/hwinfo/hwinfo.hm)
+
+
+if [ "$hw_data" == "$(echo -e "${base_hwinfo}" | tr -d '[:space:]')" ]; then
+        is_send_yn=true
+else
+        is_send_yn=false
+        file_dir="/etc/hamonize/hwinfo/hwinfo.hm"
+        echo "$hw_data" >"$file_dir"
+fi
+
+# echo "cpu_info---------> $cpu_info"
+# echo "disk_info---------> $disk_info"
+# echo "os_info---------> $os_info"
+# echo "ram_info---------> $ram_info"
+# echo "ip_info---------> $ip_info"
+# echo "machine_id---------> $machine_id"
+# echo "vpn_info---------> $vpn_info"
+# echo "pc_hostname---------> $pc_hostname"
+# echo "usernm---------> $usernm"
+# echo "disk_serial_num---------> $disk_serial_num"
+# echo "hwinfo_md5--------> $hwinfo_md5"
+# echo "MAC Address: $MAC_ADDRESS"
+
+if [ "$is_send_yn" = false ]; then
+        # Create JSON object with hardware information
+        json_data="{\
+        \"events\" : [ {\
+        \"hostname\":\"$pc_hostname\",\
+        \"memory\":\"$ram_info\",\
+        \"cpuid\": \"$cpu_info\",\
+        \"hddinfo\": \"$disk_serial_num\",\
+        \"hddid\": \"$RETPORT\",\
+        \"ipaddr\": \"$ip_info\",\
+        \"uuid\": \"$machine_id\",\
+        \"user\": \"$usernm\",\
+        \"macaddr\": \"$MAC_ADDRESS\",\
+        \"cpuinfo\": \"$cpu_info\",\
+        \"vpnip\": \"$vpn_info\",\
+        \"domain\": \"$TENANT\",\
+        \"datetime\": \"$DATETIME\"\
+
+        } ]\
+        }"
+        echo $json_data | jq '.'
+        
+        IVSC="http://${CENTERURL}/hmsvc/eqhw"
+        curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$json_data" $IVSC
+fi

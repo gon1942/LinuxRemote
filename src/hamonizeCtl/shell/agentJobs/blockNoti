@@ -1,0 +1,38 @@
+#!/bin/bash
+
+. /etc/hamonize/propertiesJob/propertiesInfo.hm
+CENTERURL="http://${CENTERURL}/hmsvc/prcssKill"
+UUID=$(cat /etc/hamonize/uuid)
+DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
+HOSTNAME=$(hostname)
+TENANT=$(cat /etc/hamonize/hamonize_tanent)
+OSUSERID=$(users | cut -d' ' -f1)
+
+# OS Display Check -------------------------------------------------------------------------------------#
+if [ "$(ps -A | egrep -i 'xorg|wayland' | awk '{print $NF}')" = "Xorg" ]; then
+        # IS_DISPLAY_YN="Y"
+        # notify-send "$1 is Block Program(Application) by Admin"
+        sudo su - $OSUSERID -c 'notify-send -u critical "[Hamonize] 관리자에 의해서 이 '$1'는 사용이 금지되었습니다. [Warninig]  Not Allowed by ADMIN "'
+elif [ "$(ps -A | egrep -i 'xorg|wayland' | awk '{print $NF}')" = "wayland" ]; then
+        # IS_DISPLAY_YN="N"
+        # notify-send "$1 is Block Program(Application) by Admin"
+        sudo su - $OSUSERID -c 'notify-send -u critical "[Hamonize] 관리자에 의해서 이 '$1'는 사용이 금지되었습니다. [Warninig]  Not Allowed by ADMIN "'
+else
+        echo "$1 is Block Program(Application) by Admin" | wall
+fi
+
+# if [ "$IS_DISPLAY_YN" == "Y" ]; then
+
+        
+# fi
+
+JSON="{\
+\"events\" : [ {\
+\"datetime\":\"$DATETIME\",\
+\"uuid\":\"$UUID\",\
+\"domain\":\"$TENANT\",\
+\"name\": \"$1\"\
+} ]\
+}"
+echo $JSON | jq '.'
+/usr/bin/curl -i -S -H "Accept: application/json" -H "Content-Type:application/json" -X POST -d "${JSON}" $CENTERURL

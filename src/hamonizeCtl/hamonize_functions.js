@@ -714,6 +714,8 @@ exports.sysinfoEqchk = async function () {
 
 }
 
+
+
 exports.updatePcInfo = async function (domain) {
 
     let vpnipaddr = '';
