@@ -8,81 +8,87 @@ const {
 const path = require('path');
 const unirest = require('unirest');
 
-$modal = $(".modal");
 
-// # step 1. install file version check  ====================================
-// 폴더 생성 및 프로그램 설치 진행에 필요한 jq, curl 등 설치
-install_program_version_chkeck();
+const remote = require('electron').remote;
 
-// nextStap();
+const win = remote.getCurrentWindow(); /* Note this is different to the
+html global `window` variable */
 
-function install_program_version_chkeck() {
-	$modal.show();
-	popupOpen();
-	$(".layerpop__container").text("프로그램 설치를 위한 버전 확인 중 입니다. 잠시만 기다려주세요.!!");
+// When document has loaded, initialise
+document.onreadystatechange = (event) => {
+    if (document.readyState == "complete") {
+        handleWindowControls();
 
-	ipcRenderer.send('install_program_version_chkeck');
-	// nextStap();
+        // document.getElementById('electron-ver').innerHTML = `${process.versions.electron}`
+    }
+};
 
+window.onbeforeunload = (event) => {
+    /* If window is reloaded, remove win event listeners
+    (DOM element listeners get auto garbage collected but not
+    Electron win listeners as the win is not dereferenced unless closed) */
+    win.removeAllListeners();
 }
 
+function handleWindowControls() {
+    // Make minimise/maximise/restore/close buttons work when they are clicked
+    document.getElementById('min-button').addEventListener("click", event => {
+        win.minimize();
+    });
 
+    document.getElementById('max-button').addEventListener("click", event => {
+        win.maximize();
+    });
+
+    document.getElementById('restore-button').addEventListener("click", event => {
+        win.unmaximize();
+    });
+
+    document.getElementById('close-button').addEventListener("click", event => {
+        win.close();
+    });
+
+    // Toggle maximise/restore buttons when maximisation/unmaximisation occurs
+    toggleMaxRestoreButtons();
+    win.on('maximize', toggleMaxRestoreButtons);
+    win.on('unmaximize', toggleMaxRestoreButtons);
+
+    function toggleMaxRestoreButtons() {
+        if (win.isMaximized()) {
+            document.body.classList.add('maximized');
+        } else {
+            document.body.classList.remove('maximized');
+        }
+    }
+}
+
+// $(document).attr("title","Hamonize Auth..."); 
+
+// $modal = $(".modal");
+
+// hamonizeSystemBackup();
+fn_hamonizeProgramInstall();
+// # step 1. install file version check  ====================================
+// install_program_version_chkeck();
+
+
+function install_program_version_chkeck() {
+	// $modal.show();
+	// popupOpen();
+	// $(".layerpop__container").text("프로그램 설치를 위한 버전 확인 중 입니다. 잠시만 기다려주세요.!!");
+	ipcRenderer.send('install_program_version_chkeck');
+}
 ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
-
 	if (isChkVal == 'Y') {
 		// 초기 폴더 생성후 관리 프로그램 설치에 필요한 툴 설치 완료.
 		console.log("초기 폴더 생성후 관리 프로그램 설치에 필요한 툴 설치 완료.");
-		$modal.hide();
+		// $modal.hide();
 		$("#loadingInfoText").text("");
 
+	} else {
+		fn_alert("프로그램 서버 정보 셋팅 오류. 관리자에게 문의 바랍니다. \n Error Code :: [N001]");
+		return false;
 	}
-	// else if (isChkVal == 'N001') {
-	// 	//fail make folder 
-	// 	fn_alert("프로그램 버전 확인중 오류가 발견되었습니다. 관리자에게 문의 바랍니다. \n Error Code :: [N001]");
-	// 	return false;
-	// } else if (isChkVal == 'N004') {
-	// 	// fail get Agent Server Info 
-	// 	fn_alert("프로그램 서버 정보 셋팅 오류. 관리자에게 문의 바랍니다. \n Error Code :: [N004]");
-	// 	return false;
-	// } else if (isChkVal == 'U999') {
-	// 	console.log("U999====")
-	// 	// 설치 프로그램 업데이트 필요..
-	// 	$modal.show();
-	// 	popupOpen();
-	// 	$(".layerpop__container").text("설치 프로그램의 버전이 낮아 업그레이드를 진행합니다.... 잠시만 기다려주세요.!!");
-	// 	ipcRenderer.send('install_program_update');
-	// 	return false;
-	// } else if (isChkVal == 'U001') {
-	// 	fn_alert("설치 프로그램 업그레이드가 \n 완료되었습니다. 재실행해 주세요..");
-	// 	$modal.show();
-	// 	$("#loadingInfoText").text("서버 관리 프로그램.. 업그레이드가 완료되었습니다. 재실행해 주세요..!!");
-	// 	return false;
-	// } else if (isChkVal == 'U002') {
-	// 	fn_alert("설치 프로그램 업그레이드 중 오류가 발생했습니다. \n 관리자에게 문의 바랍니다.\n Error Code :: [U002]");
-	// 	return false;
-	// } else if (isChkVal == "YDONE") {	//	 프로그램 설치 완료 후 재실행 했을경우 
-	// 	document.title = "𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮";
-	// 	$modal.hide();
-	// 	$("#loadingInfoText").text("");
-
-	// 	$("#hmInstallIng").hide();
-
-	// 	$("#hmInstalled").show();
-	// 	$("#hmInstalledBody").show();
-
-
-	else if (isChkVal == "FREEDONE") {
-		document.title = "𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮";
-		$modal.hide();
-		$("#loadingInfoText").text("");
-
-		$("#hmInstallIng").hide();
-		$("#hmInstallIngBody").hide();
-
-		$("#hmInstalled").show();
-		$("#hmFreeDoneBody").show();
-	}
-
 });
 
 
@@ -92,25 +98,18 @@ const pcChkAuthBtn = document.getElementById('pcChkAuthBtn');
 pcChkAuthBtn.addEventListener('click', function (event) {
 
 	if (!doubleSubmitFlag) {
-
 		let authkey_val = $("#authkey").val();
-
 		if (authkey_val.length == 0) {
 			doubleSubmitFlag = false;
 			return false
 		}
-
 		ipcRenderer.send('getOrgAuth', authkey_val);
-
 	} else {
 		doubleSubmitFlag = true;
 		return false;
 	}
-
 });
-
-
-// 인증결과 
+// # step 2. autheky chekc Result ===================================
 ipcRenderer.on('getAuthResult', (event, authResult) => {
 	// 조직정보
 	if (authResult == 'N') {
@@ -118,76 +117,74 @@ ipcRenderer.on('getAuthResult', (event, authResult) => {
 	} else {
 		// 인증코드 검증후 리턴받는값 -> 도메인
 		$("#domain").val(authResult);
-
 		// 인증코드 검증 후 사용 갯수체크 
 		ipcRenderer.send('chkHamonizeAppUses', authResult);
-
 	}
 });
-
-// 사용 갯수 
+// # Step 3. Hamonize Used Count Check ====================================
 ipcRenderer.on('chkHamonizeAppUsesResult', (event, ret) => {
+	console.log("chkHamonizeAppUsesResult : " + ret);
 	// 사용갯수에 이상이 없다면..
-	console.log(" 사용갯수에 이상이 없다면..-------" + ret + "<---")
 	if (ret == 'Y') {
 		$(".layerpop__container").text("인증이 완료되었습니다. 조직정보를 불러오는 중입니다.  잠시만 기다려주세요.!!");
 		ipcRenderer.send('getOrgData', $("#domain").val());
 	} else {
-		$("#initLayerBody").hide();
-		$("#procLayerBody").hide();
+		$("#authkeyLayer").hide();
+		$("#orgLayer").hide();
 		$("#hmFreeDoneBody").show();
-		$("#hmFreeDoneBodyText").text("Hamonize 라이센스에서 허용하는 최대 수량에 도달하여 프로그램 설치가 불가능합니다.");
-
+		$("#hmFreeDoneBodyTextMsg").html("𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 설치 수량이 초과하였습니다.<br>시스템 관리자에게 문의바랍니다.");
 		return false;
 	}
-
 });
 
-// 조직정보 
+// # Step 4. Get Org Data ====================================
 ipcRenderer.on('getOrgDataResult', (event, orgData) => {
-	if ($("#tmpFreeDateDone").val().trim() == 'FREEDONE') {
-		extensionContract();
+
+	console.log("Step 4. Get Org Data")
+	// if ($("#tmpFreeDateDone").val().trim() == 'FREEDONE') {
+	// 	extensionContract();
+	// } else {
+	var option = "";
+	$("#orgLayer").show();
+	$("#authkeyLayer").hide();
+	$('#groupName').empty();
+	var chkCnt = 0;
+	$.each(orgData, function (key, value) {
+		option += "<option>" + value.orgnm + "</option>";
+		chkCnt++;
+	});
+	if (chkCnt == 0) {
+		$("#orgLayer").hide();
+		$("#authkeyLayer").hide();
+		// fn_alert("등록된 조직정보가 없습니다. 조직을 등록후 사용해주세요.");
+		$("#hmFreeDoneBody").show();
+		$("#hmFreeDoneBodyTextMsg").html("조직정보가 없어 컴퓨터의 정보를 등록할 수 없습니다.<br>시스템 관리자에게 문의바랍니다.");
 	} else {
-
-		var option = "";
-		$("#orglayer").show();
-		$("#authkeylayer").hide();
-		$('#groupName').empty();
-
-		var chkCnt = 0;
-		$.each(orgData, function (key, value) {
-			option += "<option>" + value.orgnm + "</option>";
-			chkCnt++;
-		});
-		if (chkCnt == 0) {
-			$("#orglayer").hide();
-			$("#authkeylayer").show();
-			fn_alert("등록된 조직정보가 없습니다. 조직을 등록후 사용해주세요.");
-			// }else{
-			// 	$(".layerpop__container").text("pc가 포함된 조지을 선택하신 후 등록버튼을 클릭해주세요.!!");
-		}
 		$('#groupName').append(option);
-
 	}
+	// }
 });
 
-// # step 2. 조직 선택 ====================================
+// # step 5. Select Org ====================================
 const pcChkBtn = document.getElementById('pcChkBtn');
 pcChkBtn.addEventListener('click', function (event) {
 	if (!doubleSubmitFlag) {
 		$("#selectOrg").val($("#groupName option:selected").val());
-		nextStap();
+		// nextStap();
+		fn_hamonizeProgramInstall();
 		doubleSubmitFlag = true;
 	} else {
 		doubleSubmitFlag = true;
 		return false;
 	}
-
 });
 
+// ----------------------------------
+// #### Hamonize Program Install ####
+// ----------------------------------
 function nextStap() {
 
-	$modal.hide();
+	// $modal.hide();
 	$("#loadingInfoText").text("");
 	$("#initLayer").removeClass("active");
 	$("#initLayerBody").removeClass("active");
@@ -195,56 +192,66 @@ function nextStap() {
 	$("#procLayerBody").hide();
 	$("#procLayerBody").show();
 
-	initLayer
-	console.log("####nextstap");
+	// initLayer
 
 	$("#stepA").removeClass("br animate");
 	$("#stepB").addClass("br animate");
 	$("#infoStepA").text("완료");
 
 	fn_hamonizeProgramInstall();
-	// setPcinfo();
 };
 
 
-// # vpn install  ====================================/
-function hamonizeVpnInstall() {
-	ipcRenderer.send('hamonizeVpnInstall', $("#domain").val());
-}
-ipcRenderer.on('hamonizeVpnInstall_Result', (event, result) => {
-	console.log("hamonizeVpnInstall_Result===" + result);
-	if (result == 'Y') {
+// ======== step 6. PC 관리 프로그램 설치... =========================================/
+function fn_hamonizeProgramInstall() {
 
-		setPcinfo();	// pc 정보 등록
-	} else if (result == 'N002') {
-		fn_alert("하모나이즈 환경 셋팅 중 오류가 발견되었습니다. 관리자에게 문의 바랍니다. Error Code :: [N002]");
+	$(document).attr("title","Hamonize Program Install..."); 
+
+	$("#authkeyLayer").hide();
+	$("#orgLayer").hide();
+	$("#hmFreeDoneBody").hide();
+
+	var video = $('#divVideo video')[0];
+	video.src = "https://hamonize.com/uploads/video/hamonize-amt.mp4";
+	video.load();
+	video.play();
+
+	$("#sub_title").html("𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮-Program Install");
+	$(".loading-container").css('visibility', 'visible');
+	$("#loading-text").text("Install")
+	// + "<img src='https://blog.kakaocdn.net/dn/N7xep/btqAGYNtd09/LbpK1NKJRUNVbhA3HYX6W0/img.gif' style='width:20%'>");
+{/* <img src='https://blog.kakaocdn.net/dn/N7xep/btqAGYNtd09/LbpK1NKJRUNVbhA3HYX6W0/img.gif' style='width:20%'></img> */}
+	// ipcRenderer.send('hamonizeProgramInstall', $("#domain").val());
+}
+
+ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
+	if (programResult == 'Y') {
+		console.log("pc 관리 프로그램 설치 및 셋팅 완료");
+		$("#stepB").removeClass("br animate");
+		$("#stepC").addClass("br animate");
+		$("#infoStepB").text("완료");
+
+		// pc 정보 등록
+		let groupname = $("#selectOrg").val();
+		if (typeof groupname == "undefined") {
+			doubleSubmitFlag = false;
+			return false;
+		}
+		let sabun = "sabun";
+		let username = "username";
+		ipcRenderer.send('pcInfoChk', groupname, sabun, username, $("#domain").val());
+
 	} else {
-		fn_alert("하모나이즈 환경 셋팅 중 오류가 발견되었습니다. \n 재실행 후 지속적으로 문제가 발생할경우 관리자에게 문의바랍니다.Error Code :: [N4001]");
+		$("#initLayerBody").hide();
+		$("#procLayerBody").hide();
+		$("#errorText").html("<p>프로그램 설치 중 오류가 발생했습니다.</p> <br>  관리자에게 문의바랍니다. Error Code :: [N005-" + programResult + "]")
+		$("#ErrorBody").show();
+		return false;
 	}
 });
 
-
-function setPcinfo() {
-	let groupname = $("#selectOrg").val();
-
-	if (typeof groupname == "undefined") {
-		doubleSubmitFlag = false;
-		return false;
-	}
-	let sabun = "sabun";
-	let username = "username";
-
-	ipcRenderer.send('pcInfoChk', groupname, sabun, username, $("#domain").val());
-
-}
-
 ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 	if (isChkBool == true) {
-		// $("#stepA").removeClass("br animate");
-		// $("#stepB").addClass("br animate");
-		// $("#infoStepA").text("완료");
-
-		// fn_hamonizeProgramInstall();
 		hamonizeSystemBackup();
 	} else if (isChkBool == "exist") {
 		doubleSubmitFlag = false;
@@ -257,35 +264,57 @@ ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 });
 
 
-// ======== step 3. PC 관리 프로그램 설치... =========================================/
-function fn_hamonizeProgramInstall() {
-	ipcRenderer.send('hamonizeProgramInstall', $("#domain").val());
+
+// ======== step 7. PC Backup... =========================================/
+function hamonizeSystemBackup() {
+
+
+	$("#loadingInfoText").text("");
+	$("#initLayer").removeClass("active");
+	$("#initLayerBody").removeClass("active");
+	$("#procLayer").addClass("active");
+	$("#procLayerBody").hide();
+	$("#procLayerBody").show();
+
+
+	// $("#infoStepC").text("디스크 용량 확인중");
+
+	ipcRenderer.send('getDiskSize');
+
+	// ipcRenderer.send('hamonizeSystemBackup');
+	// setTimeout(() => { ipcRenderer.send('files-tail'); }, 2000);
 }
 
-ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
-	console.log("hamonizeProgramInstall_Result===" + programResult);
 
-	if (programResult == 'Y') {
-		console.log("pc 관리 프로그램 설치 및 셋팅 완료");
-		$("#stepB").removeClass("br animate");
-		$("#stepC").addClass("br animate");
-		$("#infoStepB").text("완료");
+ipcRenderer.on('getDiskSizeResult', (event, diskSize) => {
+	console.log("diskSize======+" + diskSize);
+	$("#infoStepC").text(diskSize + "--디스크 용량 확인중");
+});
 
-		setPcinfo();
+ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
+	console.log("hamonizeSystemBackup_Result===" + backupResult);
 
-	} else {
-		console.log("false");
-		// fn_alert("프로그램 설치 중 오류가 발생했습니다. \n  관리자에게 문의바랍니다. Error Code :: [N005-" + programResult + "]");
+	if (backupResult == 'Y') {
+		console.log("true");
+		$("#stepC").removeClass("br animate");
 
 		$("#initLayerBody").hide();
 		$("#procLayerBody").hide();
-		$("#errorText").html("<p>프로그램 설치 중 오류가 발생했습니다.</p> <br>  관리자에게 문의바랍니다. Error Code :: [N005-" + programResult + "]")
-		$("#ErrorBody").show();
+		$("#infoStepC").text("완료");
+		$("#EndBody").show();
 
-		return false;
+		//====================================================테스트용 주석 실 배포시 주석 해제
+		// setTimeout(() => {
+		// 	ipcRenderer.send('rebootProc');
+		// }, 5 * 1000);
+
+	} else {
+		console.log("false");
+		fn_alert("백업중 오류가 발생했습니다. 관리자에게 문의 바랍니다.");
 	}
 
 });
+
 
 
 
@@ -314,37 +343,6 @@ ipcRenderer.on('files-tail-val', (event, ret) => {
 
 
 
-
-function hamonizeSystemBackup() {
-	$("#infoStepC").text("디스크 용량 확인중");
-	ipcRenderer.send('hamonizeSystemBackup');
-	setTimeout(() => { ipcRenderer.send('files-tail'); }, 2000);
-
-}
-
-ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
-	console.log("hamonizeSystemBackup_Result===" + backupResult);
-
-	if (backupResult == 'Y') {
-		console.log("true");
-		$("#stepC").removeClass("br animate");
-
-		$("#initLayerBody").hide();
-		$("#procLayerBody").hide();
-		$("#infoStepC").text("완료");
-		$("#EndBody").show();
-
-		//====================================================테스트용 주석 실 배포시 주석 해제
-		// setTimeout(() => {
-		// 	ipcRenderer.send('rebootProc');
-		// }, 5 * 1000);
-
-	} else {
-		console.log("false");
-		fn_alert("백업중 오류가 발생했습니다. 관리자에게 문의 바랍니다.");
-	}
-
-});
 
 
 
@@ -412,7 +410,7 @@ function fn_alert(arg) {
 const hamonizeAuthChkBtn = document.getElementById('hamonizeAuthChkBtn');
 hamonizeAuthChkBtn.addEventListener('click', function (event) {
 	document.title = "𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮";
-	$modal.hide();
+	// $modal.hide();
 	$("#loadingInfoText").text("");
 
 	$("#hmInstallIng").show();
@@ -428,7 +426,7 @@ hamonizeAuthChkBtn.addEventListener('click', function (event) {
 
 // UI 재인증 셋팅-2
 function extensionContract() {
-	$modal.hide();
+	// $modal.hide();
 	$("#loadingInfoText").text("");
 	$("#initLayer").removeClass("active");
 	$("#initLayerBody").removeClass("active");
@@ -455,10 +453,6 @@ function extensionContract() {
 // 8. Hamonize-admin
 // 9. Hamonize-help
 
-function hamonizeVpnInstall() {
-	$("#stepA").addClass("br animate");
-	ipcRenderer.send('hamonizeVpnInstall', $("#domain").val());
-}
 
 
 // ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {

@@ -2,7 +2,7 @@
 <html lang="ko" class="no-js">
 
 <head>
-    <title>[ Hamonize ] PC 관리 프로그램 </title>
+    <title>[ Hamonize ] PC 관리 프로그램  </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -15,84 +15,124 @@
 
     <!-- CSS Files -->
     <link href="assets/css/material-dashboard.css" rel="stylesheet" />
+    <link href="assets/css/loading.css" rel="stylesheet" />
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link href="assets/demo/demo.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css" />
-
-    <style>
-        .br {
-            border-radius: 8px;
-        }
-
-        .w80 {
-            width: 80%;
-        }
-
-        .w90 {
-            width: 90%;
-
-        }
-
-        .comment {
-            height: 10px;
-            background: #777;
-            margin-top: 20px;
-        }
-
-        @keyframes fullView {
-            100% {
-                width: 100%;
-            }
-        }
-
-
-        .animate {
-            animation: shimmer 2s infinite linear;
-            background: linear-gradient(to right, #eff1f3 4%, #e2e2e2 25%, #eff1f3 36%);
-            background-size: 1000px 100%;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-
-            100% {
-                background-position: 1000px 0;
-            }
-        }
-
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            max-height: 100%;
-            background: rgba(0, 0, 0, 0.6) url('assets/img/FhHRx.gif') 50% 50% no-repeat;
-        }
-    </style>
 
 
 </head>
 
 <body>
-    <!-- <div class="modal"> -->
-    <div >
-        <div class="modal screen">
-            <div class="layerpop" style="font-weight: 900; width: 100%; text-align: center;">
-                <p class="layerpop__container br animate" id="loadingInfoText"
-                    style="background: linear-gradient(to right, #eff1f3 4%, #e2e2e2 25%, #7fabd6 36%);">
-                    Loading...</p>
+    
+    <link rel="stylesheet" href="https://demo.graygrids.com/themes/eventgrids/assets/css/A.main.css.pagespeed.cf.FhP97JgkFd.css">
+
+    <header id="titlebar">
+        <div id="drag-region"> 
+            <div id="window-title">
+                <span>Hamonize</span>
+                <div class="loading-container" style="visibility: hidden;">
+                    <div class="loading"></div>
+                    <div id="loading-text">loading</div>
+                </div>
+            </div>
+          <div id="window-controls">
+           
+            <div class="button" id="min-button">
+              <img class="icon" srcset="icons/min-w-10.png 1x, icons/min-w-12.png 1.25x, icons/min-w-15.png 1.5x, icons/min-w-15.png 1.75x, icons/min-w-20.png 2x, icons/min-w-20.png 2.25x, icons/min-w-24.png 2.5x, icons/min-w-30.png 3x, icons/min-w-30.png 3.5x" draggable="false" />
+            </div>
+      
+            <div class="button" id="max-button">
+              <img class="icon" srcset="icons/max-w-10.png 1x, icons/max-w-12.png 1.25x, icons/max-w-15.png 1.5x, icons/max-w-15.png 1.75x, icons/max-w-20.png 2x, icons/max-w-20.png 2.25x, icons/max-w-24.png 2.5x, icons/max-w-30.png 3x, icons/max-w-30.png 3.5x" draggable="false" />
+            </div>
+      
+            <div class="button" id="restore-button">
+              <img class="icon" srcset="icons/restore-w-10.png 1x, icons/restore-w-12.png 1.25x, icons/restore-w-15.png 1.5x, icons/restore-w-15.png 1.75x, icons/restore-w-20.png 2x, icons/restore-w-20.png 2.25x, icons/restore-w-24.png 2.5x, icons/restore-w-30.png 3x, icons/restore-w-30.png 3.5x" draggable="false" />
+            </div>
+      
+            <div class="button" id="close-button">
+              <img class="icon" srcset="icons/close-w-10.png 1x, icons/close-w-12.png 1.25x, icons/close-w-15.png 1.5x, icons/close-w-15.png 1.75x, icons/close-w-20.png 2x, icons/close-w-20.png 2.25x, icons/close-w-24.png 2.5x, icons/close-w-30.png 3x, icons/close-w-30.png 3.5x" draggable="false" />
+            </div>
+      
+          </div>
+        </div>
+      </header>
+
+  <div id="main">
+
+
+    <section class="about section">
+        <div class="">
+            <div class="row align-items-center">
+                <div class="col-lg-7 col-7 wow fadeIn" data-wow-delay=".4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeIn;">
+                    <div class="about-image" id="divVideo">
+                        <!-- <img alt="#" src="https://hamonize.com/images/main/main.png" onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);"> -->
+                        <video autoplay="" loop="" muted="" playsinline="" style="width: 100%;">
+                            <source src="https://hamonize.com/uploads/video/hamonize.mp4" type="video/mp4">
+                        </video>
+                        <!-- <video autoplay="" loop="" muted="" playsinline="" style="width: 100%;">
+                            <source src="https://hamonize.com/uploads/video/hamonize-admin.mp4" type="video/mp4">
+                        </video> -->
+                        <!-- <video autoplay="" loop="" muted="" playsinline="" style="width: 100%;">
+                            <source src="https://hamonize.com/uploads/video/hamonize-amt.mp4" type="video/mp4">
+                        </video> -->
+                    </div>
+                </div>
+                <div class="col-lg-5 col-5 wow fadeIn" data-wow-delay=".6s" style="visibility: visible; animation-delay: 0.6s; animation-name: fadeIn;">
+                    <div class="content">
+                        <h4 id="sub_title"># 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮-Auth </h4>
+                        <div id="authkeyLayer">
+                            <div class="form-group">
+                                <label class="bmd-label-floating">𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 인증번호를 입력해주세요 : </label>
+                                <input type="text" id="authkey" name="authkey" value="" class="bgelement" >        
+                            </div>
+                            <button type="button" id="pcChkAuthBtn" class="btn btn-primary pull-right">등록</button>
+                        </div>
+
+                        <div id="orgLayer" style="display: none;">
+                            <div class="form-group">
+                                <label class="bmd-label-floating">조직을 선택해주세요 : </label>
+                                <select name="groupName" id="groupName" class="bgelement" style="display: block;"></select>
+                            </div>
+                            <button type="button" id="pcChkBtn" class="btn btn-primary pull-right">등록</button>
+                        </div>
+                        <div id="hmFreeDoneBody" style="display: none;">
+                            <label class="bmd-label-floating" id="hmFreeDoneBodyTextMsg">
+                            </label>
+                            <!-- <ul class="intro_ul" id="hmFreeDoneBodyText">
+                                <li>
+                                    <p>𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 사용 기간이 만료되었습니다. </p>
+                                    <p>- 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 원격관리, 프로그램, 방화벽, 비인가 디바이스 등 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 PC관리를 사용하실 수 없습니다. </p>
+                                    <p>시스템 관리자에게 문의바랍니다.  </p>
+                                </li>
+                            </ul> -->
+                        </div>
+                        <div id="installLayer" >
+                            <ul class="intro_ul">
+                                <li>Vpn</li>
+                                <li>Telegraf</li>
+                                <li>openldpa</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>      
+    </section>
+
+</div>
+
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
+<!-- =========================================== --><!-- =========================================== -->
     <br>
     <div class="main-panel">
-
+       
         <div class="content">
             <div class="container-fluid">
                 <div>
@@ -126,7 +166,7 @@
 
                         <div class="card-body" id="hmFreeDoneBody" style="display: none; height: 190px;">
                             <p> </p>
-                            <ul class="intro_ul" id="hmFreeDoneBodyText">
+                            <ul class="intro_ul" id="hmFreeDoneBodyText2">
                                 <li>
                                     <p>𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 사용 기간이 만료되었습니다. </p>
                                     <p>- 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 원격관리, 프로그램, 방화벽, 비인가 디바이스 등 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 PC관리를 사용하실 수 없습니다. </p>
@@ -157,7 +197,7 @@
                         
                         <div class="card-body" id="hmInstallIngBody">
                             <div class="tab-content">
-                                <div class="tab-pane active" id="initLayerBody">
+                                <!-- <div class="tab-pane active" id="initLayerBody">
                                     
                                     <div class="col-md-3" id="authkeylayer">
                                         <div class="form-group">
@@ -175,7 +215,7 @@
                                         <button type="button" id="pcChkBtn" class="btn btn-primary pull-right">등록</button>
                                     </div>
 
-                                </div>
+                                </div> -->
 
                                 <input type="hidden" id="selectOrg" name="selectOrg" class="form-control">
                                 <input type="hidden" id="domain" name="domain" class="form-control">
@@ -286,9 +326,13 @@
             <!--   Core JS Files   -->
             <script src="assets/js/core/jquery.min.js"></script>
             <script src="assets/js/core/popper.min.js"></script>
+            
             <script defer async rel src="assets/js/core/bootstrap-material-design.min.js"></script>
 
 
+            <script>
+                // require('./assets/js/renderer.js')
+              </script>
             <script>
                 $("#procLayerBody").hide();
                 // $("#procLayer").click(function () {
@@ -299,9 +343,7 @@
                 //     $("#initLayerBody").show();
                 //     $("#procLayerBody").hide();
                 // });
-            </script>
- 
-            <script>
+            
                 $(document).ready(function () {
                     $modal = $(".modal");
 
@@ -322,6 +364,8 @@
                         .scrollLeft());
                     $('#layerbox').show();
                 }
+
+                
             </script>
 
 

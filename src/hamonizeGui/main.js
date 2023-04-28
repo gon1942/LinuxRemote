@@ -42,25 +42,14 @@ function createWindow() {
 
 	mainWindow = new BrowserWindow({
 
-		backgroundColor: '#ffffff',
 		width: 620,
 		height: 360,
 		minWidth: 600,
 		minHeight: 371,
-		titleBarStyle: 'hidden-inset',
-		frame: true,
-		show: false
+		frame: false,
+		show: false,
 
-		// icon: 'icons/png/emb2.png',
-		// skipTaskbar: false,
-		// 'width': 620,
-		// 'height': 360,
-		// frame: true,
-		// alwaysOnTop: true,
-		// resizable: true,
-		// transparent: true,
-		// show: true,
-		, webPreferences: {
+		webPreferences: {
 			defaultEncoding: 'utf8',
 			defaultFontFamily: 'cursive',
 			focusable: true,
@@ -68,7 +57,9 @@ function createWindow() {
 			contextIsolation: false,
 			nodeIntegration: true,
 			nodeIntegrationInWorker: true,
-			nodeIntegrationInSubFrames: true
+			nodeIntegrationInSubFrames: true,
+			enableRemoteModule: true
+
 		}
 	});
 
@@ -142,113 +133,26 @@ ipcMain.on('shutdown', (event, path) => {
 //========================================================================
 // # STEP 1. Init Hamonize 
 //========================================================================
-const hamonizeAppUUID_FILE = "/etc/hamonize/hamonize.appinfo";
+const hamonizeAppUUID_FILE = "/etc/hamonize/hamonize.appinfo";		// ----------------------ryan
 ipcMain.on('install_program_version_chkeck', (event) => {
 	console.log(`STEP 1. install_program_version_chkeck`);
 	(async () => {
 		try {
-
-			// #step 1. 기본 폴더 및 파일 생성 및 기본 프로그램 설치
+			// #step 1. 기본 폴더 및 프로그램 설치 및 서버 정보 등록
 			let initJobResult = await initHamonizeJob();
 			console.log("STEP 1. install_program_version_chkeck Result :: " + initJobResult);
 
 			if (initJobResult == 'Y') {
-
-				// 	let setServerInfoResult = await setServerInfo();
-				// 	console.log("setServerInfoResult============" + setServerInfoResult);
-
-				// 	if (setServerInfoResult == 'Y') {
-				// 		// apt repository chk & add ....
-				// 		let aptRepositoryChkResult = await aptRepositoryChkProc();
-				// 		console.log("aptRepositoryChkResult=============================>" + aptRepositoryChkResult);
-
-				// 		// #step 2. 설치 프로그램 버전 체크
-				// 		let installProgramVersionResult = await install_program_version_chkeckProc();
-				// 		console.log("설치 프로그램 버전 체크 Result===============>>>>>>>>>>>>>>>>>" + installProgramVersionResult);
-
-				// 		if (installProgramVersionResult > 0) { // 설치 프로그램 업데이트 필요..
-				// 			event.sender.send('install_program_version_chkeckResult', 'U999');
-
-				// 		} else { // 설치 프로그램 최신버전
 				event.sender.send('install_program_version_chkeckResult', 'Y');
-				// 		}
-				// 	} else {
-				// 		// fail get Agent Server Info 
-				// event.sender.send('install_program_ReadyProcResult', 'N004');
-				// 	}
 			} else {
-				// 	// fail create folder 
 				event.sender.send('install_program_version_chkeckResult', 'N001');
 			}
-
 		} catch (err) {
 			console.log("install_program_version_chkeckProc---" + err);
 			return Object.assign(err);
 		}
 	})();
 });
-
-
-
-
-//========================================================================
-// # STEP 2. hamonize vpn install
-//========================================================================
-// ipcMain.on('hamonizeVpnInstall', (event, domain) => {
-// 	mainWindow.setSize(620, 447);
-
-// 	(async () => {
-// 		var abc = await installProgramHamonize();
-// 		console.log("a===============" + abc)
-// 	})();
-// });
-
-
-// function installProgramHamonize() {
-// 	return new Promise(function (resolve, reject) {
-
-// 		if (isDev) {
-// 			initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js --programInstall";
-// 		}else{
-// 			initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --programInstall"
-// 		}
-
-// 		// var initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --programInstall"
-		
-// 		exec(initJobShell, function (err, stdout, stderr) {
-// 			console.log('initJobShell 정책 ::  stdout: ' + stdout);
-// 			console.log('initJobShell 정책 :: stderr: ' + stderr);
-
-// 			if (err !== null) {
-// 				console.log(' initJobShell 정책 ::  error: ' + err);
-// 				return resolve("Y");
-// 			} else {
-// 				return resolve("N");
-// 			}
-// 		});
-
-// 	});
-// }
-
-
-// const hamonizeVpnInstall_Action = async (event, domain) => {
-// 	try {
-// 		// vpn install 
-// 		await vpnCreate();
-// 		// vpn install check 
-// 		let vpnCreateResult = await vpnCreateChk();
-// 		if (vpnCreateResult == 'Y') {
-// 			// vpn 연결후 pc 정보 업데이트
-// 			// pcInfoUpdate(domain);
-// 			event.sender.send('hamonizeVpnInstall_Result', 'Y');
-// 		} else {
-// 			event.sender.send('hamonizeVpnInstall_Result', 'N002');
-// 		}
-// 	} catch (err) {
-// 		console.log("hamonizeVpnInstall_Action Error---" + err);
-// 		return Object.assign(err);
-// 	}
-// } // hamonize vpn install END -----------------------------------------------#
 
 
 
@@ -449,18 +353,15 @@ if (isDev) {
 }
 
 //== init Shell Job  ===========================================
-// 기본 폴더 및 프로그램 설치
+// 기본 폴더 및 프로그램 설치 및 서버 정보 등록
 function initHamonizeJob() {
 	return new Promise(function (resolve, reject) {
 		var initJobShell = ""
 		if (isDev) {
 			initJobShell = "node /home/gonpc/jobs/2023/newHamonize/src/hamonizeCtl/main.js --settings";
-		}else{
+		} else {
 			initJobShell = "/usr/local/hamonize-connect/hamonizeCtl  --settings"
 		}
-
-		
-		console.log("initJobShell==========================================================")
 
 		sudo.exec(initJobShell, options,
 			function (error, stdout, stderr) {
@@ -948,17 +849,21 @@ ipcMain.on('getOrgAuth', (event, authkeyVal) => {
 
 
 			if (response.statusCode == 200) {
-				//	// file write 
+				// file write 
 				let fileDir = "/etc/hamonize/hamonize_tanent";
-				fs.writeFile(fileDir, response.body, (err) => {
-					if (err) {
-						console.log("//== sysInfo hw check create file error  " + err.message)
-						event.sender.send('getAuthResult', 'N');
-
-					}
-				});
+				// fs.writeFile(fileDir, response.body, (err) => {
+				// 	if (err) {
+				// 		console.log("//== sysInfo hw check create file error====  " + err.message)
+				// 		return event.sender.send('getAuthResult', 'N');
+				// 	}else{
+				// 		console.log("111111111111111---"+response.body)
+				// 		event.sender.send('getAuthResult', response.body);
+				// 	}
+				// });
 				event.sender.send('getAuthResult', response.body);
+
 			} else {
+				console.log("222222222222")
 				event.sender.send('getAuthResult', 'N');
 			}
 		});
@@ -967,8 +872,6 @@ ipcMain.on('getOrgAuth', (event, authkeyVal) => {
 
 // Check Hamonize Uses 
 ipcMain.on('chkHamonizeAppUses', (event, domain) => {
-	console.log("domain=====+" + domain);
-
 	unirest.get(baseurl + '/hmsvc/isitpossible')
 		.header('content-type', 'application/json')
 		.send({
@@ -977,7 +880,7 @@ ipcMain.on('chkHamonizeAppUses', (event, domain) => {
 			}]
 		})
 		.end(function (response) {
-			console.log("=========response.body=======+" + response.body);
+			console.log("===chkHamonizeAppUses======response.body=======+" + response.body);
 			event.sender.send('chkHamonizeAppUsesResult', response.body);
 		});
 });
@@ -1003,3 +906,13 @@ ipcMain.on('files-tail', (event, domain) => {
 	});
 });
 
+
+ipcMain.on('getDiskSize', async (event) => {
+
+	const disk = (await si.diskLayout())[0]; // Disk Info
+	const size = Math.round(disk.size / 1024 / 1024 / 1024);
+	console.log("disk size : " + size + "GB");
+	console.log("disk size : " + disk.size + "GB")
+
+	event.sender.send('getDiskSizeResult', size + "GB");
+});
