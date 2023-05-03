@@ -66,8 +66,8 @@ function handleWindowControls() {
 
 // $modal = $(".modal");
 
-// hamonizeSystemBackup();
-fn_hamonizeProgramInstall();
+hamonizeSystemBackup();
+// fn_hamonizeProgramInstall();
 // # step 1. install file version check  ====================================
 // install_program_version_chkeck();
 
@@ -205,18 +205,19 @@ function nextStap() {
 // ======== step 6. PC 관리 프로그램 설치... =========================================/
 function fn_hamonizeProgramInstall() {
 
-	$(document).attr("title","Hamonize Program Install..."); 
+	// $(document).attr("title","Hamonize Program Install..."); 
 
 	$("#authkeyLayer").hide();
 	$("#orgLayer").hide();
 	$("#hmFreeDoneBody").hide();
-
+	$("#installLayer").show();
+	
 	var video = $('#divVideo video')[0];
 	video.src = "https://hamonize.com/uploads/video/hamonize-amt.mp4";
 	video.load();
 	video.play();
 
-	$("#sub_title").html("𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮-Program Install");
+	$("#sub_title").html("Program Install List");
 	$(".loading-container").css('visibility', 'visible');
 	$("#loading-text").text("Install")
 	// + "<img src='https://blog.kakaocdn.net/dn/N7xep/btqAGYNtd09/LbpK1NKJRUNVbhA3HYX6W0/img.gif' style='width:20%'>");
@@ -269,12 +270,31 @@ ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 function hamonizeSystemBackup() {
 
 
-	$("#loadingInfoText").text("");
-	$("#initLayer").removeClass("active");
-	$("#initLayerBody").removeClass("active");
-	$("#procLayer").addClass("active");
-	$("#procLayerBody").hide();
-	$("#procLayerBody").show();
+	// $("#loadingInfoText").text("");
+	// $("#initLayer").removeClass("active");
+	// $("#initLayerBody").removeClass("active");
+	// $("#procLayer").addClass("active");
+	// $("#procLayerBody").hide();
+	// $("#procLayerBody").show();
+
+
+
+	$("#authkeyLayer").hide();
+	$("#orgLayer").hide();
+	$("#hmFreeDoneBody").hide();
+	$("#installLayer").hide();
+	$("#backupLayer").show();
+	
+
+
+	var video = $('#divVideo video')[0];
+	video.src = "https://hamonize.com/uploads/video/hamonize-admin.mp4";
+	video.load();
+	video.play();
+
+	$("#sub_title").html("Os Backup");
+	// $(".loading-container").css('visibility', 'visible');
+	$("#loading-text").text("Backup")
 
 
 	// $("#infoStepC").text("디스크 용량 확인중");
@@ -288,8 +308,15 @@ function hamonizeSystemBackup() {
 
 ipcRenderer.on('getDiskSizeResult', (event, diskSize) => {
 	console.log("diskSize======+" + diskSize);
-	$("#infoStepC").text(diskSize + "--디스크 용량 확인중");
+	$("#osDisk").text("- 디스크 용량 : " +diskSize);
 });
+
+
+
+document.getElementById('backupBtn').addEventListener('click', function (event) {
+	ipcRenderer.send('hamonizeSystemBackup');
+});
+
 
 ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
 	console.log("hamonizeSystemBackup_Result===" + backupResult);

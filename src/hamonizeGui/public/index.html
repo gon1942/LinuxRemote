@@ -30,7 +30,7 @@
     <header id="titlebar">
         <div id="drag-region"> 
             <div id="window-title">
-                <span>Hamonize</span>
+                <span>Hamonize] 원격관리 프로그램</span>
                 <div class="loading-container" style="visibility: hidden;">
                     <div class="loading"></div>
                     <div id="loading-text">loading</div>
@@ -61,9 +61,14 @@
   <div id="main">
 
 
-    <section class="about section">
+    <section class="about section" style="padding-top: 20px; padding-bottom: 30px;">
         <div class="">
-            <div class="row align-items-center">
+            <div class="col-lg-12 col-12 text-white ms-0 ms-md-auto pb-4">어디서든 쉽게 시스템을 원격관리 해보세요.<br>
+            Hamonize는 모니터링, 원격관리, 보안관리 등 다양한 기능을 제공합니다.</div>
+            <!-- <p style="color:white">어디서든 쉽게 시스템을 원격관리 해보세요.</p>
+            <p style="color:white"></p>모니터링, 원격관리, 보안관리 등 다양한 기능을 제공합니다.</p> -->
+            <div class="row align-items-center" style="margin-bottom: 0px;">
+                
                 <div class="col-lg-7 col-7 wow fadeIn" data-wow-delay=".4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeIn;">
                     <div class="about-image" id="divVideo">
                         <!-- <img alt="#" src="https://hamonize.com/images/main/main.png" onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);"> -->
@@ -79,7 +84,7 @@
                     </div>
                 </div>
                 <div class="col-lg-5 col-5 wow fadeIn" data-wow-delay=".6s" style="visibility: visible; animation-delay: 0.6s; animation-name: fadeIn;">
-                    <div class="content">
+                    <div class="content" style="margin-top:0px">
                         <h4 id="sub_title"># 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮-Auth </h4>
                         <div id="authkeyLayer">
                             <div class="form-group">
@@ -107,13 +112,25 @@
                                 </li>
                             </ul> -->
                         </div>
-                        <div id="installLayer" >
-                            <ul class="intro_ul">
-                                <li>Vpn</li>
-                                <li>Telegraf</li>
-                                <li>openldpa</li>
+                        <div id="installLayer" style="display: none;">
+                            <ul>
+                                <li>- 사용자 접속 로그 관리</li>
+                                <li>- 비인가 디바이스(usb) 관리</li>
+                                <li>- 백업및복구관리</li>
+                                <li>- Vpn</li>
+                                <li>- 원격관리 툴</li>
+                                <li>- openldap/Telegraf</li>
                             </ul>
                         </div>
+                        <div id="backupLayer" style="display: none; font-size: 12px;">
+                            <ul>
+                                <li id="osDisk"> </li>
+                                <!-- <li>- Timeshift 도구를 이용하여 백업을 진행합니다. </li> -->
+                                <li>- 하드 디스크 용량에따라 백업이 완료되는 시간이 길어질 수 있습니다. </li>
+                                <li><button type="button" id="backupBtn" class="btn btn-primary pull-right">백업시작</button> </li>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>
