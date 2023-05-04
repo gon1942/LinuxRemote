@@ -8,6 +8,8 @@ const {
 const path = require('path');
 const unirest = require('unirest');
 
+const Dialogs = require('dialogs');
+const dialogs = Dialogs()
 
 const remote = require('electron').remote;
 
@@ -16,60 +18,56 @@ html global `window` variable */
 
 // When document has loaded, initialise
 document.onreadystatechange = (event) => {
-    if (document.readyState == "complete") {
-        handleWindowControls();
+	if (document.readyState == "complete") {
+		handleWindowControls();
 
-        // document.getElementById('electron-ver').innerHTML = `${process.versions.electron}`
-    }
+		// document.getElementById('electron-ver').innerHTML = `${process.versions.electron}`
+	}
 };
 
 window.onbeforeunload = (event) => {
-    /* If window is reloaded, remove win event listeners
-    (DOM element listeners get auto garbage collected but not
-    Electron win listeners as the win is not dereferenced unless closed) */
-    win.removeAllListeners();
+	/* If window is reloaded, remove win event listeners
+	(DOM element listeners get auto garbage collected but not
+	Electron win listeners as the win is not dereferenced unless closed) */
+	win.removeAllListeners();
 }
 
 function handleWindowControls() {
-    // Make minimise/maximise/restore/close buttons work when they are clicked
-    document.getElementById('min-button').addEventListener("click", event => {
-        win.minimize();
-    });
+	// Make minimise/maximise/restore/close buttons work when they are clicked
+	document.getElementById('min-button').addEventListener("click", event => {
+		win.minimize();
+	});
 
-    document.getElementById('max-button').addEventListener("click", event => {
-        win.maximize();
-    });
+	document.getElementById('max-button').addEventListener("click", event => {
+		win.maximize();
+		document.body.classList.add('maximized');
+	});
 
-    document.getElementById('restore-button').addEventListener("click", event => {
-        win.unmaximize();
-    });
+	document.getElementById('restore-button').addEventListener("click", event => {
+		win.unmaximize();
+		document.body.classList.remove('maximized');
+	});
 
-    document.getElementById('close-button').addEventListener("click", event => {
-        win.close();
-    });
+	document.getElementById('close-button').addEventListener("click", event => {
 
-    // Toggle maximise/restore buttons when maximisation/unmaximisation occurs
-    toggleMaxRestoreButtons();
-    win.on('maximize', toggleMaxRestoreButtons);
-    win.on('unmaximize', toggleMaxRestoreButtons);
+		if ($("#sub_title").text().indexOf("Auth") < 0) {
+			if (confirm('프로그램 실행 중 창을 닫으시면 오류가 발생할 수 있습니다.')) {
+				// ipcRenderer.send('저장하는곳', {data:data})
+				win.close();
+			}
+		}else{
+			win.close();
+		}
+		
+	});
 
-    function toggleMaxRestoreButtons() {
-        if (win.isMaximized()) {
-            document.body.classList.add('maximized');
-        } else {
-            document.body.classList.remove('maximized');
-        }
-    }
 }
 
-// $(document).attr("title","Hamonize Auth..."); 
-
 // $modal = $(".modal");
-
-hamonizeSystemBackup();
+// hamonizeSystemBackup();
 // fn_hamonizeProgramInstall();
 // # step 1. install file version check  ====================================
-// install_program_version_chkeck();
+install_program_version_chkeck();
 
 
 function install_program_version_chkeck() {
@@ -211,7 +209,7 @@ function fn_hamonizeProgramInstall() {
 	$("#orgLayer").hide();
 	$("#hmFreeDoneBody").hide();
 	$("#installLayer").show();
-	
+
 	var video = $('#divVideo video')[0];
 	video.src = "https://hamonize.com/uploads/video/hamonize-amt.mp4";
 	video.load();
@@ -220,9 +218,6 @@ function fn_hamonizeProgramInstall() {
 	$("#sub_title").html("Program Install List");
 	$(".loading-container").css('visibility', 'visible');
 	$("#loading-text").text("Install")
-	// + "<img src='https://blog.kakaocdn.net/dn/N7xep/btqAGYNtd09/LbpK1NKJRUNVbhA3HYX6W0/img.gif' style='width:20%'>");
-{/* <img src='https://blog.kakaocdn.net/dn/N7xep/btqAGYNtd09/LbpK1NKJRUNVbhA3HYX6W0/img.gif' style='width:20%'></img> */}
-	// ipcRenderer.send('hamonizeProgramInstall', $("#domain").val());
 }
 
 ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
@@ -253,6 +248,7 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 
 ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 	if (isChkBool == true) {
+		$(".loading-container").css('visibility', 'hidden');
 		hamonizeSystemBackup();
 	} else if (isChkBool == "exist") {
 		doubleSubmitFlag = false;
@@ -269,23 +265,11 @@ ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 // ======== step 7. PC Backup... =========================================/
 function hamonizeSystemBackup() {
 
-
-	// $("#loadingInfoText").text("");
-	// $("#initLayer").removeClass("active");
-	// $("#initLayerBody").removeClass("active");
-	// $("#procLayer").addClass("active");
-	// $("#procLayerBody").hide();
-	// $("#procLayerBody").show();
-
-
-
 	$("#authkeyLayer").hide();
 	$("#orgLayer").hide();
 	$("#hmFreeDoneBody").hide();
 	$("#installLayer").hide();
 	$("#backupLayer").show();
-	
-
 
 	var video = $('#divVideo video')[0];
 	video.src = "https://hamonize.com/uploads/video/hamonize-admin.mp4";
@@ -293,71 +277,29 @@ function hamonizeSystemBackup() {
 	video.play();
 
 	$("#sub_title").html("Os Backup");
-	// $(".loading-container").css('visibility', 'visible');
-	$("#loading-text").text("Backup")
-
-
-	// $("#infoStepC").text("디스크 용량 확인중");
-
 	ipcRenderer.send('getDiskSize');
 
-	// ipcRenderer.send('hamonizeSystemBackup');
-	// setTimeout(() => { ipcRenderer.send('files-tail'); }, 2000);
 }
 
-
+// 디스크 용량 체크 
 ipcRenderer.on('getDiskSizeResult', (event, diskSize) => {
-	console.log("diskSize======+" + diskSize);
-	$("#osDisk").text("- 디스크 용량 : " +diskSize);
+	$("#osDisk").text("- 디스크 용량 : " + diskSize);
 });
 
 
-
+// 사용자가 백업 버튼을 클릭시..
 document.getElementById('backupBtn').addEventListener('click', function (event) {
+	$("#backupBtn").hide();
+	$("#backupInfoMsg").show();
+	$("#loading-text").text("Backup...")
+	$(".loading-container").css('visibility', 'visible');
 	ipcRenderer.send('hamonizeSystemBackup');
+	setTimeout(() => { ipcRenderer.send('backupFiles-tail'); }, 2000);
 });
 
 
-ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
-	console.log("hamonizeSystemBackup_Result===" + backupResult);
-
-	if (backupResult == 'Y') {
-		console.log("true");
-		$("#stepC").removeClass("br animate");
-
-		$("#initLayerBody").hide();
-		$("#procLayerBody").hide();
-		$("#infoStepC").text("완료");
-		$("#EndBody").show();
-
-		//====================================================테스트용 주석 실 배포시 주석 해제
-		// setTimeout(() => {
-		// 	ipcRenderer.send('rebootProc');
-		// }, 5 * 1000);
-
-	} else {
-		console.log("false");
-		fn_alert("백업중 오류가 발생했습니다. 관리자에게 문의 바랍니다.");
-	}
-
-});
-
-
-
-
-// ======== step 4. 백업... =========================================/
-// # use timeshift tooll 
-
-// $modal.hide();
-// $("#loadingInfoText").text("");
-// $("#initLayer").removeClass("active");
-// $("#initLayerBody").removeClass("active");
-// $("#procLayer").addClass("active");
-// $("#procLayerBody").hide();
-// $("#procLayerBody").show();
-// ###################  백업 완료시 재부팅 주석처리함 ################################
-
-ipcRenderer.on('files-tail-val', (event, ret) => {
+// 백업 진행률
+ipcRenderer.on('backupFiles-tail-val', (event, ret) => {
 	var retViewDataSplit = '';
 	var chkFirstChar = ret.charAt(0);
 	if (chkFirstChar == ')') {
@@ -365,8 +307,41 @@ ipcRenderer.on('files-tail-val', (event, ret) => {
 	} else {
 		retViewDataSplit = ret;
 	}
-	$("#infoStepC").text(retViewDataSplit);
+	$("#backupInfoMsg").text(retViewDataSplit);
 });
+
+// 백업 완료 
+ipcRenderer.on('hamonizeSystemBackup_Result', (event, backupResult) => {
+	console.log("hamonizeSystemBackup_Result===" + backupResult);
+	$(".loading-container").css('visibility', 'hidden');
+	$("#authkeyLayer").hide();
+	$("#orgLayer").hide();
+	$("#hmFreeDoneBody").hide();
+	$("#installLayer").hide();
+	$("#backupLayer").hide();
+	$("#EndLayer").show();
+
+	if (backupResult == 'Y') {
+		$("#sub_title").html("𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 설치 완료되었습니다..");
+		$("#EndMsg").html("설치 프로그램을 종료해주세요.");
+		// $("#stepC").removeClass("br animate");
+		// $("#initLayerBody").hide();
+		// $("#procLayerBody").hide();
+		// $("#infoStepC").text("완료");
+		// $("#EndBody").show();
+
+		//====================================================테스트용 주석 실 배포시 주석 해제
+		// setTimeout(() => {
+		// 	ipcRenderer.send('rebootProc');
+		// }, 5 * 1000);
+
+	} else {
+		$("#sub_title").html("Os Backup Error");
+		$("#EndMsg").html("백업중 오류가 발생했습니다. 관리자에게 문의 바랍니다.");
+	}
+
+});
+
 
 
 
@@ -415,8 +390,6 @@ ipcRenderer.on('install_program_upgradeProcResult', (event, isChkVal) => {
 
 //	alert 
 function fn_alert(arg) {
-	const Dialogs = require('dialogs');
-	const dialogs = Dialogs()
 
 	dialogs.alert(arg, () => {
 		$(".banner-text").css({

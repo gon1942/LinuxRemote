@@ -27,6 +27,12 @@
     
     <link rel="stylesheet" href="https://demo.graygrids.com/themes/eventgrids/assets/css/A.main.css.pagespeed.cf.FhP97JgkFd.css">
 
+    <input type="hidden" id="selectOrg" name="selectOrg" class="form-control">
+    <input type="hidden" id="domain" name="domain" class="form-control">
+    <input type="hidden" id="sabun" name="sabun" class="form-control">
+    <input type="hidden" id="username" name="username" class="form-control">
+    <input type="hidden" id="tmpFreeDateDone" name="tmpFreeDateDone" class="form-control">
+    
     <header id="titlebar">
         <div id="drag-region"> 
             <div id="window-title">
@@ -39,19 +45,19 @@
           <div id="window-controls">
            
             <div class="button" id="min-button">
-              <img class="icon" srcset="icons/min-w-10.png 1x, icons/min-w-12.png 1.25x, icons/min-w-15.png 1.5x, icons/min-w-15.png 1.75x, icons/min-w-20.png 2x, icons/min-w-20.png 2.25x, icons/min-w-24.png 2.5x, icons/min-w-30.png 3x, icons/min-w-30.png 3.5x" draggable="false" />
+                <img class="icon" srcset="icons/min-w-10.png 1x, icons/min-w-12.png 1.25x, icons/min-w-15.png 1.5x, icons/min-w-15.png 1.75x, icons/min-w-20.png 2x, icons/min-w-20.png 2.25x, icons/min-w-24.png 2.5x, icons/min-w-30.png 3x, icons/min-w-30.png 3.5x" draggable="false" />
             </div>
       
             <div class="button" id="max-button">
-              <img class="icon" srcset="icons/max-w-10.png 1x, icons/max-w-12.png 1.25x, icons/max-w-15.png 1.5x, icons/max-w-15.png 1.75x, icons/max-w-20.png 2x, icons/max-w-20.png 2.25x, icons/max-w-24.png 2.5x, icons/max-w-30.png 3x, icons/max-w-30.png 3.5x" draggable="false" />
+                <img class="icon" srcset="icons/max-w-10.png 1x, icons/max-w-12.png 1.25x, icons/max-w-15.png 1.5x, icons/max-w-15.png 1.75x, icons/max-w-20.png 2x, icons/max-w-20.png 2.25x, icons/max-w-24.png 2.5x, icons/max-w-30.png 3x, icons/max-w-30.png 3.5x" draggable="false" />
             </div>
       
             <div class="button" id="restore-button">
-              <img class="icon" srcset="icons/restore-w-10.png 1x, icons/restore-w-12.png 1.25x, icons/restore-w-15.png 1.5x, icons/restore-w-15.png 1.75x, icons/restore-w-20.png 2x, icons/restore-w-20.png 2.25x, icons/restore-w-24.png 2.5x, icons/restore-w-30.png 3x, icons/restore-w-30.png 3.5x" draggable="false" />
+                <img class="icon" srcset="icons/restore-w-10.png 1x, icons/restore-w-12.png 1.25x, icons/restore-w-15.png 1.5x, icons/restore-w-15.png 1.75x, icons/restore-w-20.png 2x, icons/restore-w-20.png 2.25x, icons/restore-w-24.png 2.5x, icons/restore-w-30.png 3x, icons/restore-w-30.png 3.5x" draggable="false" />
             </div>
       
             <div class="button" id="close-button">
-              <img class="icon" srcset="icons/close-w-10.png 1x, icons/close-w-12.png 1.25x, icons/close-w-15.png 1.5x, icons/close-w-15.png 1.75x, icons/close-w-20.png 2x, icons/close-w-20.png 2.25x, icons/close-w-24.png 2.5x, icons/close-w-30.png 3x, icons/close-w-30.png 3.5x" draggable="false" />
+                <img class="icon" srcset="icons/close-w-10.png 1x, icons/close-w-12.png 1.25x, icons/close-w-15.png 1.5x, icons/close-w-15.png 1.75x, icons/close-w-20.png 2x, icons/close-w-20.png 2.25x, icons/close-w-24.png 2.5x, icons/close-w-30.png 3x, icons/close-w-30.png 3.5x" draggable="false" />
             </div>
       
           </div>
@@ -86,21 +92,23 @@
                 <div class="col-lg-5 col-5 wow fadeIn" data-wow-delay=".6s" style="visibility: visible; animation-delay: 0.6s; animation-name: fadeIn;">
                     <div class="content" style="margin-top:0px">
                         <h4 id="sub_title"># 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮-Auth </h4>
+                        <!-- 인증 -->
                         <div id="authkeyLayer">
                             <div class="form-group">
                                 <label class="bmd-label-floating">𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 인증번호를 입력해주세요 : </label>
                                 <input type="text" id="authkey" name="authkey" value="" class="bgelement" >        
                             </div>
-                            <button type="button" id="pcChkAuthBtn" class="btn btn-primary pull-right">등록</button>
+                            <button type="button" id="pcChkAuthBtn" class="btn btn-primary pull-right">확인</button>
                         </div>
-
+                        <!-- 조직 선택-->
                         <div id="orgLayer" style="display: none;">
                             <div class="form-group">
                                 <label class="bmd-label-floating">조직을 선택해주세요 : </label>
                                 <select name="groupName" id="groupName" class="bgelement" style="display: block;"></select>
                             </div>
-                            <button type="button" id="pcChkBtn" class="btn btn-primary pull-right">등록</button>
+                            <button type="button" id="pcChkBtn" class="btn btn-primary pull-right">선택</button>
                         </div>
+                        <!-- 프리 사용자 -->
                         <div id="hmFreeDoneBody" style="display: none;">
                             <label class="bmd-label-floating" id="hmFreeDoneBodyTextMsg">
                             </label>
@@ -112,6 +120,7 @@
                                 </li>
                             </ul> -->
                         </div>
+                        <!-- 프로그램 설치 -->
                         <div id="installLayer" style="display: none;">
                             <ul>
                                 <li>- 사용자 접속 로그 관리</li>
@@ -122,15 +131,23 @@
                                 <li>- openldap/Telegraf</li>
                             </ul>
                         </div>
+                        <!-- 백업 -->
                         <div id="backupLayer" style="display: none; font-size: 12px;">
                             <ul>
                                 <li id="osDisk"> </li>
-                                <!-- <li>- Timeshift 도구를 이용하여 백업을 진행합니다. </li> -->
                                 <li>- 하드 디스크 용량에따라 백업이 완료되는 시간이 길어질 수 있습니다. </li>
                                 <li><button type="button" id="backupBtn" class="btn btn-primary pull-right">백업시작</button> </li>
+                                <li ><span id="backupInfoMsg" class="text-white" style="display: none;"></span></li>
                             </ul>
                         </div>
-
+                        <!-- 종료 -->
+                        <div id="EndLayer" style="display: none; font-size: 12px;">
+                            <div class="form-group">
+                                <label class="bmd-label-floating" id="EndMsg">
+                                    𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 설치 완료 
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,190 +164,7 @@
 <!-- =========================================== --><!-- =========================================== -->
 <!-- =========================================== --><!-- =========================================== -->
 <!-- =========================================== --><!-- =========================================== -->
-    <br>
-    <div class="main-panel">
-       
-        <div class="content">
             <div class="container-fluid">
-                <div>
-                    <div class="card">
-                        <div class="card-header card-header-tabs card-header-primary">
-                            <div class="nav-tabs-navigation">
-                                <div class="nav-tabs-wrapper" id="hmInstallIng">
-                                    <span class="nav-tabs-title">Tasks:</span>
-                                    <ul class="nav nav-tabs" data-tabs="tabs">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" id="initLayer" href="javascript:;"
-                                                data-toggle="tab" >
-                                                <i class="material-icons">PC</i> 정보 입력
-                                                <div class="ripple-container"></div>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link " id="procLayer" href="javascript:;"
-                                                data-toggle="tab">
-                                                <i class="material-icons">PC </i> 관리 프로그램 목록
-                                                <div class="ripple-container"></div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div id="hmInstalled" style="display: none;">
-                                    Hamonize PC 관리 프로그램
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card-body" id="hmFreeDoneBody" style="display: none; height: 190px;">
-                            <p> </p>
-                            <ul class="intro_ul" id="hmFreeDoneBodyText2">
-                                <li>
-                                    <p>𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 사용 기간이 만료되었습니다. </p>
-                                    <p>- 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 원격관리, 프로그램, 방화벽, 비인가 디바이스 등 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 PC관리를 사용하실 수 없습니다. </p>
-                                    <p>시스템 관리자에게 문의바랍니다.  </p>
-                                </li>
-                            </ul>
-                            <p><button type="button" id="hamonizeAuthChkBtn" class="btn btn-primary pull-right">인증</button></p>
-                        </div>
-
-                        <div class="card-body" id="hmInstalledBody" style="display: none; height: 190px;">
-                            <p> </p>
-                            <ul class="intro_ul">
-                                <li>
-                                    <p>이 컴퓨터는 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 프로그램이 설치되어 작동중입니다.</p>
-                                    <!-- <p>𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 프로그램 재설치를 원하시는 경우 관리자에게 문의 하시기 바랍니다.</p> -->
-                                    <p></p>
-                                    <p>𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 프로그램 재설치를 원하시는 경우 관리자에게 문의 후 프로그램을 재설치 해주시기 바랍니다.</p>
-                                    <p><button type="button" id="reInstallBtn" class="btn btn-primary pull-right">재설치</button></p>
-                                </li>
-                            </ul>
-                        </div>
-
-
-
-
-
-
-                        
-                        <div class="card-body" id="hmInstallIngBody">
-                            <div class="tab-content">
-                                <!-- <div class="tab-pane active" id="initLayerBody">
-                                    
-                                    <div class="col-md-3" id="authkeylayer">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating">Hamonize 인증 : </label>
-                                            <input type="text" id="authkey" name="authkey" value="" class="form-control" >        
-                                        </div>
-                                        <button type="button" id="pcChkAuthBtn" class="btn btn-primary pull-right">등록</button>
-                                    </div>
-
-                                    <div class="col-md-3" id="orglayer" style="display: none;">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating">조직명</label>
-                                            <select name="groupName" id="groupName" style="display: block;"></select>
-                                        </div>
-                                        <button type="button" id="pcChkBtn" class="btn btn-primary pull-right">등록</button>
-                                    </div>
-
-                                </div> -->
-
-                                <input type="hidden" id="selectOrg" name="selectOrg" class="form-control">
-                                <input type="hidden" id="domain" name="domain" class="form-control">
-                                <input type="hidden" id="sabun" name="sabun" class="form-control">
-                                <input type="hidden" id="username" name="username" class="form-control">
-                                <input type="hidden" id="tmpFreeDateDone" name="tmpFreeDateDone" class="form-control">
-
-                                <div class="tab-pane " id="procLayerBody">
-                                    <table class="table">
-                                        <tbody>
-                                            <tr id="stepA" class="">
-                                                <td width="10%">
-                                                    <div class="form-check">
-                                                        <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox" value="" checked readonly>
-                                                            <span class="form-check-sign"><span
-                                                                    class="check"></span></span>
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                                <td width="40%">하모나이즈 프로그램 환경 셋팅...</td>
-                                                <td width="*" style="text-align: center;"><button type="button" rel="tooltip" title="install"
-                                                    style="border-color:transparent; background-color: transparent;">
-                                                        <!-- class="btn btn-danger btn-link btn-sm"> -->
-                                                        <i class="material-icons"><span id="infoStepA">설치전</span></i></button></td>
-                                            </tr>
-
-                                            <tr id="stepB" class="">
-                                                <td>
-                                                    <div class="form-check">
-                                                        <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox" value="" checked  readonly>
-                                                            <span class="form-check-sign"><span
-                                                                    class="check"></span></span>
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                                <td>하모나이즈 프로그램 설치...</td>
-                                                <td style="text-align: center;"><button type="button" rel="tooltip" title="install"
-                                                    style="border-color:transparent; background-color: transparent;">
-                                                        <!-- class="btn btn-danger btn-link btn-sm"> -->
-                                                        <i class="material-icons"><span id="infoStepB">설치전</span></i></button></td>
-                                            </tr>
-
-                                            <tr id="stepC" class="">
-                                                <td>
-                                                    <div class="form-check">
-                                                        <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox" value="" checked  readonly>
-                                                            <span class="form-check-sign"><span
-                                                                    class="check"></span></span>
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                                <td> OS 백업...</td>
-                                                <td style="text-align: center;"><button type="button" rel="tooltip" title="install"
-                                                    style="border-color:transparent; background-color: transparent;">
-                                                        <!-- class="btn btn-danger btn-link btn-sm"> -->
-                                                        <i class="material-icons"><span id="infoStepC">설치전</span></i></button></td>
-                                            </tr>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="tab-pane " id="EndBody">
-                                    <div
-                                        style="height: 150px; text-align: center; margin-top: 20%; font-size: 16px;">
-                                        <i class="material-icons">
-                                            하모나이즈 프로그램 설치 완료.!
-
-                                            5초 후 컴퓨터가 재부팅됩니다. 
-
-                                            <button type="button" rel="tooltip" title="reboot"
-                                                        class="btn btn-danger btn-link btn-sm"><i
-                                                            class="material-icons">
-                                                            <span id="nowReboot">지금재부팅하기.</span></i></button>
-
-
-                                        </i>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane " id="ErrorBody" style="display: none;">
-                                    <div
-                                        style="height: 150px; text-align: center; margin-top: 16%; font-size: 16px;">
-                                        <i class="material-icons" id="errorText">
-                                           
-                                        </i>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
                 <footer class="footer" style="padding:0px;">
                     <div class="container-fluid">
                         <div class="copyright float-right">
@@ -340,53 +174,53 @@
                 </footer>
             </div>
 
-            <!--   Core JS Files   -->
-            <script src="assets/js/core/jquery.min.js"></script>
-            <script src="assets/js/core/popper.min.js"></script>
-            
-            <script defer async rel src="assets/js/core/bootstrap-material-design.min.js"></script>
+<!--   Core JS Files   -->
+<script src="assets/js/core/jquery.min.js"></script>
+<script src="assets/js/core/popper.min.js"></script>
+
+<script defer async rel src="assets/js/core/bootstrap-material-design.min.js"></script>
 
 
-            <script>
-                // require('./assets/js/renderer.js')
-              </script>
-            <script>
-                $("#procLayerBody").hide();
-                // $("#procLayer").click(function () {
-                //     $("#procLayerBody").show();
-                //     $("#initLayerBody").hide();
-                // });
-                // $("#initLayer").click(function () {
-                //     $("#initLayerBody").show();
-                //     $("#procLayerBody").hide();
-                // });
-            
-                $(document).ready(function () {
-                    $modal = $(".modal");
+<script>
+    // require('./assets/js/renderer.js')
+    </script>
+<script>
+    $("#procLayerBody").hide();
+    // $("#procLayer").click(function () {
+    //     $("#procLayerBody").show();
+    //     $("#initLayerBody").hide();
+    // });
+    // $("#initLayer").click(function () {
+    //     $("#initLayerBody").show();
+    //     $("#procLayerBody").hide();
+    // });
 
-                    $(".modal--open").click(function () {
-                        $modal.show();
-                        // popupOpen(); 
-                        return false;
-                    });
-                    $(".modal--close").click(function () {
-                        $modal.hide();
-                    });
-                });
+    $(document).ready(function () {
+        $modal = $(".modal");
 
-                function popupOpen() {
-                    $('.layerpop').css("position", "absolute");
-                    $('.layerpop').css("top", '300px');
-                    $('.layerpop').css("left", (($(window).width() - $('.layerpop').outerWidth()) / 8) + $(window)
-                        .scrollLeft());
-                    $('#layerbox').show();
-                }
+        $(".modal--open").click(function () {
+            $modal.show();
+            // popupOpen(); 
+            return false;
+        });
+        $(".modal--close").click(function () {
+            $modal.hide();
+        });
+    });
 
-                
-            </script>
+    function popupOpen() {
+        $('.layerpop').css("position", "absolute");
+        $('.layerpop').css("top", '300px');
+        $('.layerpop').css("left", (($(window).width() - $('.layerpop').outerWidth()) / 8) + $(window)
+            .scrollLeft());
+        $('#layerbox').show();
+    }
+
+    
+</script>
 
 
-            <script type="text/javascript" src="assets/js/index.js"></script>
+<script type="text/javascript" src="assets/js/index.js"></script>
 
                   
 </body>

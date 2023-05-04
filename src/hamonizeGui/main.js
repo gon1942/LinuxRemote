@@ -257,21 +257,18 @@ function hamonizeProgramInstallProc(domain, userId) {
 
 ipcMain.on('hamonizeSystemBackup', (event) => {
 	hamonizeSystemBackup_Action(event);
+	// setTimeout(backupFiles(event), 10000); // 20초 후에 백업 시작
 });
 
 
 const hamonizeSystemBackup_Action = async (event) => {
 	try {
-		console.log("hamonizeSystemBackup============START");
 		let userId = await execShellCommand("cat /etc/passwd | grep 1000 | awk -F':' '{print $1}' ");
 		let hamonizeSystemBackupProcResult = await hamonizeSystemBackupProc(userId);
-		console.log("hamonizeSystemBackup_Proc==" + hamonizeSystemBackupProcResult);
-
 
 		// START] application Uuid create -----------------//
 		let uniqid = require('uniqid');
 		let appUUID = uniqid() + (new Date()).getTime().toString(36);
-		// const pcUuid = (await si.uuid());
 		const machineIdSync = require('node-machine-id').machineIdSync;
 		let machindid = machineIdSync({
 			original: true
@@ -281,6 +278,7 @@ const hamonizeSystemBackup_Action = async (event) => {
 		// END] application Uuid create -----------------//
 
 		event.sender.send('hamonizeSystemBackup_Result', hamonizeSystemBackupProcResult);
+		// event.sender.send('hamonizeSystemBackup_Result', "Y");
 	} catch (err) {
 		console.log("hamonizeSystemBackup_Action Error---" + err);
 		return Object.assign(err);
@@ -290,7 +288,7 @@ const hamonizeSystemBackup_Action = async (event) => {
 function hamonizeSystemBackupProc(userId) {
 	return new Promise(function (resolve, reject) {
 
-		console.log("====__dirname===" + __dirname);
+		console.log("====__dirname===" + __dirname +", userId=="+userId);
 		//==========================================================사용자 정보 ==============
 		// var aptRepositoryChkJobShell = "/bin/bash " + __dirname + "/shell/hamonizeBackup.sh " + userId;
 		var aptRepositoryChkJobShell = "/bin/bash /tmp/hamonize/hamonizeBackup.sh " + userId;
@@ -298,17 +296,44 @@ function hamonizeSystemBackupProc(userId) {
 		sudo.exec(aptRepositoryChkJobShell, options,
 			function (error, stdout, stderr) {
 				if (error) {
-					console.log("hamonizeSystemBackupProc error is " + error);
+					console.log("hamonizeSystemBackupProc error is ----------> " + error);
 					return resolve("N");
 				} else {
 					// console.log('stdout: ' + stdout);
 					// console.log('stderr: ' + stderr);
-					resolve("Y");
+					return resolve("Y");
 				}
 			}
 		);
 	});
-} // Backup END ---------------------------------------------------------------#
+}
+
+var fileToTail = "/tmp/backup.log";
+ipcMain.on('backupFiles-tail', (event, domain) => {
+	const Tail = require('tail-file');
+	const mytail = new Tail(fileToTail, line => {
+		console.log(line);
+		event.sender.send('backupFiles-tail-val', line);
+	});
+});
+function backupFiles(event){
+	const Tail = require('tail-file');
+	const mytail = new Tail(fileToTail, line => {
+		console.log(line);
+		event.sender.send('backupFiles-tail-val', line);
+	});
+}
+
+
+ipcMain.on('getDiskSize', async (event) => {
+
+	const disk = (await si.diskLayout())[0]; // Disk Info
+	const size = Math.round(disk.size / 1024 / 1024 / 1024);
+	console.log("disk size : " + size + "GB");
+	console.log("disk size : " + disk.size + "GB")
+
+	event.sender.send('getDiskSizeResult', size + "GB");
+});// Backup END ---------------------------------------------------------------#
 
 
 
@@ -831,6 +856,7 @@ ipcMain.on('getOrgData', (event, domain) => {
 			}]
 		})
 		.end(function (response) {
+			console.log(response.body)
 			event.sender.send('getOrgDataResult', response.body);
 		});
 });
@@ -895,24 +921,4 @@ ipcMain.on('rebootProc', (event) => {
 			console.log('stdout: ' + stdout);
 		}
 	);
-});
-
-var fileToTail = "/tmp/backup.log";
-ipcMain.on('files-tail', (event, domain) => {
-	const Tail = require('tail-file');
-	const mytail = new Tail(fileToTail, line => {
-		console.log(line);
-		event.sender.send('files-tail-val', line);
-	});
-});
-
-
-ipcMain.on('getDiskSize', async (event) => {
-
-	const disk = (await si.diskLayout())[0]; // Disk Info
-	const size = Math.round(disk.size / 1024 / 1024 / 1024);
-	console.log("disk size : " + size + "GB");
-	console.log("disk size : " + disk.size + "GB")
-
-	event.sender.send('getDiskSizeResult', size + "GB");
 });

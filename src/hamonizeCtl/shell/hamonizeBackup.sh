@@ -120,7 +120,7 @@ sed -i "s/exclude\" \: \[/exclude\" \: \[\n \"+ \/home\/$USERID\/**\" /g" $FILEP
         # touch /tmp/backup.log
         cat /dev/null >/tmp/backup.log
         # echo `cat -v  $Log_backup |tr '^M' '@@'  | grep -w 'complete'`
-        backupProcessVal=$(cat -v /var/log/hamonize/adcon/backuplog.log | tr '^M' '@@' | grep -w 'complete' | awk -F '@@' '{c+=NF-1}END{print $c}')
+        backupProcessVal=$(cat -v /var/log/hamonize/adcon/backuplog.log | tr '^M' '@@' | grep -w 'complete' | awk -F '@@' '{c+=NF-1}END{print $c}' | sed 's/(??? remaining)//g')
         if [ -z "$backupProcessVal" ]; then
             echo "$backupProcessVal is empty" >/dev/null
         else
@@ -131,11 +131,11 @@ sed -i "s/exclude\" \: \[/exclude\" \: \[\n \"+ \/home\/$USERID\/**\" /g" $FILEP
             #     echo "rsync로 파일 동기화 중입니다. " >>/tmp/backup.log
             # fi
 
-            if [[ "$backupProcessVal" == *"0.00%"* ]]; then
-                echo "OS 백업중 중입니다. 잠시만 기달려주세요. " >>/tmp/backup.log
-            else
-                echo $backupProcessVal >>/tmp/backup.log
-            fi
+            # if [[ "$backupProcessVal" == *"0.00%"* ]]; then
+            #     echo "OS 백업중 중입니다. 잠시만 기달려주세요. " >>/tmp/backup.log
+            # else
+                echo "백업 진행률 : " $backupProcessVal >>/tmp/backup.log
+            # fi
 
             # echo $backupProcessVal >>/tmp/backup.log
         fi
