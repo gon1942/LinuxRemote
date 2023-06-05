@@ -235,6 +235,16 @@ exports.hamonize_CmdList = {
             { type: 'list', name: 'listExample', message: chalk.blue('컴퓨터를 등록할 조직을 선택해주세요'), default: 'Choice List ', choices: _data },
         ];
     }
+    , getBackup: (_msg) => {
+        return [
+            { type: 'input', name: 'backupChoise', message: chalk.blue(_msg), default: 'Choice. '},
+        ];
+    }
+    // , getBackup: (_data) => {
+    //     return [
+    //         { type: 'list', name: 'backupChoise', message: chalk.blue('백업 진행 여부를 선택해주세요.'), default: 'Choice. ', choices: _data },
+    //     ];
+    // }
 
     // , authAnswers: (answers) => {
     //     console.log("1===", answers.inputAuth)

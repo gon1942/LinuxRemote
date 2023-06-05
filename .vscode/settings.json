@@ -8,5 +8,6 @@
         "json.h": "c",
         "arraylist.h": "c",
         "fcntl.h": "c"
-    }
+    },
+    "git.ignoreLimitWarning": true
 }

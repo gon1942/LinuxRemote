@@ -135,8 +135,17 @@
                         <div id="backupLayer" style="display: none; font-size: 12px;">
                             <ul>
                                 <li id="osDisk"> </li>
-                                <li>- 하드 디스크 용량에따라 백업이 완료되는 시간이 길어질 수 있습니다. </li>
-                                <li><button type="button" id="backupBtn" class="btn btn-primary pull-right">백업시작</button> </li>
+                                <li>- 하드 디스크 용량에따라  완료되는 시간이 길어질 수 있습니다. </li>
+                                <li id="backupInfo2">- OS 백업 미진행시 관리센터에서 복구를 진행할 수 없습니다.  </li>
+                                <!-- <li><button type="button" id="backupBtn" class="btn btn-primary pull-right">백업 시작</button> </li> -->
+                                <li>
+                                    <select name="backUpSelect" id="backUpSelect" class="bgelement" style="display: block;">
+                                        <option value="0">==백업 진행 선택==</option>
+                                        <option value="1">시작</option>
+                                        <option value="2">종료</option>
+                                    </select>
+                                </li>
+                                <li><button type="button" id="backupBtn" class="btn btn-primary pull-right">확인</button> </li>
                                 <li ><span id="backupInfoMsg" class="text-white" style="display: none;"></span></li>
                             </ul>
                         </div>

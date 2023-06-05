@@ -17,8 +17,6 @@ const log = console.log;
 
 
 const hamonizeUrl = hamonizeFuns.getbaseurl();
-log(`hamonizeUrl===================> ${hamonizeUrl}`);
-
 
 
 // Gui -> Config Settings !!
@@ -124,9 +122,6 @@ exports.hamonize_init = async function (_var) {
     ),
   );
 
-
-  // return; 
-
   let isRoot = await hamonizeFuns.isCurrentUserRoot();
   if (!isRoot) {
     // if (!hamonizeFuns.isCurrentUserRoot()) {
@@ -137,9 +132,13 @@ exports.hamonize_init = async function (_var) {
 
   // #1.  인증번호 체크
   let retTanentNm = await init_authChk()
-
+log("retTanentNm======++"+retTanentNm)
   // #2.  조직정보 목록
   let retOrgInfo = await getOrgDataRequest(retTanentNm); // Return : Select Org Nm
+  log("retOrgInfo=====++"+retOrgInfo)
+
+
+
   // // console.log(`choice org info is ${retOrgInfo}`)
 
   //  #3. 컴퓨터 정보 등록
@@ -172,21 +171,27 @@ exports.hamonize_init = async function (_var) {
   // #6. Hamonize Program Install
   await installHamonizeProgram(retTanentNm);
   // log("End Hamonize Program Install-----------------")
-
-
   await sleep(5000)
-  // await pcInfoUpdate(retTanentNm)
+
+  // #7.  컴퓨터 정보 등록
   let isAddPcInfo = await setPcInfo(retOrgInfo, '', '', retTanentNm);
 
-  // // To-Do ::::   Hamonize Program Uninstall
-  // // let hamonizeProgramUninstallProcResult = hamonizeProgramUninstallProc();
+  // To-Do ::::   Hamonize Program Uninstall
+  // let hamonizeProgramUninstallProcResult = hamonizeProgramUninstallProc();
 
-  // // OS Backup
-  let osBackupProcResult = await hamonizeSystemBackup();
+  // OS Backup
+  var isBackup = await isBackupAction();
+  if (isBackup == 'N') {
+    log(chalk.green('Hamonize 설치가 완료되었습니다. '));
+    process.exit(1)
+  }else {
+    let osBackupProcResult = await hamonizeSystemBackup();
+    log(chalk.green('Hamonize 설치가 완료되었습니다. '));
+    process.exit(1)
+  }
 
   // Hamonize Install End
-  log(chalk.green('Hamonize 설치가 완료되었습니다. '));
-  process.exit(1)
+
 }
 
 
@@ -429,9 +434,11 @@ async function getOrgDataRequest(tanent) {
     json_data[table.orgnm] = ''
     aa.push(table.orgnm)
   });
-
+  
   const questions = hamonizeFuns.hamonize_CmdList.getOrgInfo(aa);
+  // console.log("questions=="+questions);
   const answers = await inquirer.prompt(questions);
+  // console.log(JSON.stringify(answers, null, '  '));
 
   return answers.listExample
 }
@@ -924,5 +931,24 @@ async function copyHamonizeAgentFile() {
 
   } catch (err) {
     console.error(err);
+  }
+}
+
+
+
+async function isBackupAction(_var) {
+  var msg = '백업을 진행하시겠습니까?.- Y/N (디스크 용량에따라 백업 완료시간이 길어질수있습니다.)'
+  if (_var == 'R') {
+    msg = "백업을 진행하시겠습니까?.- Y 또는 N을 입력해주세요.."
+  }
+
+  const questionsBackup = hamonizeFuns.hamonize_CmdList.getBackup(msg);
+  const answersBackup = await inquirer.prompt(questionsBackup);
+  let inputAuth = answersBackup.backupChoise
+  console.log("inputAuth==="+inputAuth)
+  if (inputAuth != 'N' && inputAuth != 'Y' ) {
+    return isBackupAction('R')
+  } else {
+    return inputAuth
   }
 }

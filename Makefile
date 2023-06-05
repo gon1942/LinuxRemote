@@ -7,8 +7,6 @@ build_node_app:
 	cd src/hamonizeAuditd/dockerBuild/ && \
 	/bin/bash buildV2.sh && \
 	cp  hamonizeProcV2 ../../../src/hamonizeCtl/shell/agentJobs/	&& \
-	/bin/bash buildV3.sh && \
-	cp  hamonizeProcV3 ../../../src/hamonizeCtl/shell/agentJobs/ && \
 	cd ../../../src/hamonizeGui/ && \
 	npm run clean && \
 	npm install && \
@@ -28,4 +26,3 @@ clean:
 	rm -fr usr/local/hamonize-connect/*
 	rm -fr bin/*
 	rm -fr src/hamonizeCtl/shell/agentJobs/hamonizeProcV2
-	rm -fr src/hamonizeCtl/shell/agentJobs/hamonizeProcV3

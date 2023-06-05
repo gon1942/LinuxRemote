@@ -21,11 +21,15 @@ logout)
         ;;
 esac
 
+device=$(nmcli -t -f TYPE,DEVICE dev | awk -F: '$1=="ethernet" {print $2; exit}')
+localIp=$(ifconfig "$device" | awk '/inet /{print $2}')
+
 LOGININFO_JSON="{\
        \"events\" : [ {\
        \"datetime\":\"$DATETIME\",\
        \"uuid\":\"$UUID\",\
        \"domain\": \"$DOMAIN\",\
+       \"localIp\": \"$localIp\",\
        \"gubun\": \"$GUBUN\"\
        } ]\
 }"

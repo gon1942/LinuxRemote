@@ -280,7 +280,7 @@ const hamonizeSystemBackup_Action = async (event) => {
 		event.sender.send('hamonizeSystemBackup_Result', hamonizeSystemBackupProcResult);
 		// event.sender.send('hamonizeSystemBackup_Result', "Y");
 	} catch (err) {
-		console.log("hamonizeSystemBackup_Action Error---" + err);
+		console.log(" STEP 4. Backup hamonizeSystemBackup_Action Error---" + err);
 		return Object.assign(err);
 	}
 }
@@ -316,13 +316,13 @@ ipcMain.on('backupFiles-tail', (event, domain) => {
 		event.sender.send('backupFiles-tail-val', line);
 	});
 });
-function backupFiles(event){
-	const Tail = require('tail-file');
-	const mytail = new Tail(fileToTail, line => {
-		console.log(line);
-		event.sender.send('backupFiles-tail-val', line);
-	});
-}
+// function backupFiles(event){
+// 	const Tail = require('tail-file');
+// 	const mytail = new Tail(fileToTail, line => {
+// 		console.log(line);
+// 		event.sender.send('backupFiles-tail-val', line);
+// 	});
+// }
 
 
 ipcMain.on('getDiskSize', async (event) => {

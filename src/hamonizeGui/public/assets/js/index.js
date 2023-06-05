@@ -26,9 +26,6 @@ document.onreadystatechange = (event) => {
 };
 
 window.onbeforeunload = (event) => {
-	/* If window is reloaded, remove win event listeners
-	(DOM element listeners get auto garbage collected but not
-	Electron win listeners as the win is not dereferenced unless closed) */
 	win.removeAllListeners();
 }
 
@@ -52,13 +49,12 @@ function handleWindowControls() {
 
 		if ($("#sub_title").text().indexOf("Auth") < 0) {
 			if (confirm('프로그램 실행 중 창을 닫으시면 오류가 발생할 수 있습니다.')) {
-				// ipcRenderer.send('저장하는곳', {data:data})
 				win.close();
 			}
-		}else{
+		} else {
 			win.close();
 		}
-		
+
 	});
 
 }
@@ -71,18 +67,13 @@ install_program_version_chkeck();
 
 
 function install_program_version_chkeck() {
-	// $modal.show();
-	// popupOpen();
-	// $(".layerpop__container").text("프로그램 설치를 위한 버전 확인 중 입니다. 잠시만 기다려주세요.!!");
 	ipcRenderer.send('install_program_version_chkeck');
 }
 ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 	if (isChkVal == 'Y') {
 		// 초기 폴더 생성후 관리 프로그램 설치에 필요한 툴 설치 완료.
 		console.log("초기 폴더 생성후 관리 프로그램 설치에 필요한 툴 설치 완료.");
-		// $modal.hide();
 		$("#loadingInfoText").text("");
-
 	} else {
 		fn_alert("프로그램 서버 정보 셋팅 오류. 관리자에게 문의 바랍니다. \n Error Code :: [N001]");
 		return false;
@@ -91,6 +82,7 @@ ipcRenderer.on('install_program_version_chkeckResult', (event, isChkVal) => {
 
 
 // # step 2. autheky chekc ===================================
+// 인증 완료 후 조직 정보 가져오기
 var doubleSubmitFlag = false;
 const pcChkAuthBtn = document.getElementById('pcChkAuthBtn');
 pcChkAuthBtn.addEventListener('click', function (event) {
@@ -119,6 +111,8 @@ ipcRenderer.on('getAuthResult', (event, authResult) => {
 		ipcRenderer.send('chkHamonizeAppUses', authResult);
 	}
 });
+
+
 // # Step 3. Hamonize Used Count Check ====================================
 ipcRenderer.on('chkHamonizeAppUsesResult', (event, ret) => {
 	console.log("chkHamonizeAppUsesResult : " + ret);
@@ -126,6 +120,12 @@ ipcRenderer.on('chkHamonizeAppUsesResult', (event, ret) => {
 	if (ret == 'Y') {
 		$(".layerpop__container").text("인증이 완료되었습니다. 조직정보를 불러오는 중입니다.  잠시만 기다려주세요.!!");
 		ipcRenderer.send('getOrgData', $("#domain").val());
+	} else  if (ret == 'O') { 
+		$("#authkeyLayer").hide();
+		$("#orgLayer").hide();
+		$("#hmFreeDoneBody").show();
+		$("#hmFreeDoneBodyTextMsg").html("𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 사용기관이 종료되었습니다. .<br>시스템 관리자에게 문의바랍니다.");
+		return false;
 	} else {
 		$("#authkeyLayer").hide();
 		$("#orgLayer").hide();
@@ -177,21 +177,17 @@ pcChkBtn.addEventListener('click', function (event) {
 	}
 });
 
-// ----------------------------------
+// --------------------------------------------------------------------
 // #### Hamonize Program Install ####
-// ----------------------------------
+// --------------------------------------------------------------------
 function nextStap() {
 
-	// $modal.hide();
 	$("#loadingInfoText").text("");
 	$("#initLayer").removeClass("active");
 	$("#initLayerBody").removeClass("active");
 	$("#procLayer").addClass("active");
 	$("#procLayerBody").hide();
 	$("#procLayerBody").show();
-
-	// initLayer
-
 	$("#stepA").removeClass("br animate");
 	$("#stepB").addClass("br animate");
 	$("#infoStepA").text("완료");
@@ -202,8 +198,6 @@ function nextStap() {
 
 // ======== step 6. PC 관리 프로그램 설치... =========================================/
 function fn_hamonizeProgramInstall() {
-
-	// $(document).attr("title","Hamonize Program Install..."); 
 
 	$("#authkeyLayer").hide();
 	$("#orgLayer").hide();
@@ -218,6 +212,10 @@ function fn_hamonizeProgramInstall() {
 	$("#sub_title").html("Program Install List");
 	$(".loading-container").css('visibility', 'visible');
 	$("#loading-text").text("Install")
+
+	// Start Hamonize Install 
+	ipcRenderer.send('hamonizeProgramInstall', $("#domain").val());
+
 }
 
 ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
@@ -233,6 +231,8 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 			doubleSubmitFlag = false;
 			return false;
 		}
+
+		// 프로그램 설치 완료 후 관리 센터에 pc 정보 등록
 		let sabun = "sabun";
 		let username = "username";
 		ipcRenderer.send('pcInfoChk', groupname, sabun, username, $("#domain").val());
@@ -246,6 +246,8 @@ ipcRenderer.on('hamonizeProgramInstall_Result', (event, programResult) => {
 	}
 });
 
+
+// 프로그램 설치 완료 후 관리 센터에 pc 정보 등록이 정상 처리 되었다면 백업 진행 
 ipcRenderer.on('pcInfoChkProc', (event, isChkBool) => {
 	if (isChkBool == true) {
 		$(".loading-container").css('visibility', 'hidden');
@@ -289,24 +291,48 @@ ipcRenderer.on('getDiskSizeResult', (event, diskSize) => {
 
 // 사용자가 백업 버튼을 클릭시..
 document.getElementById('backupBtn').addEventListener('click', function (event) {
-	$("#backupBtn").hide();
-	$("#backupInfoMsg").show();
-	$("#loading-text").text("Backup...")
-	$(".loading-container").css('visibility', 'visible');
-	ipcRenderer.send('hamonizeSystemBackup');
-	setTimeout(() => { ipcRenderer.send('backupFiles-tail'); }, 2000);
-});
 
+	if ($("#backUpSelect").val() == "1") {
+		$("#backupBtn").hide();
+		$("#backupInfoMsg").show();
+		$("#loading-text").text("Backup...")
+		$(".loading-container").css('visibility', 'visible');
+		$("#backUpSelect").hide();
+		$("#backupInfo2").hide();
+		// ipcRenderer.send('hamonizeSystemBackup');
+		// setTimeout(() => { ipcRenderer.send('backupFiles-tail'); }, 2000);
+	} else if ($("#backUpSelect").val() == "0") {
+		fn_alert("백업 진행을 선택해 주세요..");
+		return false;
+	} else if ($("#backUpSelect").val() == "2") {
+		$(".loading-container").css('visibility', 'hidden');
+		$("#authkeyLayer").hide();
+		$("#orgLayer").hide();
+		$("#hmFreeDoneBody").hide();
+		$("#installLayer").hide();
+		$("#backupLayer").hide();
+		$("#EndLayer").show();
+
+		$("#sub_title").html("𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮 설치 완료되었습니다..");
+		$("#EndMsg").html("설치 프로그램을 종료해주세요.");
+	}
+
+
+
+});
 
 // 백업 진행률
 ipcRenderer.on('backupFiles-tail-val', (event, ret) => {
+	console.log("ret=="+ ret);
 	var retViewDataSplit = '';
 	var chkFirstChar = ret.charAt(0);
+	console.log("chkFirstChar==="+chkFirstChar);
 	if (chkFirstChar == ')') {
 		retViewDataSplit = ret.slice(1);
 	} else {
 		retViewDataSplit = ret;
 	}
+	console.log("retViewDataSplit==="+retViewDataSplit)
 	$("#backupInfoMsg").text(retViewDataSplit);
 });
 

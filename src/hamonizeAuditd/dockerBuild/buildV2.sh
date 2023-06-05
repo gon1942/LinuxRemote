@@ -6,6 +6,7 @@ file_path="/tmp/hamonizeProcBlock"
 WORK_PATH=$(dirname $(realpath $0))
 echo $WORK_PATH
 
+
 docker build -f $WORK_PATH/DockerfileAuditdV2 -t audisp_build:1.0 .
 
 
