@@ -170,10 +170,12 @@ const hamonizeProgramInstall_Action = async (event, domain) => {
 		// vpn install 
 		let vpnCreateResult = await vpnCreate();
 		console.log("vpnCreateResult=============================>" + vpnCreateResult);
+		
 
 		let hamonizeProgramInstallProcResult = await hamonizeProgramInstallProc(domain, userId);
 		console.log("hamonizeProgramInstall_Result:::::::::::::::::::::::::::::" + hamonizeProgramInstallProcResult);
 
+		
 
 		if (hamonizeProgramInstallProcResult == 'Y') {
 			event.sender.send('hamonizeProgramInstall_Result', hamonizeProgramInstallProcResult);
@@ -877,15 +879,15 @@ ipcMain.on('getOrgAuth', (event, authkeyVal) => {
 			if (response.statusCode == 200) {
 				// file write 
 				let fileDir = "/etc/hamonize/hamonize_tanent";
-				// fs.writeFile(fileDir, response.body, (err) => {
-				// 	if (err) {
-				// 		console.log("//== sysInfo hw check create file error====  " + err.message)
-				// 		return event.sender.send('getAuthResult', 'N');
-				// 	}else{
-				// 		console.log("111111111111111---"+response.body)
-				// 		event.sender.send('getAuthResult', response.body);
-				// 	}
-				// });
+				fs.writeFile(fileDir, response.body, (err) => {
+					if (err) {
+						console.log("//== sysInfo hw check create file error====  " + err.message)
+						return event.sender.send('getAuthResult', 'N');
+					}else{
+						console.log("111111111111111---"+response.body)
+						event.sender.send('getAuthResult', response.body);
+					}
+				});
 				event.sender.send('getAuthResult', response.body);
 
 			} else {

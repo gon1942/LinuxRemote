@@ -53,7 +53,7 @@ vpnwork() {
 
 		sudo cp /etc/hamonize/ovpnclient/*.ovpn /etc/openvpn/client.conf
 
-		ls /etc/openvpn/ >>$Log_output
+		# ls /etc/openvpn/ >>$Log_output
 
 		sudo systemctl enable openvpn@client.service
 		sudo systemctl daemon-reload

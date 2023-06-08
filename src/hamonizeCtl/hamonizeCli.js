@@ -630,6 +630,8 @@ exports.hamonizeNeedsDir = async function () {
   });
 
   copyHamonizeShellFile();
+
+  copyHamonizeAgentFile();
   // for (let path of paths) {
   //   try {
   //     // 주어진 경로가 파일인지 디렉토리인지 확인
@@ -919,6 +921,8 @@ async function copyHamonizeAgentFile() {
     fs.writeFileSync('/etc/hamonize/agentJobs/hamonizeBackup.sh', fs.readFileSync(path.resolve(__dirname, './shell/hamonizeBackup.sh')));
     fs.writeFileSync('/etc/hamonize/agentJobs/eqchk', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/eqchk')));
     fs.writeFileSync('/etc/hamonize/agentJobs/blockNoti', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/blockNoti')));
+
+    fs.writeFileSync('/etc/hamonize/agentJobs/hamonizeProcV2', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/hamonizeProcV2')));
     
 
     const { exec } = require('child_process')

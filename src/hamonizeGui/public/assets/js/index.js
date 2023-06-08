@@ -299,8 +299,8 @@ document.getElementById('backupBtn').addEventListener('click', function (event) 
 		$(".loading-container").css('visibility', 'visible');
 		$("#backUpSelect").hide();
 		$("#backupInfo2").hide();
-		// ipcRenderer.send('hamonizeSystemBackup');
-		// setTimeout(() => { ipcRenderer.send('backupFiles-tail'); }, 2000);
+		ipcRenderer.send('hamonizeSystemBackup');
+		setTimeout(() => { ipcRenderer.send('backupFiles-tail'); }, 2000);
 	} else if ($("#backUpSelect").val() == "0") {
 		fn_alert("백업 진행을 선택해 주세요..");
 		return false;

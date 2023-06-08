@@ -819,10 +819,10 @@ InstallHamonizeProgram() {
                 \"domain\": \"$DOMAININFO\"\
         } ]\
     }"
-    echo "$Param_Install_Used==========" >>$LOGFILE
-    echo "$CENTER_BASE_URL----------" >>$LOGFILE
+    # echo "$Param_Install_Used==========" >>$LOGFILE
+    # echo "$CENTER_BASE_URL----------" >>$LOGFILE
     ProgramInstallUsed=$(curl -X POST -H 'User-Agent: HamoniKR OS' -H 'Content-Type: application/json' -f -s -d "$Param_Install_Used" "$CENTER_BASE_URL/hmsvc/getTenantOption")
-    echo "ProgramInstallUsed==============$ProgramInstallUsed" >>$LOGFILE
+    # echo "ProgramInstallUsed==============$ProgramInstallUsed" >>$LOGFILE
     VPN_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .tenant_vpn_used' | sed -e "s/\"//g")
     REMOTE_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .remote_tool_vpn_yn' | sed -e "s/\"//g")
     LDAP_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .use_ldap_user_yn' | sed -e "s/\"//g")
@@ -875,7 +875,7 @@ InstallHamonizeProgram() {
 
     #============================================================== Auditd Run File Copy#
     if [ ! -d "/usr/local/hamonize-connect" ]; then
-        echo "/usr/local/hamonize-connect 폴더가 존재하지 않습니다. 폴더를 생성합니다."
+        echo "/usr/local/hamonize-connect 폴더가 존재하지 않습니다. 폴더를 생성합니다." >>$LOGFILE
         sudo mkdir /usr/local/hamonize-connect
     fi
 
@@ -883,19 +883,21 @@ InstallHamonizeProgram() {
     auditd_version=$(dpkg -s auditd | grep Version | cut -d " " -f 2)
     auditd_major_version=$(echo $auditd_version | cut -d "." -f 1)
 
-    echo "Installed auditd version: $auditd_version"
-    echo "Auditd major version: $auditd_major_version"
+    echo "Installed auditd version: $auditd_version" >>$LOGFILE
+    echo "Auditd major version: $auditd_major_version"   >>$LOGFILE
 
     if [ "$auditd_major_version" = "1:2" ]; then
-        echo "Processing for auditd version $auditd_major_version"
+        echo "Processing for auditd version $auditd_major_version" >>$LOGFILE
         # auditd 1.2에 대한 처리를 추가합니다.
-        mv /etc/hamonize/agentJobs/hamonizeProcV2 /usr/local/hamonize-connect/
-        chown root:root /usr/local/hamonize-connect/hamonizeProcV2
+        # mv /etc/hamonize/agentJobs/hamonizeProcV2 /usr/local/hamonize-connect/
+        # chown root:root /usr/local/hamonize-connect/hamonizeProcV2
+        chown root:root /etc/hamonize/agentJobs/hamonizeProcV2
     elif [ "$auditd_major_version" = "1:3" ]; then
-        echo "Processing for auditd version $auditd_major_version"
+        echo "Processing for auditd version $auditd_major_version" >>$LOGFILE
         # auditd 1.3에 대한 처리를 추가합니다.
-        mv /etc/hamonize/agentJobs/hamonizeProcV3 /usr/local/hamonize-connect/
-        chown root:root /usr/local/hamonize-connect/hamonizeProcV3
+        # mv /etc/hamonize/agentJobs/hamonizeProcV3 /usr/local/hamonize-connect/
+        # chown root:root /usr/local/hamonize-connect/hamonizeProcV3
+        chown root:root /etc/hamonize/agentJobs/hamonizeProcV2
     fi
 
     #===============================================================auditd 폴더 경로
@@ -907,12 +909,14 @@ InstallHamonizeProgram() {
     if [ -d "$AUDITD_PATH/plugins.d" ]; then
         # Porgram Block Plugin Auditd
         filepath="$AUDITD_PATH/plugins.d/hamonizePolicy.conf"
-        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
+        content="active = yes\ndirection = out\npath = /etc/hamonize/agentJobs/hamonizeProcV2\ntype = always\nformat = string"
+        # content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
         echo -e "$content" >"$filepath"
     else
         # Porgram Block Plugin Auditd
         filepath="/etc/audisp/plugins.d/hamonizePolicy.conf"
-        content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
+        content="active = yes\ndirection = out\npath = /etc/hamonize/agentJobs/hamonizeProcV2\ntype = always\nformat = string"
+        # content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
         echo -e "$content" >"$filepath"
     fi
 
@@ -1004,7 +1008,8 @@ InstallHamonizeProgram() {
             echo >&1 "Y"
         else
             echo >&1 "1942-HAMONIZE_HELP"
-            exit 0
+            echo "########### Dont Install 1942-HAMONIZE_HELP ###########" >>$LOGFILE
+            # exit 0
         fi
     fi
 

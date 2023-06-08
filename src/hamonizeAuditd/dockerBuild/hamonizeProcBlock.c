@@ -199,8 +199,8 @@ static void dump_whole_record(auparse_state_t *au)
 
 		pid_t pidt = atoi(pid);
 		kill(pidt, SIGKILL);
-		syslog(LOG_INFO, "--------------------Failed to kill process with PID %d.\n", pidt);
-
+		syslog(LOG_INFO, "-----===============>>>---------------Failed to kill process with PID %d.\n", pidt);
+syslog(LOG_INFO, "-----------------> Check pid ========commmmm comm: [%s]  \n", comm);
 
 		char command[1024];
 		sprintf(command, "/bin/bash /etc/hamonize/agentJobs/blockNoti '%s'", comm);
