@@ -8,27 +8,41 @@ const packageJson = require('./package.json');
 const baseurl = packageJson.url;
 const { Command } = require('commander');
 const program = new Command();
+// var log = require('./logger');
 
-var log = require('./logger');
 
 // #----------------------------------------------------------------------------##----------------------------------------------------------------------------#
 
-// const log = console.log;
+const log = console.log;
+
+
+
+// (async () => {
+// 	let isRoot = await hamonizeFuns.isCurrentUserRoot();
+// 	if (!isRoot) {
+// 		hamonizeFuns.logErrorMsg('', ' 루트 계정으로 𝓗𝓪𝓶𝓸𝓷𝓲𝔃𝓮  실행해주세요. ex) sudo hamonizeCtl --start')
+// 		process.exit(1)
+// 	}else{
+// 		log = require('./logger');
+// 	}
+// })();
+
 
 if (process.pkg) {
-	log.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-	log.info('@@@@@@@@@@@@@@@@@@  Run as packaged @@@@@@@@@@@@@@@@@@@@@@@@@@');
-	log.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+	log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+	log('@@@@@@@@@@@@@@@@@@  Run as packaged @@@@@@@@@@@@@@@@@@@@@@@@@@');
+	log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 } else {
-	log.info('##############################################################################');
-	log.info('########################## Run by Node.js  ##########################');
-	log.info('##############################################################################');
+	log('##############################################################################');
+	log('########################## Run by Node.js  ##########################');
+	log('##############################################################################');
 }
+
 
 
 program
 	.option('--test')
-	.option('--test3')
+	.option('--init')
 
 	.option('--help')
 
@@ -54,6 +68,17 @@ program
 	.option('--check')
 	.parse();
 
+
+
+	if (program.opts().test) {
+		(async () => {
+			hamonizeCli.aabbcc();
+			// process.exit(1)
+		})();
+	}
+
+	
+
 if (program.opts().backup) {
 	(async () => {
 		hamonizeCli.back();
@@ -73,8 +98,8 @@ if (program.opts().check) {	//	방화벽 관리
 
 
 //	Hamonize Connect Commnad ===========================
-if (program.opts().help) {
-	hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
+if (program.opts().help || typeof process.argv[2] === 'undefined') {
+	// hamonizeFuns.logErrorMsg('', 'Hamonize Program Install Fail')
 	hamonizeFuns.printHelp('hamonize', '1.0')
 	process.exit(1)
 } // =================================================
@@ -94,7 +119,6 @@ if (program.opts().programInstall) {
 	(async () => {
 		console.clear();
 		hamonizeFuns.setbaseurl(baseurl);
-		log.info('baseurl====================', baseurl);
 		hamonizeCli.programInstall();
 	})();
 }
@@ -136,7 +160,6 @@ if (program.opts().progrmblock) {	//	프로그램 차단
 }
 if (program.opts().updt) {	//	프로그램 설치및 삭제
 	(async () => {
-		log.info("프로그램 설치및 삭제")
 		hamonizeFuns.setbaseurl(baseurl);
 		await hamonizeCli.hamonizeAgentFileChk();
 		await hamonizeFuns.setServerInfoConfigProc();
@@ -164,7 +187,6 @@ if (program.opts().devicepolicySend) {	//	비인가 디바이스 정책
 }
 if (program.opts().eqchk) {	//	장비 체크
 	(async () => {
-		log.info("baseurl========"+ baseurl)
 		hamonizeCli.hamonizeAgentFileChk();
 		hamonizeFuns.setbaseurl(baseurl);
 		await hamonizeFuns.setServerInfoConfigProc();
@@ -176,7 +198,17 @@ if (program.opts().eqchk) {	//	장비 체크
 
 if (program.opts().remove) {
 	hamonizeCli.remove()
-	process.exit(1)
+	// process.exit(1)
+}
+
+
+if (program.opts().init) {
+	(async () => {
+		hamonizeFuns.setbaseurl(baseurl);
+		await hamonizeCli.initPcInfo();
+		await hamonizeCli.remove();
+		// process.exit(1)
+	})();
 }
 
 

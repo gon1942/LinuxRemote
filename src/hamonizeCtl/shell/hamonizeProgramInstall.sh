@@ -23,25 +23,25 @@ fi
 
 deviceSettings() {
     retval=-1
-    echo " #### 4. usb protect install #### [start]" >>$LOGFILE
-    echo "$WORK_PATH " >>$LOGFILE
+    # echo " #### usb protect install #### " >>$LOGFILE
+    # echo "$WORK_PATH " >>$LOGFILE
     cd $WORK_PATH/usb-lockdown
-    sudo make install >>$LOGFILE
+    sudo make install >/dev/null
 
-    sudo /etc/init.d/udev restart >>$LOGFILE
+    sudo /etc/init.d/udev restart >/dev/null
 
     sleep 2
-    sudo /etc/init.d/udev status >>$LOGFILE
+    sudo /etc/init.d/udev status >/dev/null
 
     if [ -f /etc/udev/rules.d/30-usb-lockdown.rules ]; then
         retval=0
 
-        echo " #### 4. usb protect install #### [END]- Add Rules File :: $(ls /etc/udev/rules.d/) " >>$LOGFILE
+        # echo " #### 4. usb protect install #### [END]- Add Rules File :: $(ls /etc/udev/rules.d/) " >>$LOGFILE
 
     else
         retval=1
 
-        echo "3. usb protect install Fail  " >>$LOGFILE
+        echo "#### usb protect install Fail ####" >>$LOGFILE
 
         echo "##################################################################" >>$LOGFILE
         echo "####### ERROR] Udev Settings Fail (error-code: 1942-USB)  ####### " >>$LOGFILE
@@ -50,11 +50,11 @@ deviceSettings() {
 
         echo "#----------------------------------------------------------------#" >>$LOGFILE
         echo "#- Chechk Point 1. Install Package [udev] Check ------------------------#" >>$LOGFILE
-        dpkg -l udev >>$LOGFILE
+        # dpkg -l udev >>$LOGFILE
         echo "" >>$LOGFILE
 
         echo "#- Chechk Point 2. Udev Ruls File Check  ------------------------#" >>$LOGFILE
-        echo "$(ls /etc/udev/rules.d/)" >>$LOGFILE
+        # echo "$(ls /etc/udev/rules.d/)" >>$LOGFILE
         echo "" >>$LOGFILE
 
     fi
@@ -64,7 +64,7 @@ deviceSettings() {
 
 osLoginoutSettings() { #---------------------------------------------------##---------------------------------------------------##---------------------------------------------------##---------------------------------------------------#
     retval=-1
-    echo " 5. user loginout install ============== [start]" >>$LOGFILE
+    echo " #### OS User login/out Install ####" >>$LOGFILE
     cp $WORK_PATH/hamonize-logout.service /etc/systemd/system/
     cp $WORK_PATH/hamonize-login.service /etc/systemd/system/
     cp $WORK_PATH/run-script-on-boot.sh /etc/hamonize/
@@ -73,7 +73,7 @@ osLoginoutSettings() { #---------------------------------------------------##---
     systemctl enable hamonize-login >>$LOGFILE
     systemctl enable hamonize-logout >>$LOGFILE
 
-    echo " 5. user loginout install ============== [end]" >>$LOGFILE
+    # echo " 5. user loginout install ============== [end]" >>$LOGFILE
 
     # if [ $(systemctl list-units --type=service --no-pager | grep -e "hamonize-log*" | wc -l) = 2 ]; then
     if [ $(systemctl list-unit-files --type=service | egrep "hamonize-log*" | wc -l) = 2 ]; then
@@ -406,7 +406,7 @@ EOF
     PKG_OK=$(dpkg-query -W --showformat='${Status}\n' ldap-auth-client | grep "install ok installed")
 
     if [ "" = "$PKG_OK" ]; then
-        echo " 8.  Hamonize Ldap Settings &install ============== [Fail-install error]" >>$LOGFILE
+        # echo " 8.  Hamonize Ldap Settings &install ============== [Fail-install error]" >>$LOGFILE
         retval=1
     else
         strBase_ChkFile="/etc/ldap.conf"
@@ -414,16 +414,16 @@ EOF
 
         if [ "$strBase_ChkFile" == "$strTarget_ChkFile" ]; then
             retval=0
-            echo " 8.  Hamonize Ldap Settings &install ============== [END]" >>$LOGFILE
+            # echo " 8.  Hamonize Ldap Settings &install ============== [END]" >>$LOGFILE
         else
-            echo " 8.  Hamonize Ldap Settings &install ============== [Fail-etc]" >>$LOGFILE
+            echo "#### Hamonize Ldap Settings &install ============== [Fail-etc]" >>$LOGFILE
             retval=2
         fi
 
     fi
 
     if [ 0 != "$retval" ]; then
-        echo " 8.  Hamonize Ldap Settings &install ============== [FAIL, $retval ]  >  Error Check LogFile Location is /tmp/hm_ldap.error" >>$LOGFILE
+        echo "#### Hamonize Ldap Settings &install ============== [FAIL, $retval ]  >  Error Check LogFile Location is /tmp/hm_ldap.error" >>$LOGFILE
 
         echo "##################################################################" >>$LOGFILE
         echo "####### ERROR] Ldap Settings Fail (error-code: 1942-ldap)  ####### " >>$LOGFILE
@@ -526,7 +526,7 @@ EOF
 timeshiftSettings() {
 
     retval=-1
-    echo " #### 6.  timeshift install ####  [start]" >>$LOGFILE
+    # echo " #### 6.  timeshift install ####  [start]" >>$LOGFILE
     sudo apt-get install timeshift -y >/dev/null
     PKG_OK=$(dpkg-query -W --showformat='${Status}\n' timeshift | grep "install ok installed")
 
@@ -550,7 +550,7 @@ timeshiftSettings() {
         echo "" >>$LOGFILE
     else
         retval=0
-        echo " ####  timeshift install Success #### " >>$LOGFILE
+        # echo " ####  timeshift install Success #### " >>$LOGFILE
     fi
 
     return $retval
@@ -561,18 +561,18 @@ timeshiftSettings() {
 telegrafSettings() {
     retval=-1
 
-    echo " 6.  telegraf install ============== [start]" >>$LOGFILE
+    # echo "#### Telegraf Install ####" >>$LOGFILE
     #  1. 설치
     wget -P /tmp https://dl.influxdata.com/telegraf/releases/telegraf_1.20.0-1_amd64.deb >>$LOGFILE
     sudo dpkg -i /tmp/telegraf_1.20.0-1_amd64.deb >>$LOGFILE
 
-    echo " 6. telegraf install ============== [end]" >>$LOGFILE
+    # echo " 6. telegraf install ============== [end]" >>$LOGFILE
 
     # 2. 서비스 중지
     sudo service telegraf stop
 
     # 3. 설정
-    echo " 6-1.  telegraf Setting  ============== [start]" >>$LOGFILE
+    # echo "#### Telegraf Setting #### " >>$LOGFILE
     mv /etc/telegraf/telegraf.conf /etc/telegraf/telegraf.conf_bak
 
     # PCUUID=$(cat /etc/hamonize/uuid)
@@ -651,7 +651,7 @@ telegrafSettings() {
 
             retval=1
         else
-            echo " 6-1.  telegraf Setting Success============== [end]" >>$LOGFILE
+            # echo " 6-1.  telegraf Setting Success============== [end]" >>$LOGFILE
             retval=0
         fi
         # 2. 서비스 시작
@@ -687,7 +687,7 @@ add_hamonize_repository() {
     #  Add Hamonize Apt Repository -------------------------------------------------------------------------------------#
     APT_CHK_COUNT=$(find /etc/apt/sources.list.d -name hamonize.list | wc -l)
     if [ ${APT_CHK_COUNT} = 0 ]; then
-        echo "[hamonize apt is not repository....]" >>$LOGFILE
+        # echo "[hamonize apt is not repository....]" >>$LOGFILE
         touch /etc/apt/sources.list.d/hamonize.list
 
         # Hamonize APT
@@ -704,9 +704,7 @@ add_hamonize_repository() {
 }
 
 Init_program_package_chk() {
-    echo
-    echo -e "#### Hamonize Need Package  && UFW  -Check ####" >>$LOGFILE
-    echo
+    
 
     retval=""
     retPackage=""
@@ -723,12 +721,16 @@ Init_program_package_chk() {
         fi
     done
 
+    # echo
+    # echo -e "#### Hamonize Need Package  #### ${#retPackage} " >>$LOGFILE
+    # echo
+
     strSize=${#retPackage}
     if [ $strSize != 0 ]; then
-        echo "Hamonize Need Package Check Boolean : False" >>$LOGFILE
-        echo "Need Install Package List : [ $retPackage ] " >>$LOGFILE
+        # echo "Hamonize Need Package Check Boolean : False" >>$LOGFILE
+        # echo "Need Install Package List : [ $retPackage ] " >>$LOGFILE
         for i in $retPackage; do
-            apt-get install -y $i >/dev/null
+            apt-get install -y $i # >>$LOGFILE # >/dev/null
 
             sleep 1
             echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####" >>$LOGFILE
@@ -739,14 +741,14 @@ Init_program_package_chk() {
 
     # Openssh-server Port Settings
 
-    echo "#-Settings  XRDP--------------------------------------------#" >>$LOGFILE
+    # echo "#-Settings  XRDP--------------------------------------------#" >>$LOGFILE
     useXrdpPort=$(grep '^port=' /etc/xrdp/xrdp.ini | awk -F'=' '{print $2}')
     for ai in $useXrdpPort; do
         chkXrdpPort=$(netstat -an | grep "LISTEN " | grep ":$ai" | wc -l)
         if [ $chkXrdpPort == 1 ]; then
             sed -i 's/port=3389/port=3389,1234/g' /etc/xrdp/xrdp.ini
             sudo ufw allow from any to any port 3389 >/dev/null
-            sudo ufw allow from any to any port 1234 >/dev/null
+            # sudo ufw allow from any to any port 1234 >/dev/null
             sudo ufw reload >/dev/null
         fi
     done
@@ -763,20 +765,20 @@ Init_program_package_chk() {
 
     # sudo sh -c 'echo "Port 22" >> /etc/ssh/sshd_config'
 
-    sudo ufw allow 22 >/dev/null
-    sudo ufw allow 2202 >/dev/null
+    # sudo ufw allow 22 >/dev/null
+    # sudo ufw allow 2202 >/dev/null
     sudo ufw allow ssh >/dev/null
     sudo systemctl restart sshd >/dev/null
     sudo systemctl restart ssh >/dev/null
     sleep 1
-    echo "# Ufw Status-----------------------------------------------#" >>$LOGFILE
-    echo $(ufw status) >>$LOGFILE
+    # echo "# Ufw Status-----------------------------------------------#" >>$LOGFILE
+    # echo $(ufw status) >>$LOGFILE
 
 }
 
 auditdRuls() {
     # hamonize.ruels 파일 생성
-    echo "Hamonize Rules File Create" >>$LOGFILE
+    # echo "Hamonize Rules File Create" >>$LOGFILE
     RULE_FILE="/etc/audit/rules.d/hamonize.rules"
 
     if [ ! -f "$RULE_FILE" ]; then
@@ -785,34 +787,34 @@ auditdRuls() {
 
     # Device Send Log
     if ! grep -e "/etc/hamonize/usblog/usb-unauth.hm" "$RULE_FILE"; then
-        echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb" >>$RULE_FILE
+        echo "-w /etc/hamonize/usblog/usb-unauth.hm -p rwax -k hamonizeUssb"  >> $RULE_FILE >/dev/null
     fi
     # Program Install & remove
     if ! grep -e "/etc/hamonize/runupdt.deb" "$RULE_FILE"; then
-        echo "-w /etc/hamonize/runupdt.deb -p w -k hamonizeUpdt" >>$RULE_FILE
+        echo "-w /etc/hamonize/runupdt.deb -p w -k hamonizeUpdt" >>$RULE_FILE >/dev/null
     fi
     # Program Block
     if ! grep -e "/etc/hamonize/runprogrmblock" "$RULE_FILE"; then
-        echo "-w /etc/hamonize/runprogrmblock -p w -k hamonizeBlock" >>$RULE_FILE
+        echo "-w /etc/hamonize/runprogrmblock -p w -k hamonizeBlock" >>$RULE_FILE >/dev/null
     fi
     # Device
     if ! grep -e "/etc/hamonize/rundevicepolicy" "$RULE_FILE"; then
-        echo "-w /etc/hamonize/rundevicepolicy -p w -k hamonizeDevice" >>$RULE_FILE
+        echo "-w /etc/hamonize/rundevicepolicy -p w -k hamonizeDevice" >>$RULE_FILE >/dev/null
     fi
     # UFW
     if ! grep -e "/etc/hamonize/runufw" "$RULE_FILE"; then
-        echo "-w /etc/hamonize/runufw -p w -k hamonizeUfw" >>$RULE_FILE
+        echo "-w /etc/hamonize/runufw -p w -k hamonizeUfw" >>$RULE_FILE >/dev/null
     fi
     # Recovery
     if ! grep -e "/etc/hamonize/runrecovery" "$RULE_FILE"; then
-        echo "-w /etc/hamonize/runrecovery -p w -k hamonizeRecovery" >>$RULE_FILE
+        echo "-w /etc/hamonize/runrecovery -p w -k hamonizeRecovery" >>$RULE_FILE >/dev/null
     fi
 
 }
 
 InstallHamonizeProgram() {
 
-    echo "#####Hamonize Install Program  Package " >>$LOGFILE
+    # echo "##### Hamonize Install Program  Package  #### " >>$LOGFILE
 
     Param_Install_Used="{\
         \"events\" : [ {\
@@ -829,22 +831,20 @@ InstallHamonizeProgram() {
     PCINIT_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .pc_init_yn' | sed -e "s/\"//g")
     UDEV_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .udev_yn' | sed -e "s/\"//g")
     AUTOLOGIN_USED_YN=$(echo ${ProgramInstallUsed} | jq '. | .auto_login_yn' | sed -e "s/\"//g")
-
-    echo "################ Program Used Status ################" >>$LOGFILE
-    echo "REMOTE Tool Used YN [ $REMOTE_USED_YN ]" >>$LOGFILE
-    echo "LDAP Used YN [  > $LDAP_USED_YN ]" >>$LOGFILE
-    echo "UDEV Used YN [  > $UDEV_USED_YN ]" >>$LOGFILE
-    echo "OS Init Used YN [  > $PCINIT_USED_YN ]" >>$LOGFILE
-    echo "OS AutoLogin Used YN [  > $AUTOLOGIN_USED_YN ]" >>$LOGFILE
-    echo "" >>$LOGFILE
+    echo
+    echo -e "################ Program Used Status ################"
+    echo -e "REMOTE Tool Used YN [ $REMOTE_USED_YN ]" 
+    echo -e "LDAP Used YN [  > $LDAP_USED_YN ]" 
+    echo -e "UDEV Used YN [  > $UDEV_USED_YN ]" 
+    echo -e "OS Init Used YN [  > $PCINIT_USED_YN ]"
+    echo -e "OS AutoLogin Used YN [  > $AUTOLOGIN_USED_YN ]"
+    echo 
 
     #==== AUditd Install -------------------------#
     if dpkg -s auditd >/dev/null 2>&1; then
-        echo "auditd가 설치되어 있습니다."
-
+         echo "auditd가 설치되어 있습니다." > /dev/null
     else
         apt-get install -y auditd audispd-plugins >/dev/null
-
         echo "####==== Install Result ==== $i ] $(dpkg-query -W --showformat='${Status}\n' $i) ####"
     fi
 
@@ -875,7 +875,7 @@ InstallHamonizeProgram() {
 
     #============================================================== Auditd Run File Copy#
     if [ ! -d "/usr/local/hamonize-connect" ]; then
-        echo "/usr/local/hamonize-connect 폴더가 존재하지 않습니다. 폴더를 생성합니다." >>$LOGFILE
+        # echo "/usr/local/hamonize-connect 폴더가 존재하지 않습니다. 폴더를 생성합니다." >>$LOGFILE
         sudo mkdir /usr/local/hamonize-connect
     fi
 
@@ -1076,15 +1076,17 @@ InstallHamonizeProgram() {
         fi
     fi
 
-    sudo ufw allow 11100 >>$LOGFILE
-    sudo ufw allow 11400 >>$LOGFILE
-    sudo ufw allow 22 >>$LOGFILE
-    sudo ufw allow 2202 >>$LOGFILE
+    sudo ufw allow 11100  > /dev/null #>>$LOGFILE
+    sudo ufw allow 11400 > /dev/null #>>$LOGFILE
+    sudo ufw allow 22 > /dev/null #>>$LOGFILE
+    sudo ufw allow 2202 > /dev/null #>>$LOGFILE
+    sudo ufw allow 3389 > /dev/null #>>$LOGFILE
 
+    exit 0
 }
 
 # Add Hamonize Apt Repository
-add_hamonize_repository
+# add_hamonize_repository
 sleep 1
 
 # 필수 프로그램 체크 및 설치

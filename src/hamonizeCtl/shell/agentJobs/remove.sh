@@ -21,6 +21,7 @@ sudo systemctl daemon-reload
 apt-get remove --purge hamonize-help -y
 apt-get remove --purge hamonize-admin -y
 
+
 apt-get remove --purge nscd -y
 apt-get remove --auto-remove ldap-auth-client -y
 sudo apt-get remove --auto-remove --purge ldap-auth-config -y
@@ -45,7 +46,11 @@ done
 apt-get remove --auto-remove --purge telegraf -y
 rm -fr /etc/telegraf
 
-exit 
+apt-get remove --purge auditd -y
+
+
+
+# exit 
 
 
 
@@ -69,7 +74,7 @@ exit
 
 # apt-get remove --purge hamonize-help -y >> /tmp/remove.log
 # apt-get remove --purge hamonize-admin -y    >> /tmp/remove.log
-
+# apt-get remove --purge auditd -y >> /tmp/remove.log
 # apt-get remove --purge nscd -y  >> /tmp/remove.log
 # apt-get remove --auto-remove ldap-auth-client -y >> /tmp/remove.log
 # sudo apt-get remove --auto-remove --purge ldap-auth-config -y >> /tmp/remove.log
@@ -94,4 +99,4 @@ exit
 # apt-get remove --auto-remove --purge telegraf -y >> /tmp/remove.log
 # rm -fr /etc/telegraf    >> /tmp/remove.log
 
-# exit 
+# # exit 

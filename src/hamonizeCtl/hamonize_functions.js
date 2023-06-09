@@ -10,7 +10,7 @@ const { resolve } = require('path');
 // clean : require('./lib/clean.js') 
 
 const log = console.log;
-var logw = require('./logger');
+var logw = console.log;// require('./logger');
 
 var restApiUrl = new Map();
 restApiUrl.set('authchk', '/hmsvc/getOrgAuth');
@@ -76,7 +76,6 @@ async function getOsRunlevel() {
         isOsDisplayYn = "Y";        //  desktop
     }
 
-    log(`isOsDisplay==${isOsDisplayYn}`)
     return isOsDisplayYn;
 } // ======================================================================================================//
 
@@ -237,7 +236,7 @@ exports.hamonize_CmdList = {
     }
     , getBackup: (_msg) => {
         return [
-            { type: 'input', name: 'backupChoise', message: chalk.blue(_msg), default: 'Choice. '},
+            { type: 'input', name: 'backupChoise', message: chalk.blue(_msg), default: 'Choice. ' },
         ];
     }
     // , getBackup: (_data) => {
@@ -317,16 +316,16 @@ exports.addPcInfo = async function (groupname, sabun, username, domain) {
     var md5 = require('md5');
     let hwinfoMD5 = pcHostname + ipinfo.address() + cpuinfoMd5 + diskInfo + diskSerialNum + osinfoKernel + raminfo + machindid;
     let hwData = md5(hwinfoMD5);
-    log("hwData====++"+hwData)
+    // log("hwData====++" + hwData)
     let fileDir = "/etc/hamonize/hwinfo/hwinfo.hm";
     fs.writeFile(fileDir, hwData, (err) => {
         if (err) {
-            log("//== sysInfo hw check create file error  "+ err.message)
+            log("//== sysInfo hw check create file error  " + err.message)
         }
     });
-    
+
     // var vpnip = await vpnCreateTest();
-    
+
     var JsonData = new Object();
     var arrJsonData = new Array();
     JsonData.uuid = machindid;
@@ -410,7 +409,7 @@ exports.vpnCreateChk = async function (winFolderDir) {
             if (err) {
                 return resolve("N");
             }
-            log(`vpnCreateChk output : ${output}`)
+            // log(`vpnCreateChk output : ${output}`)
             if (output.trim() == '0') {
                 return resolve("N");
             } else {
@@ -435,7 +434,6 @@ exports.getOsAccountId = async function () {
 exports.hamonizeProgramInstallProc = async function (domain, userId, osPlaform) {
     return new Promise(function (resolve, reject) {
 
-
         //  os platform & display Mode Check 
         const { exec } = require('child_process')
         tailLogFIle("/var/log/hamonize/propertiesJob/propertiesJob.log")
@@ -451,10 +449,10 @@ exports.hamonizeProgramInstallProc = async function (domain, userId, osPlaform) 
 
         exec(cmd, (err, output) => {
             if (err) {
-                log(`err: ${err}`)
+                // log(`err: ${err}`)
                 return resolve("N");
             }
-            log(`output: ${output}`)
+            // log(`output: ${output}`)
 
             let tmpReturn = output.replace(/(\s*)/g, "");
             if (tmpReturn.search('1942-LDAP') > -1) {
@@ -715,7 +713,7 @@ exports.sysinfoEqchk = async function () {
 
         JsonData.datetime = 'datetime';
 
-        logw.info("hamonizeFunctions--->"+JSON.stringify(JsonData))
+        logw.info("hamonizeFunctions--->" + JSON.stringify(JsonData))
         arrJsonData.push(JsonData);
         return arrJsonData;
     } else {
@@ -776,7 +774,6 @@ exports.updatePcInfo = async function (domain) {
     JsonData.vpnipaddr = vpnipaddr;
     JsonData.hostname = pcHostname.trim();
     arrJsonData.push(JsonData);
-    log(arrJsonData)
     return arrJsonData;
 
 }
