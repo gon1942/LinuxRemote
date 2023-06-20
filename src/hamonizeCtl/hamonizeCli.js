@@ -877,7 +877,7 @@ const jobFiles = [
   { name: 'eqchk', path: './shell/agentJobs/eqchk' },
   { name: 'blockNoti', path: './shell/agentJobs/blockNoti' },
   { name: 'hamonizeProcV2', path: './shell/agentJobs/hamonizeProcV2' },
-  { name: 'hamonizeProcV3', path: './shell/agentJobs/hamonizeProcV3' },
+  { name: 'hamonizeProcBlock', path: './shell/agentJobs/hamonizeProcBlock' },
   { name: 'eqchk', path: './shell/agentJobs/eqchk' },
   { name: 'blockNoti', path: './shell/agentJobs/blockNoti' }
 
@@ -930,6 +930,11 @@ async function copyHamonizeAgentFile() {
     // 파일의 존재 여부 확인
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync('/etc/hamonize/agentJobs/hamonizeProcV2', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/hamonizeProcV2')));
+    }
+    const filePath = '/etc/hamonize/agentJobs/hamonizeProcBlock';
+    // 파일의 존재 여부 확인
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync('/etc/hamonize/agentJobs/hamonizeProcBlock', fs.readFileSync(path.resolve(__dirname, './shell/agentJobs/hamonizeProcBlock')));
     }
 
 

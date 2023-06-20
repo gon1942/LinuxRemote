@@ -86,7 +86,13 @@ sleep 1
 
 echo "$DATETIME ]-------->jq install status \n $(dpkg -l jq)" >>$LOGFILE
 
-CENTERURL="$1/hmsvc/commInfoData"
+# CENTERURL="$1/hmsvc/commInfoData"
+if [ -z "$1" ]; then
+    CENTERURL="http://console.hamonize.com/hmsvc/commInfoData"
+else
+    CENTERURL="$1/hmsvc/commInfoData"
+fi
+
 
 DATA_JSON="{\
         \"events\" : [ {\ 

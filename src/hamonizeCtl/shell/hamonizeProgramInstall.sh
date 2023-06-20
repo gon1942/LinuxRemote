@@ -890,14 +890,16 @@ InstallHamonizeProgram() {
         echo "Processing for auditd version $auditd_major_version" >>$LOGFILE
         # auditd 1.2에 대한 처리를 추가합니다.
         # mv /etc/hamonize/agentJobs/hamonizeProcV2 /usr/local/hamonize-connect/
-        # chown root:root /usr/local/hamonize-connect/hamonizeProcV2
+        # chown root:root /usr/local/hamonize-connect/hamonizeProcV2 
         chown root:root /etc/hamonize/agentJobs/hamonizeProcV2
+        chown root:root /etc/hamonize/agentJobs/hamonizeProcBlock
     elif [ "$auditd_major_version" = "1:3" ]; then
         echo "Processing for auditd version $auditd_major_version" >>$LOGFILE
         # auditd 1.3에 대한 처리를 추가합니다.
         # mv /etc/hamonize/agentJobs/hamonizeProcV3 /usr/local/hamonize-connect/
         # chown root:root /usr/local/hamonize-connect/hamonizeProcV3
         chown root:root /etc/hamonize/agentJobs/hamonizeProcV2
+        chown root:root /etc/hamonize/agentJobs/hamonizeProcBlock
     fi
 
     #===============================================================auditd 폴더 경로
@@ -907,16 +909,21 @@ InstallHamonizeProgram() {
     fi
 
     if [ -d "$AUDITD_PATH/plugins.d" ]; then
-        # Porgram Block Plugin Auditd
-        filepath="$AUDITD_PATH/plugins.d/hamonizePolicy.conf"
+        filepath="$AUDITD_PATH/plugins.d/hamonize.conf"
         content="active = yes\ndirection = out\npath = /etc/hamonize/agentJobs/hamonizeProcV2\ntype = always\nformat = string"
-        # content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
         echo -e "$content" >"$filepath"
+        
+        filepath="$AUDITD_PATH/plugins.d/hamonizePolicy.conf"
+        content="active = yes\ndirection = out\npath = /etc/hamonize/agentJobs/hamonizeProcBlock\ntype = always\nformat = string"
+        echo -e "$content" >"$filepath"
+
     else
-        # Porgram Block Plugin Auditd
         filepath="/etc/audisp/plugins.d/hamonizePolicy.conf"
         content="active = yes\ndirection = out\npath = /etc/hamonize/agentJobs/hamonizeProcV2\ntype = always\nformat = string"
-        # content="active = yes\ndirection = out\npath = /usr/local/hamonize-connect/hamonizeProcV2\ntype = always\nformat = string"
+        echo -e "$content" >"$filepath"
+
+        filepath="/etc/audisp/plugins.d/hamonize.conf"
+        content="active = yes\ndirection = out\npath = /etc/hamonize/agentJobs/hamonizeProcBlock\ntype = always\nformat = string"
         echo -e "$content" >"$filepath"
     fi
 

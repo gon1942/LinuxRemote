@@ -186,7 +186,7 @@ static void dump_whole_record(auparse_state_t *au)
 {
 	const char *keyname;
 	const char *filename = NULL;
-	const char *pid = NULL;
+	const char *pid = NULL; 
 	const char *comm = NULL;
 	pid = auparse_find_field(au, "pid");
 	comm = auparse_find_field(au, "comm");
@@ -274,6 +274,13 @@ static void handle_event(auparse_state_t *au,
 			int ret = system("/bin/bash /etc/hamonize/agentJobs/eqchk");
 			WEXITSTATUS(ret);
 			syslog(LOG_INFO, "--------hamonizeLogin---------ret : %d \n", ret);
+			
+			char command[1024];
+			sprintf(command, "/bin/bash /etc/hamonize/agentJobs/setServerInfo.sh");
+			int retServerInfo = system(command);
+			WEXITSTATUS(retServerInfo);
+			printf("block noti -------ret : %d \n", ret);
+
 
 			break;
 		case AUDIT_ANOM_ABEND:
