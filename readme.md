@@ -29,4 +29,4 @@ ryanProgramBlock.conf
 
 
 
-test
+git cz test
